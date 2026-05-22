@@ -11,11 +11,14 @@ interface ViewState {
 }
 
 export function useView(id: string) {
-  const fileName = new URLSearchParams(window.location.search).get('name') ?? 'filedeadrop'
+  const hash = window.location.hash.slice(1)
+  const separatorIndex = hash.indexOf(':')
+  const keyB64 = separatorIndex !== -1 ? hash.slice(0, separatorIndex) : hash
+  const fileName = separatorIndex !== -1 ? decodeURIComponent(hash.slice(separatorIndex + 1)) : 'filedeadrop'
+
   const [state, setState] = useState<ViewState>({ status: 'loading', fileUrl: null, fileName, error: null })
 
   useEffect(() => {
-    const keyB64 = window.location.hash.slice(1)
     if (!keyB64) {
       setState({ status: 'error', fileUrl: null, fileName, error: 'Invalid link — encryption key missing' })
       return

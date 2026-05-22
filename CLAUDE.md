@@ -41,6 +41,9 @@ VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
 
 Never hardcode these values. Always reference via import.meta.env
 
+## Documentation
+After completing any task, update CLAUDE.md and README.md if the work affects the accuracy or completeness of either document — this includes API changes, new files or directories, architectural decisions, changed conventions, or updated project status.
+
 ## Conventions
 - TypeScript strict mode
 - Functional components only, no class components
@@ -48,14 +51,14 @@ Never hardcode these values. Always reference via import.meta.env
 - All API calls in src/utils/api.ts, never inline in components
 - All encryption/decryption logic lives in src/utils/crypto.ts
 - View page extracts :id from the URL path param and passes it to GET /view/{id}
-- Share URL format: {origin}/view/{id}?name={filename}#{base64url-key} — key in fragment, filename in query param
+- Share URL format: {origin}/view/{id}#{base64url-key}:{encoded-filename} — both key and filename in fragment, nothing sensitive in query params
 - Use Uint8Array<ArrayBuffer> (not ArrayBufferLike) for BodyInit compatibility with TypeScript 6
 
 ## Key Architecture Decisions
 - Encryption key passed in URL fragment (#) never query params
 - AES-GCM-256 encryption; IV (12 bytes) prepended to ciphertext — first 12 bytes are always the IV
 - Key exported as base64url (URL-safe, no padding) for the fragment
-- Original filename passed as ?name= query param so view page can name the download correctly
+- Original filename encoded in the URL fragment after the key, separated by `:` — never sent to any server
 - File bytes never touch Lambda, go direct to S3 via presigned URL
 - DynamoDB conditional delete with ReturnValues ALL_OLD handles race conditions on view
 - S3 lifecycle policy handles post access file cleanup, DynamoDB conditional delete is the access control gate

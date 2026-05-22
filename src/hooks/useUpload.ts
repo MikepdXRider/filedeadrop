@@ -23,7 +23,7 @@ export function useUpload() {
       const encryptedBytes = await encryptFile(file, key)
       const { presignedUrl, sharePath } = await requestUpload(file.size, DEFAULT_REGION)
       const keyB64 = await exportKeyToBase64(key)
-      const finalUrl = `${window.location.origin}${sharePath}?name=${encodeURIComponent(file.name)}#${keyB64}`
+      const finalUrl = `${window.location.origin}${sharePath}#${keyB64}:${encodeURIComponent(file.name)}`
       console.log(finalUrl)
       setState({ status: 'uploading', shareUrl: null, error: null })
       await uploadToS3(presignedUrl, encryptedBytes)
