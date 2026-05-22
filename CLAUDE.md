@@ -56,7 +56,7 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 
 ## Key Architecture Decisions
 - Encryption key passed in URL fragment (#) never query params
-- AES-GCM-256 encryption; IV (12 bytes) prepended to ciphertext — first 12 bytes are always the IV
+- AES-GCM-128 encryption; IV (12 bytes) prepended to ciphertext — first 12 bytes are always the IV
 - Key exported as base64url (URL-safe, no padding) for the fragment
 - Original filename encoded in the URL fragment after the key, separated by `:` — never sent to any server
 - File bytes never touch Lambda, go direct to S3 via presigned URL

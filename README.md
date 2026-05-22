@@ -10,7 +10,7 @@ Files are encrypted entirely in the browser before upload. The encryption key ne
 
 ### Upload
 
-1. The browser generates an AES-GCM-256 key using the Web Crypto API
+1. The browser generates an AES-GCM-128 key using the Web Crypto API
 2. The file is encrypted client-side; the IV is prepended to the ciphertext
 3. The client requests a presigned S3 URL from the API
 4. The encrypted bytes are uploaded directly to S3 — they never pass through the application server
@@ -64,7 +64,7 @@ No accounts, sessions, or cookies. The share link is the only credential.
 |---|---|
 | Frontend | React 19, TypeScript ~6.0, Vite |
 | Routing | React Router DOM v7 |
-| Encryption | Web Crypto API (AES-GCM-256) |
+| Encryption | Web Crypto API (AES-GCM-128) |
 | Backend | AWS Lambda (Node.js) |
 | API | AWS API Gateway (HTTP API) |
 | Storage | Amazon S3 |
