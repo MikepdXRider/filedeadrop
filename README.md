@@ -1,73 +1,92 @@
-# React + TypeScript + Vite
+# FileDeadrop
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A one-time, end-to-end encrypted file sharing service. Upload a file, receive a share link, and the file is permanently deleted after the first access or 24 hours — whichever comes first.
 
-Currently, two official plugins are available:
+Files are encrypted entirely in the browser before upload. The encryption key never leaves the client and is never transmitted to any server.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## How It Works
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Upload
 
-## Expanding the ESLint configuration
+1. The browser generates an AES-GCM-256 key using the Web Crypto API
+2. The file is encrypted client-side; the IV is prepended to the ciphertext
+3. The client requests a presigned S3 URL from the API
+4. The encrypted bytes are uploaded directly to S3 — they never pass through the application server
+5. The encryption key is encoded as base64url and embedded in the share URL fragment (`#key`)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### View
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. The recipient opens the share link; the browser extracts the share ID from the URL path and the encryption key from the URL fragment
+2. The client calls the API, which atomically deletes the DynamoDB record and returns a presigned S3 GET URL — this is the one-time access gate
+3. The encrypted file is fetched directly from S3
+4. The browser decrypts the file using the key from the fragment and offers it for download
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Because the key lives exclusively in the URL fragment, it is never sent to any server in any request.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Architecture
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### System
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+![System Architecture](architecture/filedeadrop-system-architecture.drawio.png)
+
+### Sequences
+
+![Upload and View Sequences](architecture/filedeadrop-sequences.drawio.png)
+
+---
+
+## Key Technical Decisions
+
+**Encryption key in the URL fragment**
+URL fragments (`#`) are never included in HTTP requests. Placing the key there means it is invisible to the API, S3, CloudFront, and any server-side logs — even if traffic were intercepted at the network layer.
+
+**Direct S3 transfer via presigned URLs**
+File bytes flow directly between the browser and S3. The Lambda function handles only metadata — issuing presigned URLs and writing to DynamoDB — which keeps Lambda costs low and removes it as a bottleneck for large files.
+
+**DynamoDB conditional delete as the access gate**
+The view Lambda performs a conditional `DeleteItem` with `ReturnValues: ALL_OLD`. If the item no longer exists (already accessed or expired), the delete fails and the Lambda returns an error — preventing any race condition where two simultaneous requests could both retrieve the file.
+
+**S3 lifecycle policy for TTL**
+A 24-hour S3 lifecycle rule handles object expiry independently of application logic, ensuring files are cleaned up even if the DynamoDB record is deleted before the object is accessed.
+
+**Anonymous access**
+No accounts, sessions, or cookies. The share link is the only credential.
+
+---
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript ~6.0, Vite |
+| Routing | React Router DOM v7 |
+| Encryption | Web Crypto API (AES-GCM-256) |
+| Backend | AWS Lambda (Node.js) |
+| API | AWS API Gateway (HTTP API) |
+| Storage | Amazon S3 |
+| Database | Amazon DynamoDB |
+| CDN / Hosting | Amazon CloudFront |
+| DNS / TLS | Route 53, ACM |
+
+---
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Set the API base URL
+cp .env.example .env
+# Edit .env and set VITE_API_URL=https://api.filedeadrop.com
+
+# Start the dev server
+npm run dev
+
+# Type check and build
+npm run build
 ```
