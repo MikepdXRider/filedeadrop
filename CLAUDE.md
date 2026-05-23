@@ -20,6 +20,8 @@ src/
   utils/       # api.ts, crypto.ts, constants.ts
   types/       # index.ts
 architecture/  # draw.io sequence and systems architecture diagrams in PNG format
+.github/
+  workflows/   # deploy.yml — build and deploy to S3 + CloudFront on push to main
 
 ## API
 Base URL: import.meta.env.VITE_API_URL
@@ -44,6 +46,19 @@ VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
 
 Never hardcode these values. Always reference via import.meta.env
 
+## Deployment
+Workflow: `.github/workflows/deploy.yml` — triggers on push to `main`.
+
+Steps: `npm ci` → `npm run build` → S3 sync (`--delete`) → CloudFront invalidation (`/*`)
+
+Authentication: OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
+
+Required GitHub secrets:
+- `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC
+- `S3_BUCKET_NAME` — destination S3 bucket name
+- `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after deploy
+- `VITE_API_URL` — injected at build time
+
 ## Documentation
 After completing any task, update CLAUDE.md and README.md if the work affects the accuracy or completeness of either document — this includes API changes, new files or directories, architectural decisions, changed conventions, or updated project status.
 
@@ -56,6 +71,7 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 - View page extracts :id from the URL path param and passes it to GET /view/{id}
 - Share URL format: {origin}/view/{id}#{base64url-key}:{encoded-filename} — both key and filename in fragment, nothing sensitive in query params
 - Use Uint8Array<ArrayBuffer> (not ArrayBufferLike) for BodyInit compatibility with TypeScript 6
+- Default AWS region: us-west-2
 
 ## Key Architecture Decisions
 - Encryption key passed in URL fragment (#) never query params
@@ -87,6 +103,7 @@ Completed:
 - React frontend scaffold
 - Home page upload sequence (browser verified)
 - View shared link page — /view/:id with client-side decryption (browser verified)
+- GitHub Actions deploy pipeline (OIDC → S3 sync → CloudFront invalidation)
 
 In Progress:
 - CloudFront setup

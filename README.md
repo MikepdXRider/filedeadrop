@@ -90,3 +90,24 @@ npm run dev
 # Type check and build
 npm run build
 ```
+
+---
+
+## Deployment
+
+Push to `main` triggers the GitHub Actions deploy pipeline:
+
+1. `npm ci` + `npm run build` (with `VITE_API_URL` injected at build time)
+2. `aws s3 sync dist/ s3://<bucket> --delete`
+3. CloudFront invalidation (`/*`) to serve the fresh build immediately
+
+Authentication uses OIDC (`aws-actions/configure-aws-credentials`) — no long-lived AWS credentials are stored in GitHub.
+
+**Required GitHub secrets**
+
+| Secret | Description |
+|---|---|
+| `AWS_ROLE_ARN` | IAM role assumed by the workflow via OIDC |
+| `S3_BUCKET_NAME` | Destination S3 bucket |
+| `CLOUDFRONT_DISTRIBUTION_ID` | Distribution invalidated after each deploy |
+| `VITE_API_URL` | API base URL injected at build time |
