@@ -21,6 +21,10 @@ export async function uploadToS3(presignedUrl: string, encryptedBytes: Uint8Arra
   if (!res.ok) throw new Error(`S3 upload failed: ${res.status}`)
 }
 
+export async function requestCleanup(id: string): Promise<void> {
+  await fetch(`${BASE_URL}/delete/${id}`, { method: 'DELETE' })
+}
+
 export async function requestView(id: string): Promise<{ presignedUrl: string }> {
   const res = await fetch(`${BASE_URL}/view/${id}`, {
     headers: { 'Content-Type': 'application/json' },

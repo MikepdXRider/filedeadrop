@@ -36,6 +36,9 @@ PUT /upload
 GET /view/{id}
   returns: { presignedUrl: string }
 
+DELETE /delete/{id}
+  triggers Lambda to delete the S3 object; called client-side after encrypted bytes are in memory
+
 ## Environment Variables
 VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
 
