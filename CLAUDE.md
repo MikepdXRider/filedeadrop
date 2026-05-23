@@ -104,9 +104,7 @@ Completed:
 - Home page upload sequence (browser verified)
 - View shared link page — /view/:id with client-side decryption (browser verified)
 - GitHub Actions deploy pipeline (OIDC → S3 sync → CloudFront invalidation)
-
-In Progress:
-- CloudFront setup
+- CloudFront setup (custom domain, SPA 404→index.html error page)
 
 Up Next:
 - Design / polish pass
