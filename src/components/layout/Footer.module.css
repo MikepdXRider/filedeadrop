@@ -15,7 +15,7 @@
 
 .tagline {
   font-size: 12px;
-  color: #CACAC6;
+  color: var(--color-dim);
 }
 
 @media (max-width: 600px) {

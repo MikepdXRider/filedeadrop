@@ -1,7 +1,7 @@
 .strip {
   display: flex;
   border-top: 1px solid var(--color-border);
-  background: #ECECEA;
+  background: var(--color-gutter);
 }
 
 .item {

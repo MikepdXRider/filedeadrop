@@ -49,11 +49,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px dashed #CACAC6;
+  border: 1px dashed var(--color-dim);
   border-radius: 4px;
   padding: 52px 32px;
   text-align: center;
-  background: #F0F0EE;
+  background: var(--color-inset);
   margin-bottom: 28px;
 }
 

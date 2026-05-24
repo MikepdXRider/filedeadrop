@@ -4,7 +4,10 @@
   --color-text:      #111111;
   --color-secondary: #666666;
   --color-muted:     #BABAB4;
+  --color-dim:       #CACAC6;
   --color-border:    #DDDDD8;
+  --color-inset:     #F0F0EE;
+  --color-gutter:    #ECECEA;
 }
 
 *, *::before, *::after {

@@ -27,12 +27,12 @@
 .number {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #CACAC6;
+  color: var(--color-dim);
   border-right: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ECECEA;
+  background: var(--color-gutter);
 }
 
 .body {
