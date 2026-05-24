@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import View from './pages/View'
 import NotFound from './pages/NotFound'
 import Header from './components/layout/Header'
+import Footer from './components/layout/Footer'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/view/:id" element={<View />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Footer />
     </>
   )
 }
