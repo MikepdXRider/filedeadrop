@@ -1,25 +1,25 @@
 import { useUpload } from '../hooks/useUpload'
-import FileDropZone from '../components/FileDropZone'
-import UploadStatus from '../components/UploadStatus'
-import ShareUrlDisplay from '../components/ShareUrlDisplay'
 import DefinitionBlock from '../components/home/DefinitionBlock'
+import UploadCard from '../components/home/UploadCard'
+import ProtocolSteps from '../components/home/ProtocolSteps'
 
 export default function Home() {
-  const { status, shareUrl, error, handleFileSelect, reset } = useUpload()
+  const { status, file, shareUrl, error, handleFileSelect, handleUpload, reset } = useUpload()
 
   return (
     <main>
       <DefinitionBlock />
       <hr />
-      {status === 'idle' && (
-        <FileDropZone onFileSelect={handleFileSelect} disabled={false} />
-      )}
-      {(status === 'encrypting' || status === 'uploading' || status === 'error') && (
-        <UploadStatus status={status} error={error} />
-      )}
-      {status === 'done' && shareUrl && (
-        <ShareUrlDisplay shareUrl={shareUrl} onReset={reset} />
-      )}
+      <UploadCard
+        status={status}
+        file={file}
+        shareUrl={shareUrl}
+        error={error}
+        onFileSelect={handleFileSelect}
+        onUpload={handleUpload}
+        onReset={reset}
+      />
+      <ProtocolSteps />
     </main>
   )
 }

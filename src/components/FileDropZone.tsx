@@ -1,9 +1,12 @@
+import styles from './FileDropZone.module.css'
+
 interface FileDropZoneProps {
   onFileSelect: (file: File) => void
   disabled: boolean
+  selectedFile?: File | null
 }
 
-export default function FileDropZone({ onFileSelect, disabled }: FileDropZoneProps) {
+export default function FileDropZone({ onFileSelect, disabled, selectedFile }: FileDropZoneProps) {
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
   }
@@ -21,9 +24,20 @@ export default function FileDropZone({ onFileSelect, disabled }: FileDropZonePro
   }
 
   return (
-    <label onDragOver={handleDragOver} onDrop={handleDrop}>
+    <label className={styles.dropzone} onDragOver={handleDragOver} onDrop={handleDrop}>
       <input type="file" disabled={disabled} onChange={handleChange} style={{ display: 'none' }} />
-      Drop a file here or click to select
+      {selectedFile ? (
+        <>
+          <span className={styles.primary}>{selectedFile.name}</span>
+          <span className={styles.secondary}>click or drop to change</span>
+        </>
+      ) : (
+        <>
+          <span className={styles.primary}>Drop a file here</span>
+          <span className={styles.secondary}>or click to browse</span>
+          <span className={styles.limit}>100MB maximum · Any file type</span>
+        </>
+      )}
     </label>
   )
 }

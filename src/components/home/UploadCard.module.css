@@ -1,0 +1,82 @@
+.wrap {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.inner {
+  padding: 36px;
+}
+
+@media (max-width: 480px) {
+  .inner {
+    padding: 28px;
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.button {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-bg);
+  background: var(--color-text);
+  border: none;
+  border-radius: 4px;
+  padding: 10px 22px;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 150ms ease-out;
+}
+
+.button:hover:not(:disabled) {
+  background: #333;
+}
+
+.button:disabled {
+  background: var(--color-muted);
+  cursor: default;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px dashed #CACAC6;
+  border-radius: 4px;
+  padding: 52px 32px;
+  text-align: center;
+  background: #F0F0EE;
+  margin-bottom: 28px;
+}
+
+.panelClickable {
+  cursor: pointer;
+}
+
+.panelPrimary {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.panelSecondary {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.panelUrl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--color-text);
+  word-break: break-all;
+  margin-bottom: 6px;
+}
