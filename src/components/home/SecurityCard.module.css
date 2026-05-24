@@ -20,7 +20,7 @@
 .title {
   font-size: 18px;
   font-weight: 600;
-  color: #F3F3F1;
+  color: var(--color-bg);
   line-height: 1.4;
   margin-bottom: 20px;
 }
