@@ -2,6 +2,7 @@ import { useUpload } from '../hooks/useUpload'
 import DefinitionBlock from '../components/home/DefinitionBlock'
 import UploadCard from '../components/home/UploadCard'
 import ProtocolSteps from '../components/home/ProtocolSteps'
+import CapabilitiesSection from '../components/home/CapabilitiesSection'
 
 export default function Home() {
   const { status, file, shareUrl, error, handleFileSelect, handleUpload, reset } = useUpload()
@@ -20,6 +21,7 @@ export default function Home() {
         onReset={reset}
       />
       <ProtocolSteps />
+      <CapabilitiesSection />
     </main>
   )
 }
