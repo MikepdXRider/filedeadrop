@@ -31,11 +31,11 @@ Because the key lives exclusively in the URL fragment, it is never sent to any s
 
 ### System
 
-![System Architecture](architecture/filedeadrop-system-architecture.drawio.png)
+![System Architecture](docs/architecture/filedeadrop-system-architecture.drawio.png)
 
 ### Sequences
 
-![Upload and View Sequences](architecture/filedeadrop-sequences.drawio.png)
+![Upload and View Sequences](docs/architecture/filedeadrop-sequences.drawio.png)
 
 ---
 

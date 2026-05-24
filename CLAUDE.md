@@ -25,7 +25,9 @@ src/
   utils/       # api.ts, crypto.ts, constants.ts
   types/       # index.ts
 DESIGN.md      # visual design spec — colors, typography, spacing rules
-architecture/  # draw.io sequence and systems architecture diagrams in PNG format
+docs/
+  architecture/  # draw.io system architecture and sequence diagrams (PNG)
+  filedeadrop_inter_mockup.html  # HTML mockup of the home page design
 .github/
   workflows/   # deploy.yml — build and deploy to S3 + CloudFront on push to main
 
@@ -64,6 +66,12 @@ Required GitHub secrets:
 - `S3_BUCKET_NAME` — destination S3 bucket name
 - `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after deploy
 - `VITE_API_URL` — injected at build time
+
+## Reference Material
+The `docs/` directory contains reference artifacts — consult them for context when needed:
+- `docs/architecture/` — system architecture and sequence diagrams; useful for understanding data flow, Lambda interactions, and the upload/view lifecycle
+- `docs/filedeadrop_inter_mockup.html` — HTML mockup of the home page; reference for component structure, copy, and intended visual layout
+- `DESIGN.md` — color palette, typography, spacing rules, and CSS constraints
 
 ## Documentation
 After completing any task, update CLAUDE.md and README.md if the work affects the accuracy or completeness of either document — this includes API changes, new files or directories, architectural decisions, changed conventions, or updated project status.
