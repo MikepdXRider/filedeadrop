@@ -1,4 +1,5 @@
 import styles from './FaqSection.module.css'
+import SectionLabel from './SectionLabel'
 
 const faqs = [
   {
@@ -26,7 +27,7 @@ const faqs = [
 export default function FaqSection() {
   return (
     <section className={styles.section}>
-      <div className={styles.sectionLabel}>FAQ</div>
+      <SectionLabel>FAQ</SectionLabel>
       <div className={styles.faq}>
         {faqs.map(({ q, a }) => (
           <div key={q} className={styles.row}>

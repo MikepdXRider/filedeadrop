@@ -1,9 +1,10 @@
 import styles from './SecurityCard.module.css'
+import SectionLabel from './SectionLabel'
 
 export default function SecurityCard() {
   return (
     <section className={styles.section}>
-      <div className={styles.sectionLabel}>Security posture</div>
+      <SectionLabel>Security posture</SectionLabel>
       <div className={styles.card}>
         <div className={styles.label}>Zero-knowledge architecture</div>
         <div className={styles.title}>

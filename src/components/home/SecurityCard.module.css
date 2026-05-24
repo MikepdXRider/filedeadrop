@@ -2,14 +2,6 @@
   padding: 0 0 96px;
 }
 
-.sectionLabel {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  margin-bottom: 48px;
-}
-
 .card {
   background: #111111;
   border-radius: 6px;

@@ -2,14 +2,6 @@
   padding: 96px 0;
 }
 
-.label {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  margin-bottom: 48px;
-}
-
 .steps {
   display: flex;
   flex-direction: column;

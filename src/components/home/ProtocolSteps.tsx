@@ -1,4 +1,5 @@
 import styles from './ProtocolSteps.module.css'
+import SectionLabel from './SectionLabel'
 
 const steps = [
   {
@@ -21,7 +22,7 @@ const steps = [
 export default function ProtocolSteps() {
   return (
     <section className={styles.section}>
-      <div className={styles.label}>Protocol</div>
+      <SectionLabel>Protocol</SectionLabel>
       <div className={styles.steps}>
         {steps.map(({ n, title, desc }) => (
           <div key={n} className={styles.step}>

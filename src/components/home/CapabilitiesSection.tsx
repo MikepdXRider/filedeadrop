@@ -1,4 +1,5 @@
 import styles from './CapabilitiesSection.module.css'
+import SectionLabel from './SectionLabel'
 
 const features = [
   {
@@ -26,7 +27,7 @@ const features = [
 export default function CapabilitiesSection() {
   return (
     <section className={styles.section}>
-      <div className={styles.label}>Capabilities</div>
+      <SectionLabel>Capabilities</SectionLabel>
       <div className={styles.features}>
         {features.map(({ title, desc }) => (
           <div key={title}>
