@@ -5,7 +5,6 @@
   --color-secondary: #666666;
   --color-muted:     #BABAB4;
   --color-border:    #DDDDD8;
-  --color-accent:    #111111;
 }
 
 *, *::before, *::after {
@@ -51,7 +50,7 @@ p {
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--color-text);
 }
 
 code {
