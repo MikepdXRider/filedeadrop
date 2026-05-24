@@ -10,7 +10,7 @@
   padding: 36px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .inner {
     padding: 28px;
   }

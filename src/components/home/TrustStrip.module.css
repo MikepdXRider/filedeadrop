@@ -23,7 +23,7 @@
   border-right: none;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .item {
     font-size: 9px;
     padding: 10px 6px;
