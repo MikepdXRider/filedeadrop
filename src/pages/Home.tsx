@@ -4,6 +4,7 @@ import UploadCard from '../components/home/UploadCard'
 import ProtocolSteps from '../components/home/ProtocolSteps'
 import CapabilitiesSection from '../components/home/CapabilitiesSection'
 import SecurityCard from '../components/home/SecurityCard'
+import FaqSection from '../components/home/FaqSection'
 
 export default function Home() {
   const { status, file, shareUrl, error, handleFileSelect, handleUpload, reset } = useUpload()
@@ -24,6 +25,7 @@ export default function Home() {
       <ProtocolSteps />
       <CapabilitiesSection />
       <SecurityCard />
+      <FaqSection />
     </main>
   )
 }
