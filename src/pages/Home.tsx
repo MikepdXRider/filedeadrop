@@ -2,13 +2,15 @@ import { useUpload } from '../hooks/useUpload'
 import FileDropZone from '../components/FileDropZone'
 import UploadStatus from '../components/UploadStatus'
 import ShareUrlDisplay from '../components/ShareUrlDisplay'
+import DefinitionBlock from '../components/home/DefinitionBlock'
 
 export default function Home() {
   const { status, shareUrl, error, handleFileSelect, reset } = useUpload()
 
   return (
     <main>
-      <h1>filedeadrop</h1>
+      <DefinitionBlock />
+      <hr />
       {status === 'idle' && (
         <FileDropZone onFileSelect={handleFileSelect} disabled={false} />
       )}
