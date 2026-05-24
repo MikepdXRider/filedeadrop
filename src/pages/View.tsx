@@ -13,7 +13,6 @@ export default function View() {
 
   return (
     <main>
-      <h1>filedeadrop</h1>
       {status === 'loading' && <p>Fetching file...</p>}
       {status === 'decrypting' && <p>Decrypting...</p>}
       {status === 'done' && fileUrl && (
