@@ -1,24 +1,32 @@
-import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useView } from '../hooks/useView'
+import ViewCard from '../components/view/ViewCard'
 
 export default function View() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { status, fileUrl, fileName } = useView(id ?? '')
+  const { status, fileUrl, fileName, fileSize } = useView(id ?? '')
+  const [downloaded, setDownloaded] = useState(false)
 
-  useEffect(() => {
-    if (status === 'error') navigate('/not-found', { replace: true })
-  }, [status, navigate])
+  const handleDownload = () => {
+    if (!fileUrl) return
+    const a = document.createElement('a')
+    a.href = fileUrl
+    a.download = fileName
+    a.click()
+    setDownloaded(true)
+  }
 
   return (
     <main>
-      <h1>filedeadrop</h1>
-      {status === 'loading' && <p>Fetching file...</p>}
-      {status === 'decrypting' && <p>Decrypting...</p>}
-      {status === 'done' && fileUrl && (
-        <a href={fileUrl} download={fileName}>Download {fileName}</a>
-      )}
+      <ViewCard
+        status={status}
+        fileName={fileName}
+        fileSize={fileSize}
+        fileUrl={fileUrl}
+        downloaded={downloaded}
+        onDownload={handleDownload}
+      />
     </main>
   )
 }

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #F3F3F1;
+  color: #111;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 100%; }
+
+.header {
+  border-bottom: 1px solid #DDDDD8;
+  padding: 0 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F3F3F1;
+}
+.wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: #111; }
+.header-note { font-size: 12px; color: #BABAB4; }
+
+.col { max-width: 720px; margin: 0 auto; padding: 0 48px; }
+
+.hero { padding-top: 112px; padding-bottom: 96px; }
+
+.definition-block { margin-bottom: 64px; }
+.def-word { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 2px; font-family: 'JetBrains Mono', monospace; }
+.def-pronunciation { font-size: 12px; color: #BABAB4; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+.def-pos { font-size: 11px; color: #BABAB4; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.def-text {
+  font-size: 17px;
+  color: #444;
+  line-height: 1.8;
+  padding-left: 20px;
+  border-left: 2px solid #DDDDD8;
+  max-width: 560px;
+}
+
+.hero-rule { border: none; border-top: 1px solid #DDDDD8; margin-bottom: 48px; }
+
+.upload-wrap {
+  border: 1px solid #DDDDD8;
+  border-radius: 6px;
+  background: #FAFAF8;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.upload-inner { padding: 36px; }
+
+.dropzone {
+  border: 1px dashed #CACAC6;
+  border-radius: 4px;
+  padding: 52px 32px;
+  text-align: center;
+  background: #F0F0EE;
+  margin-bottom: 28px;
+  cursor: pointer;
+}
+.drop-primary { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 6px; }
+.drop-secondary { font-size: 13px; color: #BABAB4; margin-bottom: 20px; }
+.drop-limit {
+  font-size: 11px;
+  color: #CACAC6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-top: 20px;
+  border-top: 1px solid #E2E2DE;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.upload-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.region-group { display: flex; align-items: center; gap: 10px; }
+.region-label { font-size: 11px; color: #BABAB4; letter-spacing: 0.08em; text-transform: uppercase; }
+.region-select {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #111;
+  background: #FAFAF8;
+  border: 1px solid #DDDDD8;
+  border-radius: 4px;
+  padding: 7px 28px 7px 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23BABAB4' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+
+.btn-primary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #F3F3F1;
+  background: #111;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 22px;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 150ms ease-out;
+}
+.btn-primary:hover { background: #333; }
+
+.trust-strip {
+  display: flex;
+  border-top: 1px solid #DDDDD8;
+  background: #ECECEA;
+}
+.trust-item {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #BABAB4;
+  text-align: center;
+  border-right: 1px solid #DDDDD8;
+  font-family: 'JetBrains Mono', monospace;
+}
+.trust-item:last-child { border-right: none; }
+
+.section { padding: 96px 0; }
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #BABAB4;
+  margin-bottom: 48px;
+}
+
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  border: 1px solid #DDDDD8;
+  border-bottom: none;
+  background: #FAFAF8;
+}
+.step:first-child { border-radius: 6px 6px 0 0; }
+.step:last-child { border-bottom: 1px solid #DDDDD8; border-radius: 0 0 6px 6px; }
+.step-n {
+  font-size: 11px;
+  color: #CACAC6;
+  border-right: 1px solid #DDDDD8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ECECEA;
+  font-family: 'JetBrains Mono', monospace;
+}
+.step-body { padding: 24px 28px; }
+.step-title { font-size: 13px; font-weight: 600; color: #111; margin-bottom: 6px; letter-spacing: 0.01em; }
+.step-desc { font-size: 14px; color: #666; line-height: 1.75; }
+
+.features { display: flex; flex-direction: column; gap: 40px; }
+.feature {}
+.feature-title { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 8px; }
+.feature-desc { font-size: 14px; color: #666; line-height: 1.8; max-width: 540px; }
+
+.security {
+  background: #111;
+  border-radius: 6px;
+  padding: 48px;
+}
+.sec-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sec-title { font-size: 18px; font-weight: 600; color: #F3F3F1; margin-bottom: 20px; line-height: 1.4; }
+.sec-body { font-size: 14px; color: #777; line-height: 2.0; }
+
+.faq { display: flex; flex-direction: column; gap: 0; }
+.faq-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 48px;
+  padding: 28px 0;
+  border-bottom: 1px solid #E8E8E4;
+}
+.faq-row:first-child { border-top: 1px solid #E8E8E4; }
+.faq-q { font-size: 13px; font-weight: 500; color: #111; line-height: 1.7; }
+.faq-a { font-size: 13px; color: #666; line-height: 1.8; }
+
+.footer {
+  border-top: 1px solid #DDDDD8;
+  padding: 28px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-mark { font-size: 12px; font-weight: 600; color: #BABAB4; letter-spacing: -0.01em; }
+.footer-links { display: flex; gap: 28px; }
+.footer-link { font-size: 12px; color: #BABAB4; text-decoration: none; }
+.footer-tag { font-size: 12px; color: #CACAC6; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <span class="wordmark">filedeadrop</span>
+    <span class="header-note">Pro — coming soon</span>
+  </div>
+
+  <div class="col">
+    <div class="hero">
+
+      <div class="definition-block">
+        <div class="def-word">dead drop</div>
+        <div class="def-pronunciation">/ded drɒp/</div>
+        <div class="def-pos">noun</div>
+        <div class="def-text">
+          A prearranged location used to pass items or information between two parties without direct contact. Once retrieved, no record of the exchange remains.
+        </div>
+      </div>
+
+      <hr class="hero-rule">
+
+      <div class="upload-wrap">
+        <div class="upload-inner">
+          <div class="dropzone">
+            <div class="drop-primary">Drop a file here</div>
+            <div class="drop-secondary">or click to browse</div>
+            <div class="drop-limit">100MB maximum · Any file type</div>
+          </div>
+          <div class="upload-controls">
+            <div class="region-group">
+              <span class="region-label">Region</span>
+              <select class="region-select">
+                <option>US-EAST</option>
+                <option>EU-WEST</option>
+                <option>AP-SOUTH</option>
+              </select>
+            </div>
+            <button class="btn-primary">Generate link →</button>
+          </div>
+        </div>
+        <div class="trust-strip">
+          <div class="trust-item">E2E encrypted</div>
+          <div class="trust-item">One-time access</div>
+          <div class="trust-item">Expires 24h</div>
+          <div class="trust-item">Zero knowledge</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Protocol</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">01</div>
+          <div class="step-body">
+            <div class="step-title">Upload</div>
+            <div class="step-desc">Your file is encrypted in your browser before upload. The encryption key never touches our servers — it exists only in your share link.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">02</div>
+          <div class="step-body">
+            <div class="step-title">Transmit</div>
+            <div class="step-desc">Copy your one-time link and deliver it to your recipient through any channel you choose.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">03</div>
+          <div class="step-body">
+            <div class="step-title">Destroy</div>
+            <div class="step-desc">The moment your recipient opens the link the file is downloaded and permanently deleted. No recovery. No second access. No trace.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="section" style="padding-top: 0;">
+      <div class="section-label">Capabilities</div>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-title">End-to-end encrypted</div>
+          <div class="feature-desc">Encrypted in your browser before upload. The key exists only in the share link. We cannot read your files. Nobody can.</div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">One-time access</div>
+          <div class="feature-desc">The link works exactly once. After retrieval the file is permanently deleted — not archived, not recoverable.</div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">No account required</div>
+          <div class="feature-desc">Upload and transmit without an account. Your transfer leaves no trail on our end.</div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">Data residency</div>
+          <div class="feature-desc">Select a storage region before upload. Your file never leaves your chosen jurisdiction.</div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">Automatic expiry</div>
+          <div class="feature-desc">Every link is destroyed after 24 hours whether accessed or not. Nothing lingers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="section" style="padding-top: 0;">
+      <div class="section-label">Security posture</div>
+      <div class="security">
+        <div class="sec-label">Zero-knowledge architecture</div>
+        <div class="sec-title">We cannot read your files.<br>Even if asked.</div>
+        <div class="sec-body">
+          Your encryption key exists only in your share link — never transmitted to our servers, never logged, never stored. Under a legal order we can produce nothing of value: an encrypted, unreadable blob that expires within 24 hours.<br><br>
+          We are not a file storage service. We are a one-time delivery mechanism. The distinction matters.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="section" style="padding-top: 0;">
+      <div class="section-label">FAQ</div>
+      <div class="faq">
+        <div class="faq-row">
+          <div class="faq-q">Can I recover a file after the link is accessed?</div>
+          <div class="faq-a">No. Deletion is immediate and permanent. This is by design.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">Can you read my files?</div>
+          <div class="faq-a">No. Files are encrypted in your browser using a key that only exists in the share link. We never have access to it.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">What if the link expires before my recipient opens it?</div>
+          <div class="faq-a">The file and link are permanently deleted after 24 hours regardless of whether it was accessed.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">What if you receive a legal request?</div>
+          <div class="faq-a">We can produce an encrypted, unreadable file and basic transfer metadata. We have no access to file contents, filenames, or identities.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">What file types are supported?</div>
+          <div class="faq-a">Any file type up to 100MB. We do not inspect, process, or scan file contents.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-mark">filedeadrop</span>
+    <div class="footer-links">
+      <a class="footer-link" href="#">About</a>
+      <a class="footer-link" href="#">FAQ</a>
+      <a class="footer-link" href="#">Privacy</a>
+    </div>
+    <span class="footer-tag">The digital dead drop.</span>
+  </div>
+
+</div>
+</body>
+</html>

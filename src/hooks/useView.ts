@@ -7,6 +7,7 @@ interface ViewState {
   status: ViewStatus
   fileUrl: string | null
   fileName: string
+  fileSize: number | null
   error: string | null
 }
 
@@ -16,11 +17,11 @@ export function useView(id: string) {
   const keyB64 = separatorIndex !== -1 ? hash.slice(0, separatorIndex) : hash
   const fileName = separatorIndex !== -1 ? decodeURIComponent(hash.slice(separatorIndex + 1)) : 'filedeadrop'
 
-  const [state, setState] = useState<ViewState>({ status: 'loading', fileUrl: null, fileName, error: null })
+  const [state, setState] = useState<ViewState>({ status: 'loading', fileUrl: null, fileName, fileSize: null, error: null })
 
   useEffect(() => {
     if (!keyB64) {
-      setState({ status: 'error', fileUrl: null, fileName, error: 'Invalid link — encryption key missing' })
+      setState({ status: 'error', fileUrl: null, fileName, fileSize: null, error: 'Invalid link — encryption key missing' })
       return
     }
 
@@ -32,11 +33,11 @@ export function useView(id: string) {
       if (!encryptedRes.ok) throw new Error(`${encryptedRes.status}`)
       const encryptedBytes = await encryptedRes.arrayBuffer()
       requestCleanup(id).catch(() => {})
-      setState({ status: 'decrypting', fileUrl: null, fileName, error: null })
+      setState({ status: 'decrypting', fileUrl: null, fileName, fileSize: null, error: null })
       const key = await importKeyFromBase64(keyB64)
       const decryptedBytes = await decryptFile(encryptedBytes, key)
       blobUrl = URL.createObjectURL(new Blob([decryptedBytes]))
-      setState({ status: 'done', fileUrl: blobUrl, fileName, error: null })
+      setState({ status: 'done', fileUrl: blobUrl, fileName, fileSize: decryptedBytes.byteLength, error: null })
     }
 
     run().catch(err => {
@@ -46,7 +47,7 @@ export function useView(id: string) {
           : err instanceof Error
             ? err.message
             : 'Failed to load file'
-      setState({ status: 'error', fileUrl: null, fileName, error: msg })
+      setState({ status: 'error', fileUrl: null, fileName, fileSize: null, error: msg })
     })
 
     return () => {

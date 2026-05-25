@@ -14,12 +14,21 @@ or 24 hours, whichever comes first.
 
 ## Structure
 src/
-  components/  # FileDropZone.tsx, ShareUrlDisplay.tsx, UploadStatus.tsx
+  components/
+    layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
+    home/    # DefinitionBlock.tsx, UploadCard.tsx, TrustStrip.tsx,
+             # ProtocolSteps.tsx, CapabilitiesSection.tsx, SecurityCard.tsx, FaqSection.tsx
+    # FileDropZone.tsx, ShareUrlDisplay.tsx, UploadStatus.tsx
+    # Each component has a co-located .module.css file
   pages/       # Home.tsx, View.tsx, NotFound.tsx
   hooks/       # useUpload.ts, useView.ts
   utils/       # api.ts, crypto.ts, constants.ts
   types/       # index.ts
-architecture/  # draw.io sequence and systems architecture diagrams in PNG format
+DESIGN.md      # visual design spec — colors, typography, spacing rules
+docs/
+  architecture/  # draw.io system architecture and sequence diagrams (PNG)
+  filedeadrop_home_mockup.html   # HTML mockup of the home page design
+  filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
 .github/
   workflows/   # deploy.yml — build and deploy to S3 + CloudFront on push to main
 
@@ -59,6 +68,13 @@ Required GitHub secrets:
 - `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after deploy
 - `VITE_API_URL` — injected at build time
 
+## Reference Material
+The `docs/` directory contains reference artifacts — consult them for context when needed:
+- `docs/architecture/` — system architecture and sequence diagrams; useful for understanding data flow, Lambda interactions, and the upload/view lifecycle
+- `docs/filedeadrop_home_mockup.html` — HTML mockup of the home page; reference for component structure, copy, and intended visual layout
+- `docs/filedeadrop_view_mockup.html` — HTML mockup of the view/download page; 5 states: fetching, decrypting, ready, downloaded, not found
+- `DESIGN.md` — color palette, typography, spacing rules, and CSS constraints
+
 ## Documentation
 After completing any task, update CLAUDE.md and README.md if the work affects the accuracy or completeness of either document — this includes API changes, new files or directories, architectural decisions, changed conventions, or updated project status.
 
@@ -72,6 +88,9 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 - Share URL format: {origin}/view/{id}#{base64url-key}:{encoded-filename} — both key and filename in fragment, nothing sensitive in query params
 - Use Uint8Array<ArrayBuffer> (not ArrayBufferLike) for BodyInit compatibility with TypeScript 6
 - Default AWS region: us-west-2
+- CSS Modules only for component styles — each component has a co-located .module.css file
+- Global index.css for base styles only (variables, reset, body, typography, layout)
+- Fonts: Inter (body) and JetBrains Mono (labels, code, step numbers) via Google Fonts
 
 ## Key Architecture Decisions
 - Encryption key passed in URL fragment (#) never query params
@@ -84,7 +103,10 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 - MVP user is anonymous, no account required
 
 ## Design
-- Functional first, design TBD
+- Spec: DESIGN.md — colors, typography, spacing rules, component guidelines
+- Fonts: Inter (all text), JetBrains Mono (labels, code, step numbers) — loaded via Google Fonts
+- Color palette and spacing defined as CSS custom properties in src/index.css
+- Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
 
 ## Do Not
 - Do not write inline fetch calls in components
@@ -93,6 +115,8 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 - Do not use any or unknown TypeScript types without justification
 - Do not hardcode API URLs, secrets, or environment specific values
 - Do not add Content-Type header to S3 presigned URL PUT requests — causes signature mismatch 403
+- Do not use global CSS for component styles — use CSS Modules
+- Do not use Tailwind, component libraries, gradients, or animations
 
 ## Current Status
 Completed:
@@ -105,7 +129,12 @@ Completed:
 - View shared link page — /view/:id with client-side decryption (browser verified)
 - GitHub Actions deploy pipeline (OIDC → S3 sync → CloudFront invalidation)
 - CloudFront setup (custom domain, SPA 404→index.html error page)
+- Design system foundation (DESIGN.md, CSS Modules, Google Fonts, CSS custom properties)
+- Home page components: Header, Footer, DefinitionBlock, UploadCard, TrustStrip, ProtocolSteps, CapabilitiesSection, SecurityCard, FaqSection
+- Two-step upload flow (file select → ready state → explicit upload trigger)
+- View page design (fetching, decrypting, ready, downloaded, not-found states)
 
 Up Next:
-- Design / polish pass
-- Remove debug console.log from useUpload.ts before production
+- Region selector and data residency (backend support pending — Data residency capability is commented out in CapabilitiesSection.tsx until available)
+- Design / polish pass continued
+- Revisit UploadCard panel styles once upload/done/error states are properly mocked up — currently mirrors FileDropZone styles as a placeholder

@@ -1,0 +1,25 @@
+.footer {
+  border-top: 1px solid var(--color-border);
+  padding: 28px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordmark {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  font-size: 12px;
+  color: var(--color-dim);
+}
+
+@media (max-width: 600px) {
+  .footer {
+    padding: 28px 24px;
+  }
+}
