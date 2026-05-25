@@ -27,7 +27,8 @@ src/
 DESIGN.md      # visual design spec — colors, typography, spacing rules
 docs/
   architecture/  # draw.io system architecture and sequence diagrams (PNG)
-  filedeadrop_inter_mockup.html  # HTML mockup of the home page design
+  filedeadrop_home_mockup.html   # HTML mockup of the home page design
+  filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
 .github/
   workflows/   # deploy.yml — build and deploy to S3 + CloudFront on push to main
 
@@ -70,7 +71,8 @@ Required GitHub secrets:
 ## Reference Material
 The `docs/` directory contains reference artifacts — consult them for context when needed:
 - `docs/architecture/` — system architecture and sequence diagrams; useful for understanding data flow, Lambda interactions, and the upload/view lifecycle
-- `docs/filedeadrop_inter_mockup.html` — HTML mockup of the home page; reference for component structure, copy, and intended visual layout
+- `docs/filedeadrop_home_mockup.html` — HTML mockup of the home page; reference for component structure, copy, and intended visual layout
+- `docs/filedeadrop_view_mockup.html` — HTML mockup of the view/download page; 5 states: fetching, decrypting, ready, downloaded, not found
 - `DESIGN.md` — color palette, typography, spacing rules, and CSS constraints
 
 ## Documentation

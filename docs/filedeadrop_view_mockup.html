@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #F3F3F1; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #F3F3F1;
+  color: #111;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.header {
+  border-bottom: 1px solid #DDDDD8;
+  padding: 0 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F3F3F1;
+}
+.wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: #111; }
+.header-note { font-size: 12px; color: #BABAB4; }
+.col { max-width: 720px; margin: 0 auto; padding: 0 48px; }
+.view-section { padding-top: 96px; padding-bottom: 96px; }
+.view-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #BABAB4;
+  margin-bottom: 48px;
+}
+.state-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #CACAC6;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.card-wrap {
+  border: 1px solid #DDDDD8;
+  border-radius: 6px;
+  background: #FAFAF8;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+.card-inner { padding: 36px; }
+.file-zone {
+  border: 1px solid #DDDDD8;
+  border-radius: 4px;
+  background: #F0F0EE;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.file-zone-body {
+  padding: 24px;
+}
+.file-info { display: flex; flex-direction: column; gap: 4px; }
+.file-name { font-size: 14px; font-weight: 500; color: #111; }
+.file-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #BABAB4;
+  letter-spacing: 0.04em;
+}
+.status-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #111;
+  letter-spacing: 0.06em;
+  padding: 24px;
+  text-align: center;
+}
+.progress-wrap { padding: 0 24px 20px; }
+.progress-bar {
+  height: 2px;
+  background: #E2E2DE;
+  border-radius: 1px;
+  overflow: hidden;
+}
+.progress-fill { height: 100%; background: #111; border-radius: 1px; }
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.notice-text { font-size: 12px; color: #BABAB4; line-height: 1.5; }
+.notice-strong { color: #111; font-weight: 500; }
+.btn-primary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #F3F3F1;
+  background: #111111;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 22px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 150ms ease-out;
+}
+.btn-primary:hover { background: #333333; }
+.btn-secondary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111;
+  background: transparent;
+  border: 1px solid #DDDDD8;
+  border-radius: 4px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: border-color 150ms ease-out;
+}
+.btn-secondary:hover { border-color: #111; }
+.trust-strip {
+  display: flex;
+  border-top: 1px solid #DDDDD8;
+  background: #ECECEA;
+}
+.trust-item {
+  flex: 1;
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #BABAB4;
+  text-align: center;
+  border-right: 1px solid #DDDDD8;
+}
+.trust-item:last-child { border-right: none; }
+.terminal-body {
+  padding: 48px 36px;
+  text-align: center;
+}
+.terminal-title { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 10px; }
+.terminal-desc { font-size: 14px; color: #666; line-height: 1.75; max-width: 360px; margin: 0 auto 24px; }
+.footer {
+  border-top: 1px solid #DDDDD8;
+  padding: 28px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-mark { font-size: 12px; font-weight: 600; color: #BABAB4; letter-spacing: -0.01em; }
+.footer-links { display: flex; gap: 28px; }
+.footer-link { font-size: 12px; color: #BABAB4; text-decoration: none; }
+.footer-tag { font-size: 12px; color: #CACAC6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="wordmark">filedeadrop</span>
+  <span class="header-note">Pro — coming soon</span>
+</div>
+
+<div class="col">
+  <div class="view-section">
+    <div class="view-label">Incoming file</div>
+
+    <div class="state-title">State 1 — Fetching</div>
+    <div class="card-wrap">
+      <div class="card-inner">
+        <div class="file-zone">
+          <div class="status-line">Fetching...</div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" style="width: 30%;"></div></div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <span class="notice-text">Retrieving your encrypted file.</span>
+        </div>
+      </div>
+      <div class="trust-strip">
+        <div class="trust-item">E2E encrypted</div>
+        <div class="trust-item">One-time access</div>
+        <div class="trust-item">Expires 24h</div>
+        <div class="trust-item">Zero knowledge</div>
+      </div>
+    </div>
+
+    <div class="state-title">State 2 — Decrypting</div>
+    <div class="card-wrap">
+      <div class="card-inner">
+        <div class="file-zone">
+          <div class="status-line">Decrypting...</div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" style="width: 70%;"></div></div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <span class="notice-text">Decrypting in your browser. Your key never leaves this device.</span>
+        </div>
+      </div>
+      <div class="trust-strip">
+        <div class="trust-item">E2E encrypted</div>
+        <div class="trust-item">One-time access</div>
+        <div class="trust-item">Expires 24h</div>
+        <div class="trust-item">Zero knowledge</div>
+      </div>
+    </div>
+
+    <div class="state-title">State 3 — Ready to download</div>
+    <div class="card-wrap">
+      <div class="card-inner">
+        <div class="file-zone">
+          <div class="file-zone-body">
+            <div class="file-info">
+              <span class="file-name">project-brief.pdf</span>
+              <span class="file-meta">4.2 MB · PDF</span>
+            </div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <span class="notice-text">After download the file is <span class="notice-strong">permanently deleted</span>.</span>
+          <button class="btn-primary">Download →</button>
+        </div>
+      </div>
+      <div class="trust-strip">
+        <div class="trust-item">E2E encrypted</div>
+        <div class="trust-item">One-time access</div>
+        <div class="trust-item">Expires 24h</div>
+        <div class="trust-item">Zero knowledge</div>
+      </div>
+    </div>
+
+    <div class="state-title">State 4 — Downloaded (client side)</div>
+    <div class="card-wrap">
+      <div class="terminal-body">
+        <div class="terminal-title">File downloaded and deleted.</div>
+        <div class="terminal-desc">Your file was saved to your device and permanently deleted from our servers. This link is no longer valid.</div>
+        <button class="btn-secondary">Send your own file →</button>
+      </div>
+    </div>
+
+    <div class="state-title">State 5 — Not found (server 404)</div>
+    <div class="card-wrap">
+      <div class="terminal-body">
+        <div class="terminal-title">Nothing here.</div>
+        <div class="terminal-desc">This link is invalid or has already been used.</div>
+        <button class="btn-secondary">Send your own file →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <span class="footer-mark">filedeadrop</span>
+  <div class="footer-links">
+    <a class="footer-link" href="#">About</a>
+    <a class="footer-link" href="#">FAQ</a>
+    <a class="footer-link" href="#">Privacy</a>
+  </div>
+  <span class="footer-tag">The digital dead drop.</span>
+</div>
+
+</body>
+</html>
