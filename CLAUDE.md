@@ -132,9 +132,9 @@ Completed:
 - Design system foundation (DESIGN.md, CSS Modules, Google Fonts, CSS custom properties)
 - Home page components: Header, Footer, DefinitionBlock, UploadCard, TrustStrip, ProtocolSteps, CapabilitiesSection, SecurityCard, FaqSection
 - Two-step upload flow (file select → ready state → explicit upload trigger)
+- View page design (fetching, decrypting, ready, downloaded, not-found states)
 
 Up Next:
-- View page design
-- Region selector (backend support pending)
+- Region selector and data residency (backend support pending — Data residency capability is commented out in CapabilitiesSection.tsx until available)
 - Design / polish pass continued
 - Revisit UploadCard panel styles once upload/done/error states are properly mocked up — currently mirrors FileDropZone styles as a placeholder

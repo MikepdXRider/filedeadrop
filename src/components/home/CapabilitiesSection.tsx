@@ -14,10 +14,10 @@ const features = [
     title: 'No account required',
     desc: 'Upload and transmit without an account. Your transfer leaves no trail on our end.',
   },
-  {
-    title: 'Data residency',
-    desc: 'Select a storage region before upload. Your file never leaves your chosen jurisdiction.',
-  },
+  // {
+  //   title: 'Data residency',
+  //   desc: 'Select a storage region before upload. Your file never leaves your chosen jurisdiction.',
+  // },
   {
     title: 'Automatic expiry',
     desc: 'Every link is destroyed after 24 hours whether accessed or not. Nothing lingers.',
