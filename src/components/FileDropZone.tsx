@@ -35,7 +35,7 @@ export default function FileDropZone({ onFileSelect, disabled, selectedFile }: F
         <>
           <span className={styles.primary}>Drop a file here</span>
           <span className={styles.secondary}>or click to browse</span>
-          <span className={styles.limit}>100MB maximum · Any file type</span>
+          <span className={styles.limit}>25MB maximum · Any file type</span>
         </>
       )}
     </label>
