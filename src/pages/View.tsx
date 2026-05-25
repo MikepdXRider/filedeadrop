@@ -18,15 +18,18 @@ export default function View() {
   }
 
   return (
-    <main>
-      <ViewCard
-        status={status}
-        fileName={fileName}
-        fileSize={fileSize}
-        fileUrl={fileUrl}
-        downloaded={downloaded}
-        onDownload={handleDownload}
-      />
-    </main>
+    <>
+      <meta name="robots" content="noindex, nofollow" />
+      <main>
+        <ViewCard
+          status={status}
+          fileName={fileName}
+          fileSize={fileSize}
+          fileUrl={fileUrl}
+          downloaded={downloaded}
+          onDownload={handleDownload}
+        />
+      </main>
+    </>
   )
 }
