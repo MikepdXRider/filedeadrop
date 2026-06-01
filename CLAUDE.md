@@ -15,9 +15,10 @@ or 24 hours, whichever comes first.
 ## Structure
 api/
   lambda/
-    upload/    # index.mjs — upload Lambda handler
-    view/      # index.mjs — view Lambda handler
-    delete/    # index.mjs — delete Lambda handler
+    upload/     # index.mjs — upload Lambda handler
+    view/       # index.mjs — view Lambda handler
+    delete/     # index.mjs — delete Lambda handler
+    authorizer/ # index.mjs — API Gateway authorizer Lambda handler
 src/
   components/
     layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
@@ -76,6 +77,7 @@ Runs a matrix job for each function — zips `index.mjs` from the named subdirec
 - `api/lambda/upload/index.mjs` → `ephemeral-upload`
 - `api/lambda/view/index.mjs` → `ephemeral-view`
 - `api/lambda/delete/index.mjs` → `filedeadrop-delete`
+- `api/lambda/authorizer/index.mjs` → `filedeadrop-api-gateway-authorizer`
 
 The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all three function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
 
