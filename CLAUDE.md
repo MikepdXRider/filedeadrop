@@ -14,7 +14,10 @@ or 24 hours, whichever comes first.
 
 ## Structure
 api/
-  lambda/      # upload.mjs, view.mjs, delete.mjs — Lambda function handlers
+  lambda/
+    upload/    # index.mjs — upload Lambda handler
+    view/      # index.mjs — view Lambda handler
+    delete/    # index.mjs — delete Lambda handler
 src/
   components/
     layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
@@ -69,10 +72,10 @@ Steps: `npm ci` → `npm run build` → S3 sync (`--delete`) → CloudFront inva
 ### Lambda — `deploy-lambda.yml`
 Triggers on changes to: `api/lambda/**`
 
-Runs a matrix job for each function — zips the `.mjs` file and calls `aws lambda update-function-code`:
-- `upload.mjs` → `ephemeral-upload`
-- `view.mjs` → `ephemeral-view`
-- `delete.mjs` → `filedeadrop-delete`
+Runs a matrix job for each function — zips `index.mjs` from the named subdirectory and calls `aws lambda update-function-code`:
+- `api/lambda/upload/index.mjs` → `ephemeral-upload`
+- `api/lambda/view/index.mjs` → `ephemeral-view`
+- `api/lambda/delete/index.mjs` → `filedeadrop-delete`
 
 The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all three function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
 
@@ -142,7 +145,7 @@ Completed:
 - Home page upload sequence (browser verified)
 - View shared link page — /view/:id with client-side decryption (browser verified)
 - GitHub Actions deploy pipeline — separate workflows for frontend (S3 + CloudFront) and Lambda
-- Lambda function source in-repo (`api/lambda/upload.mjs`, `view.mjs`, `delete.mjs`)
+- Lambda function source in-repo (`api/lambda/{upload,view,delete}/index.mjs`)
 - CloudFront setup (custom domain, SPA 404→index.html error page)
 - Design system foundation (DESIGN.md, CSS Modules, Google Fonts, CSS custom properties)
 - Home page components: Header, Footer, DefinitionBlock, UploadCard, TrustStrip, ProtocolSteps, CapabilitiesSection, SecurityCard, FaqSection

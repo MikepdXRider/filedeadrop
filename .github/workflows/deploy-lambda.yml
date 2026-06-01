@@ -17,9 +17,9 @@ jobs:
     strategy:
       matrix:
         function:
-          - { name: upload, file: upload.mjs, function_name: ephemeral-upload   }
-          - { name: view,   file: view.mjs,   function_name: ephemeral-view     }
-          - { name: delete, file: delete.mjs, function_name: filedeadrop-delete }
+          - { name: upload, function_name: ephemeral-upload   }
+          - { name: view,   function_name: ephemeral-view     }
+          - { name: delete, function_name: filedeadrop-delete }
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Package ${{ matrix.function.name }}
-        run: zip -j ${{ matrix.function.name }}.zip api/lambda/${{ matrix.function.file }}
+        run: zip -j ${{ matrix.function.name }}.zip api/lambda/${{ matrix.function.name }}/index.mjs
 
       - name: Deploy ${{ matrix.function.name }}
         run: |
