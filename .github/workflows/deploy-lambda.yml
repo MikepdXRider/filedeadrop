@@ -30,7 +30,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Package ${{ matrix.function.name }}
-        run: zip ${{ matrix.function.name }}.zip api/lambda/${{ matrix.function.file }}
+        run: zip -j ${{ matrix.function.name }}.zip api/lambda/${{ matrix.function.file }}
 
       - name: Deploy ${{ matrix.function.name }}
         run: |
