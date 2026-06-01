@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { UploadStatus } from '../types'
-import { DEFAULT_REGION } from '../utils/constants'
+import { DEFAULT_REGION, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../utils/constants'
 import { generateKey, encryptFile, exportKeyToBase64 } from '../utils/crypto'
 import { requestUpload, uploadToS3 } from '../utils/api'
 
@@ -18,6 +18,10 @@ export function useUpload() {
 
   const handleFileSelect = (file: File) => {
     if (state.status !== 'idle' && state.status !== 'ready') return
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setState({ status: 'error', file: null, shareUrl: null, error: `File exceeds the ${MAX_FILE_SIZE_MB}MB limit` })
+      return
+    }
     setState({ status: 'ready', file, shareUrl: null, error: null })
   }
 

@@ -1,5 +1,6 @@
 import styles from './FaqSection.module.css'
 import SectionLabel from './SectionLabel'
+import { MAX_FILE_SIZE_MB } from '../../utils/constants'
 
 const faqs = [
   {
@@ -20,7 +21,7 @@ const faqs = [
   },
   {
     q: 'What file types are supported?',
-    a: 'Any file type up to 25MB. We do not inspect, process, or scan file contents.',
+    a: `Any file type up to ${MAX_FILE_SIZE_MB}MB. We do not inspect, process, or scan file contents.`,
   },
 ]
 

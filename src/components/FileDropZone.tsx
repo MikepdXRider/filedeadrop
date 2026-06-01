@@ -1,4 +1,5 @@
 import styles from './FileDropZone.module.css'
+import { MAX_FILE_SIZE_MB } from '../utils/constants'
 
 interface FileDropZoneProps {
   onFileSelect: (file: File) => void
@@ -35,7 +36,7 @@ export default function FileDropZone({ onFileSelect, disabled, selectedFile }: F
         <>
           <span className={styles.primary}>Drop a file here</span>
           <span className={styles.secondary}>or click to browse</span>
-          <span className={styles.limit}>25MB maximum · Any file type</span>
+          <span className={styles.limit}>{MAX_FILE_SIZE_MB}MB maximum · Any file type</span>
         </>
       )}
     </label>
