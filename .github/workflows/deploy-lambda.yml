@@ -20,9 +20,10 @@ jobs:
     strategy:
       matrix:
         function:
-          - { name: upload, function_name: ephemeral-upload   }
-          - { name: view,   function_name: ephemeral-view     }
-          - { name: delete, function_name: filedeadrop-delete }
+          - { name: upload,     function_name: ephemeral-upload                  }
+          - { name: view,       function_name: ephemeral-view                    }
+          - { name: delete,     function_name: filedeadrop-delete                }
+          - { name: authorizer, function_name: filedeadrop-api-gateway-authorizer }
 
     steps:
       - uses: actions/checkout@v4
