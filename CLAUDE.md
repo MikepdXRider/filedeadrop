@@ -1,6 +1,6 @@
 # FileDeadrop
 
-Repository contains only the React frontend.
+Repository contains the React frontend and AWS Lambda function code.
 
 One time end-to-end encrypted file sharing service. Users upload a file, 
 receive a share link, and the file is deleted after first access 
@@ -13,6 +13,8 @@ or 24 hours, whichever comes first.
 - Fetch API for all HTTP requests
 
 ## Structure
+api/
+  lambda/      # upload.mjs, view.mjs, delete.mjs — Lambda function handlers
 src/
   components/
     layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
@@ -30,7 +32,8 @@ docs/
   filedeadrop_home_mockup.html   # HTML mockup of the home page design
   filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
 .github/
-  workflows/   # deploy.yml — build and deploy to S3 + CloudFront on push to main
+  workflows/   # deploy-frontend.yml — frontend to S3 + CloudFront on src/** changes
+               # deploy-lambda.yml   — Lambda functions on api/lambda/** changes
 
 ## API
 Base URL: import.meta.env.VITE_API_URL
@@ -56,16 +59,27 @@ VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
 Never hardcode these values. Always reference via import.meta.env
 
 ## Deployment
-Workflow: `.github/workflows/deploy.yml` — triggers on push to `main`.
+Both workflows trigger on push to `main`, filtered by path. Authentication uses OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
+
+### Frontend — `deploy-frontend.yml`
+Triggers on changes to: `src/**`, `public/**`, `index.html`, `vite.config.*`, `package*.json`
 
 Steps: `npm ci` → `npm run build` → S3 sync (`--delete`) → CloudFront invalidation (`/*`)
 
-Authentication: OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
+### Lambda — `deploy-lambda.yml`
+Triggers on changes to: `api/lambda/**`
 
-Required GitHub secrets:
+Runs a matrix job for each function — zips the `.mjs` file and calls `aws lambda update-function-code`:
+- `upload.mjs` → `ephemeral-upload`
+- `view.mjs` → `ephemeral-view`
+- `delete.mjs` → `filedeadrop-delete`
+
+The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all three function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
+
+### Required GitHub secrets
 - `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC
-- `S3_BUCKET_NAME` — destination S3 bucket name
-- `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after deploy
+- `S3_BUCKET_NAME` — destination S3 bucket (frontend)
+- `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after frontend deploy
 - `VITE_API_URL` — injected at build time
 
 ## Reference Material
@@ -127,7 +141,8 @@ Completed:
 - React frontend scaffold
 - Home page upload sequence (browser verified)
 - View shared link page — /view/:id with client-side decryption (browser verified)
-- GitHub Actions deploy pipeline (OIDC → S3 sync → CloudFront invalidation)
+- GitHub Actions deploy pipeline — separate workflows for frontend (S3 + CloudFront) and Lambda
+- Lambda function source in-repo (`api/lambda/upload.mjs`, `view.mjs`, `delete.mjs`)
 - CloudFront setup (custom domain, SPA 404→index.html error page)
 - Design system foundation (DESIGN.md, CSS Modules, Google Fonts, CSS custom properties)
 - Home page components: Header, Footer, DefinitionBlock, UploadCard, TrustStrip, ProtocolSteps, CapabilitiesSection, SecurityCard, FaqSection
