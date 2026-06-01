@@ -1,8 +1,14 @@
-name: Deploy
+name: Deploy Frontend
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'vite.config.*'
+      - 'package*.json'
 
 permissions:
   id-token: write   # required for OIDC
