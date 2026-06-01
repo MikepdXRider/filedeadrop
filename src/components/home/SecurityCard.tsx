@@ -18,7 +18,7 @@ export default function SecurityCard() {
         </p>
         <p className={styles.body}>
           We are not a file storage service. We are a one-time delivery
-          mechanism. The distinction matters.
+          mechanism.
         </p>
       </div>
     </section>

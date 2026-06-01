@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     q: 'What file types are supported?',
-    a: 'Any file type up to 100MB. We do not inspect, process, or scan file contents.',
+    a: 'Any file type up to 25MB. We do not inspect, process, or scan file contents.',
   },
 ]
 
