@@ -2,7 +2,7 @@ import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({});
 
-const BUCKET = "ephemeral-uploads";
+const BUCKET = process.env.BUCKET_NAME;
 
 export const handler = async (event) => {
   try {

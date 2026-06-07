@@ -35,6 +35,14 @@ docs/
   architecture/  # draw.io system architecture and sequence diagrams (PNG)
   filedeadrop_home_mockup.html   # HTML mockup of the home page design
   filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
+terraform/
+  main.tf              # backend config + dev environment module call
+  variables.tf         # route53_zone_id, frontend_origin
+  outputs.tf           # dev API URL and resource names
+  terraform.tfvars     # non-secret values (gitignored if secrets present)
+  README.md            # bootstrap instructions and manual workflow
+  modules/
+    regional/          # parameterized per-region module (S3, DynamoDB, Lambda, API GW, ACM, Route 53)
 .claude/
   skills/
     create-pr/   # SKILL.md — /create-pr skill for opening pull requests; includes pre-PR doc check
@@ -130,6 +138,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
 - API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
 - 25MB file size limit: frontend validates file.size ≤ 25MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 25MB + 28 bytes to account for AES-GCM overhead
+- Lambda resource names (BUCKET_NAME, TABLE_NAME) are read from environment variables — Terraform sets these per environment; production values must be set manually before deploying Lambda source changes
 - MVP user is anonymous, no account required
 
 ## Design
@@ -172,10 +181,11 @@ Completed:
 - View page design (fetching, decrypting, ready, downloaded, not-found states)
 - Authorizer refactor — defunct CloudFront secret removed, 10KB payload limit enforced (#20)
 - S3 upload size enforcement — 25MB limit via ContentLength on presigned PUT URL; Lambda threshold accounts for 28-byte AES-GCM overhead (#19)
+- Terraform scaffold — dev environment in `terraform/`, `modules/regional/` module covers full regional slice (#18)
 
 Up Next:
 - Footer attribution — copyright and LinkedIn link (#6)
-- Terraform scaffold — dev environment in existing AWS account, prerequisite for data residency (#18)
+- Terraform CI workflow — automate plan/apply via GitHub Actions (#24)
 - Region selector and data residency — blocked on #18; CloudFront Function routes by ?region= param (#16)
 - Design / polish pass continued
 - Revisit UploadCard panel styles once upload/done/error states are properly mocked up — currently mirrors FileDropZone styles as a placeholder
