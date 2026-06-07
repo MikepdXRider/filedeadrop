@@ -37,7 +37,7 @@ docs/
   filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
 .claude/
   skills/
-    create-pr/   # SKILL.md — /create-pr skill for opening pull requests
+    create-pr/   # SKILL.md — /create-pr skill for opening pull requests; includes pre-PR doc check
     manage-docs/ # SKILL.md — /manage-docs skill for creating and updating skills and CLAUDE.md
 .github/
   workflows/   # deploy-frontend.yml — frontend to S3 + CloudFront on src/** changes
@@ -141,7 +141,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Never commit directly to `main` — all work happens on feature branches
 - Never push to any branch without explicit user direction
 - Branch naming: `type/description` (e.g. `refactor/authorizer`, `feat/upload-limit`)
-- Use `/create-pr` skill when opening pull requests
+- Use `/create-pr` skill when opening pull requests — includes a pre-PR documentation check and commit
 
 ## Do Not
 - Do not write inline fetch calls in components
