@@ -32,7 +32,7 @@ export function useUpload() {
     try {
       const key = await generateKey()
       const encryptedBytes = await encryptFile(file, key)
-      const { presignedUrl, sharePath } = await requestUpload(file.size, DEFAULT_REGION)
+      const { presignedUrl, sharePath } = await requestUpload(encryptedBytes.byteLength, DEFAULT_REGION)
       const keyB64 = await exportKeyToBase64(key)
       const finalUrl = `${window.location.origin}${sharePath}#${keyB64}:${encodeURIComponent(file.name)}`
       setState(s => ({ ...s, status: 'uploading' }))

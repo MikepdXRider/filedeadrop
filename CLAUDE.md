@@ -52,7 +52,7 @@ All requests include header: Content-Type: application/json
 
 Endpoints:
 PUT /upload
-  body: { fileSize: number, region: string }
+  body: { fileSize: number, region: string }  # fileSize is encryptedBytes.byteLength, not file.size
   returns: { presignedUrl: string, sharePath: string }
 
 GET /view/{id}
@@ -120,7 +120,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 
 ## Key Architecture Decisions
 - Encryption key passed in URL fragment (#) never query params
-- AES-GCM-128 encryption; IV (12 bytes) prepended to ciphertext — first 12 bytes are always the IV
+- AES-GCM-128 encryption; IV (12 bytes) prepended to ciphertext, 16-byte auth tag appended by crypto.subtle.encrypt — encrypted payload is always file.size + 28 bytes
 - Key exported as base64url (URL-safe, no padding) for the fragment
 - Original filename encoded in the URL fragment after the key, separated by `:` — never sent to any server
 - File bytes never touch Lambda, go direct to S3 via presigned URL
@@ -128,7 +128,8 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - S3 lifecycle policy handles post access file cleanup, DynamoDB conditional delete is the access control gate
 - DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; S3 lifecycle is the fallback if the delete call fails
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
-- API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern is defunct (requests reach API Gateway directly, not through CloudFront) — to be revisited post-Terraform if CloudFront is placed in front of API Gateway (#20)
+- API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
+- 25MB file size limit: frontend validates file.size ≤ 25MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 25MB + 28 bytes to account for AES-GCM overhead
 - MVP user is anonymous, no account required
 
 ## Design
@@ -169,10 +170,10 @@ Completed:
 - Home page components: Header, Footer, DefinitionBlock, UploadCard, TrustStrip, ProtocolSteps, CapabilitiesSection, SecurityCard, FaqSection
 - Two-step upload flow (file select → ready state → explicit upload trigger)
 - View page design (fetching, decrypting, ready, downloaded, not-found states)
+- Authorizer refactor — defunct CloudFront secret removed, 10KB payload limit enforced (#20)
+- S3 upload size enforcement — 25MB limit via ContentLength on presigned PUT URL; Lambda threshold accounts for 28-byte AES-GCM overhead (#19)
 
 Up Next:
-- Authorizer refactor — remove defunct CloudFront secret, enforce 10KB payload limit (#20)
-- S3 presigned URL file size limit — 25MB content-length-range condition (#19)
 - Footer attribution — copyright and LinkedIn link (#6)
 - Terraform scaffold — dev environment in existing AWS account, prerequisite for data residency (#18)
 - Region selector and data residency — blocked on #18; CloudFront Function routes by ?region= param (#16)
