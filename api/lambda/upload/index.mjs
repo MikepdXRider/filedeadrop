@@ -10,7 +10,8 @@ const docClient = DynamoDBDocumentClient.from(dynamo);
 const BUCKET = "ephemeral-uploads";
 const TABLE = "ephemeral-uploads";
 const ITEM_TYPE = "META";
-const MAX_FILE_SIZE = 25 * 1024 * 1024;
+const AES_GCM_OVERHEAD = 12 + 16; // IV + auth tag prepended/appended by AES-GCM
+const MAX_FILE_SIZE = 25 * 1024 * 1024 + AES_GCM_OVERHEAD;
 
 export const handler = async (event) => {
   try {
