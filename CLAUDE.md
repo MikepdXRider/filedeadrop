@@ -56,6 +56,7 @@ GET /view/{id}
 
 DELETE /delete/{id}
   triggers Lambda to delete the S3 object; called client-side after encrypted bytes are in memory
+  note: DynamoDB access gate is handled on view — this endpoint is S3 cleanup only, best-effort
 
 ## Environment Variables
 VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
@@ -79,7 +80,7 @@ Runs a matrix job for each function — zips `index.mjs` from the named subdirec
 - `api/lambda/delete/index.mjs` → `filedeadrop-delete`
 - `api/lambda/authorizer/index.mjs` → `filedeadrop-api-gateway-authorizer`
 
-The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all three function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
+The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all four function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
 
 ### Required GitHub secrets
 - `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC
@@ -119,6 +120,9 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 - File bytes never touch Lambda, go direct to S3 via presigned URL
 - DynamoDB conditional delete with ReturnValues ALL_OLD handles race conditions on view
 - S3 lifecycle policy handles post access file cleanup, DynamoDB conditional delete is the access control gate
+- DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; S3 lifecycle is the fallback if the delete call fails
+- API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
+- API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern is defunct (requests reach API Gateway directly, not through CloudFront) — to be revisited post-Terraform if CloudFront is placed in front of API Gateway (#20)
 - MVP user is anonymous, no account required
 
 ## Design
@@ -155,6 +159,10 @@ Completed:
 - View page design (fetching, decrypting, ready, downloaded, not-found states)
 
 Up Next:
-- Region selector and data residency (backend support pending — Data residency capability is commented out in CapabilitiesSection.tsx until available)
+- Authorizer refactor — remove defunct CloudFront secret, enforce 10KB payload limit (#20)
+- S3 presigned URL file size limit — 25MB content-length-range condition (#19)
+- Footer attribution — copyright and LinkedIn link (#6)
+- Terraform scaffold — dev environment in existing AWS account, prerequisite for data residency (#18)
+- Region selector and data residency — blocked on #18; CloudFront Function routes by ?region= param (#16)
 - Design / polish pass continued
 - Revisit UploadCard panel styles once upload/done/error states are properly mocked up — currently mirrors FileDropZone styles as a placeholder

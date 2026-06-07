@@ -106,19 +106,20 @@ Triggers on changes to `src/**`, `public/**`, `index.html`, `vite.config.*`, `pa
 3. CloudFront invalidation (`/*`) to serve the fresh build immediately
 
 ### Lambda (`deploy-lambda.yml`)
-Triggers on changes to `api/lambda/**`. Runs a matrix job for each function — zips the `.mjs` file and deploys via `aws lambda update-function-code`:
+Triggers on changes to `api/lambda/**`. Runs a matrix job for each function — zips `index.mjs` from the named subdirectory and deploys via `aws lambda update-function-code`:
 
-| File | AWS function |
+| Source | AWS function |
 |---|---|
-| `upload.mjs` | `ephemeral-upload` |
-| `view.mjs` | `ephemeral-view` |
-| `delete.mjs` | `filedeadrop-delete` |
+| `api/lambda/upload/index.mjs` | `ephemeral-upload` |
+| `api/lambda/view/index.mjs` | `ephemeral-view` |
+| `api/lambda/delete/index.mjs` | `filedeadrop-delete` |
+| `api/lambda/authorizer/index.mjs` | `filedeadrop-api-gateway-authorizer` |
 
 **Required GitHub secrets**
 
 | Secret | Description |
 |---|---|
-| `AWS_ROLE_ARN` | IAM role assumed by the workflow via OIDC — must include `lambda:UpdateFunctionCode` on all three function ARNs |
+| `AWS_ROLE_ARN` | IAM role assumed by the workflow via OIDC — must include `lambda:UpdateFunctionCode` on all four function ARNs |
 | `S3_BUCKET_NAME` | Destination S3 bucket (frontend) |
 | `CLOUDFRONT_DISTRIBUTION_ID` | Distribution invalidated after each frontend deploy |
 | `VITE_API_URL` | API base URL injected at build time |
