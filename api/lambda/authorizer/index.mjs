@@ -1,15 +1,12 @@
+const MAX_PAYLOAD_BYTES = 10 * 1024; // 10KB
+
 export const handler = async (event) => {
-  if (!process.env.CLOUDFRONT_SECRET) {
-    console.error("Missing CLOUDFRONT_SECRET var")
-    return { isAuthorized: false }
-  }
+  const contentLength = event.headers?.['content-length'];
 
-  const secret = event.headers['x-cloudfront-secret'];
-
-  if (!secret || secret !== process.env.CLOUDFRONT_SECRET) {
-    console.warn('Unauthorized request - invalid or missing CloudFront secret')
+  if (contentLength && parseInt(contentLength, 10) > MAX_PAYLOAD_BYTES) {
+    console.warn(`Request denied — content-length ${contentLength} exceeds ${MAX_PAYLOAD_BYTES} bytes`);
     return { isAuthorized: false };
   }
-  
+
   return { isAuthorized: true };
 };
