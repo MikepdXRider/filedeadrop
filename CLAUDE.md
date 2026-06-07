@@ -35,6 +35,10 @@ docs/
   architecture/  # draw.io system architecture and sequence diagrams (PNG)
   filedeadrop_home_mockup.html   # HTML mockup of the home page design
   filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
+.claude/
+  skills/
+    create-pr/   # SKILL.md — /create-pr skill for opening pull requests
+    manage-docs/ # SKILL.md — /manage-docs skill for creating and updating skills and CLAUDE.md
 .github/
   workflows/   # deploy-frontend.yml — frontend to S3 + CloudFront on src/** changes
                # deploy-lambda.yml   — Lambda functions on api/lambda/** changes
@@ -98,6 +102,8 @@ The `docs/` directory contains reference artifacts — consult them for context 
 ## Documentation
 After completing any task, update CLAUDE.md and README.md if the work affects the accuracy or completeness of either document — this includes API changes, new files or directories, architectural decisions, changed conventions, or updated project status.
 
+When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-in skill files over memory for any rule, convention, or preference that should apply across sessions, Claude instances, or contributors. Memory is scoped to the individual — it is invisible to other developers. If a rule matters to the project, it belongs here or in `.claude/skills/`, not only in memory. Use `/manage-docs` skill when creating or updating CLAUDE.md or skills.
+
 ## Conventions
 - TypeScript strict mode
 - Functional components only, no class components
@@ -130,6 +136,12 @@ After completing any task, update CLAUDE.md and README.md if the work affects th
 - Fonts: Inter (all text), JetBrains Mono (labels, code, step numbers) — loaded via Google Fonts
 - Color palette and spacing defined as CSS custom properties in src/index.css
 - Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
+
+## Git
+- Never commit directly to `main` — all work happens on feature branches
+- Never push to any branch without explicit user direction
+- Branch naming: `type/description` (e.g. `refactor/authorizer`, `feat/upload-limit`)
+- Use `/create-pr` skill when opening pull requests
 
 ## Do Not
 - Do not write inline fetch calls in components
