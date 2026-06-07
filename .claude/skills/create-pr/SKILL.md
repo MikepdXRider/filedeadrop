@@ -6,9 +6,9 @@ argument-hint: [issue-number]
 ## Before creating the PR
 
 ### 1. Check for documentation updates
-Read the diff between the current branch and the base branch:
+Determine the base branch using the same logic as the Base Branch section below, then read the diff:
 ```
-git diff main...HEAD
+git diff <base-branch>...HEAD
 ```
 For each target, determine if the changes genuinely require a doc update:
 
