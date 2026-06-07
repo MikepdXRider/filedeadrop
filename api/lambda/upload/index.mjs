@@ -28,6 +28,7 @@ export const handler = async (event) => {
     const presignedUrl = await getSignedUrl(s3, new PutObjectCommand({
       Bucket: BUCKET,
       Key: fileId,
+      ContentLength: fileSize,
     }), { expiresIn: 30 });
 
     await docClient.send(new PutCommand({
