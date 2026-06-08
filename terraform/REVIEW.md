@@ -5,7 +5,7 @@
 - [x] **1. Dual deployment paths conflict** — `lambda.tf`
   `data "archive_file"` deploys Lambda code on every `terraform apply`, silently overwriting anything deployed by the GitHub Actions workflow (and vice versa). Reconcile: either let Terraform own Lambda code entirely (drop the GH Actions Lambda workflow), or remove `archive_file` and manage code via CI only, leaving Terraform to own function config.
 
-- [ ] **2. CORS `allow_headers` missing `x-api-key`** — `api_gateway.tf:8`
+- [x] **2. CORS `allow_headers` missing `x-api-key`** — `api_gateway.tf:8`
   The dev authorizer checks for `x-api-key`, but it's not in the API Gateway CORS `allow_headers` list. Browsers will block the preflight before the request reaches the authorizer.
   ```hcl
   allow_headers = ["Content-Type", "Content-Length", "x-api-key"]
