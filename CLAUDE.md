@@ -152,4 +152,5 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Do not hardcode API URLs, secrets, or environment specific values
 - Do not add Content-Type header to S3 presigned URL PUT requests — causes signature mismatch 403
 - Do not use global CSS for component styles — use CSS Modules
-- Do not use Tailwind, component libraries, gradients, or animations
+- Do not use Tailwind, component libraries, or gradients
+- Do not use decorative animations (fly-ins, bounces, entrance effects) — functional micro-transitions are permitted (e.g. 150ms opacity fade-in on state swap, hover transitions)

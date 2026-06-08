@@ -63,16 +63,23 @@
   cursor: pointer;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .panelPrimary {
   font-size: 15px;
   font-weight: 500;
   color: var(--color-text);
   margin-bottom: 6px;
+  animation: fadeIn 150ms ease-in;
 }
 
 .panelSecondary {
   font-size: 13px;
   color: var(--color-muted);
+  animation: fadeIn 150ms ease-in;
 }
 
 .disclaimer {
@@ -88,4 +95,5 @@
   color: var(--color-text);
   word-break: break-all;
   margin-bottom: 6px;
+  animation: fadeIn 150ms ease-in;
 }
