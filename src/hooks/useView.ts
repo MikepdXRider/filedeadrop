@@ -26,10 +26,11 @@ export function useView(id: string) {
     }
 
     let blobUrl: string | null = null
+    const controller = new AbortController()
 
     const run = async () => {
-      const { presignedUrl } = await requestView(id)
-      const encryptedRes = await fetch(presignedUrl)
+      const { presignedUrl } = await requestView(id, controller.signal)
+      const encryptedRes = await fetch(presignedUrl, { signal: controller.signal })
       if (!encryptedRes.ok) throw new Error(`${encryptedRes.status}`)
       const encryptedBytes = await encryptedRes.arrayBuffer()
       requestCleanup(id).catch(() => {})
@@ -44,6 +45,7 @@ export function useView(id: string) {
     }
 
     run().catch(err => {
+      if (err instanceof Error && err.name === 'AbortError') return
       const msg =
         err instanceof Error && (err.message.includes('404') || err.message.includes('410'))
           ? 'This link has already been used or has expired'
@@ -54,6 +56,7 @@ export function useView(id: string) {
     })
 
     return () => {
+      controller.abort()
       if (blobUrl) URL.revokeObjectURL(blobUrl)
     }
   }, [id])
