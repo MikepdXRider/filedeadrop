@@ -30,9 +30,10 @@ export async function requestCleanup(id: string): Promise<void> {
   await fetch(`${BASE_URL}/delete/${id}`, { method: 'DELETE', headers: { ...devHeaders() } })
 }
 
-export async function requestView(id: string): Promise<{ presignedUrl: string }> {
+export async function requestView(id: string, signal?: AbortSignal): Promise<{ presignedUrl: string }> {
   const res = await fetch(`${BASE_URL}/view/${id}`, {
     headers: { 'Content-Type': 'application/json', ...devHeaders() },
+    signal,
   })
   if (!res.ok) throw new Error(`View request failed: ${res.status}`)
   return res.json() as Promise<{ presignedUrl: string }>

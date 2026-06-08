@@ -14,7 +14,7 @@ Files are encrypted entirely in the browser before upload. The encryption key ne
 2. The file is encrypted client-side; the IV is prepended to the ciphertext
 3. The client requests a presigned S3 URL from the API
 4. The encrypted bytes are uploaded directly to S3 — they never pass through the application server
-5. The encryption key is encoded as base64url and embedded in the share URL fragment (`#key`)
+5. The encryption key and AES-GCM-encrypted filename are embedded in the share URL fragment (`#key:encrypted-filename`)
 
 ### View
 
@@ -55,6 +55,9 @@ The view Lambda performs a conditional `DeleteItem` with `ReturnValues: ALL_OLD`
 
 **S3 lifecycle policy for TTL**
 A 24-hour S3 lifecycle rule handles object expiry independently of application logic, ensuring files are cleaned up even if the DynamoDB record is deleted before the object is accessed.
+
+**Encrypted filename in the URL fragment**
+The original filename is encrypted with the same AES-GCM key (a fresh IV is generated independently) before being embedded in the fragment. The filename is never sent to any server and is only recoverable by someone who holds the key — making the share link the sole source of both file and filename access.
 
 **Anonymous access**
 No accounts, sessions, or cookies. The share link is the only credential.

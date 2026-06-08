@@ -119,7 +119,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - All API calls in src/utils/api.ts, never inline in components
 - All encryption/decryption logic lives in src/utils/crypto.ts
 - View page extracts :id from the URL path param and passes it to GET /view/{id}
-- Share URL format: {origin}/view/{id}#{base64url-key}:{encoded-filename} — both key and filename in fragment, nothing sensitive in query params
+- Share URL format: {origin}/view/{id}#{base64url-key}:{base64url-encrypted-filename} — both key and encrypted filename in fragment, nothing sensitive in query params
 - Use Uint8Array<ArrayBuffer> (not ArrayBufferLike) for BodyInit compatibility with TypeScript 6
 - Default AWS region: us-west-2
 - CSS Modules only for component styles — each component has a co-located .module.css file
@@ -130,7 +130,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Encryption key passed in URL fragment (#) never query params
 - AES-GCM-128 encryption; IV (12 bytes) prepended to ciphertext, 16-byte auth tag appended by crypto.subtle.encrypt — encrypted payload is always file.size + 28 bytes
 - Key exported as base64url (URL-safe, no padding) for the fragment
-- Original filename encoded in the URL fragment after the key, separated by `:` — never sent to any server
+- Original filename AES-GCM encrypted (same key, fresh IV) and base64url-encoded in the URL fragment after the key, separated by `:` — never sent to any server; only recoverable by the keyholder
 - File bytes never touch Lambda, go direct to S3 via presigned URL
 - DynamoDB conditional delete with ReturnValues ALL_OLD handles race conditions on view
 - S3 lifecycle policy handles post access file cleanup, DynamoDB conditional delete is the access control gate
@@ -161,31 +161,5 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Do not hardcode API URLs, secrets, or environment specific values
 - Do not add Content-Type header to S3 presigned URL PUT requests — causes signature mismatch 403
 - Do not use global CSS for component styles — use CSS Modules
-- Do not use Tailwind, component libraries, gradients, or animations
-
-## Current Status
-Completed:
-- AWS infrastructure (Route 53, ACM, API Gateway, Lambda, DynamoDB, S3)
-- Upload and view Lambda functions
-- CORS configuration
-- Custom domain api.filedeadrop.com
-- React frontend scaffold
-- Home page upload sequence (browser verified)
-- View shared link page — /view/:id with client-side decryption (browser verified)
-- GitHub Actions deploy pipeline — separate workflows for frontend (S3 + CloudFront) and Lambda
-- Lambda function source in-repo (`api/lambda/{upload,view,delete}/index.mjs`)
-- CloudFront setup (custom domain, SPA 404→index.html error page)
-- Design system foundation (DESIGN.md, CSS Modules, Google Fonts, CSS custom properties)
-- Home page components: Header, Footer, DefinitionBlock, UploadCard, TrustStrip, ProtocolSteps, CapabilitiesSection, SecurityCard, FaqSection
-- Two-step upload flow (file select → ready state → explicit upload trigger)
-- View page design (fetching, decrypting, ready, downloaded, not-found states)
-- Authorizer refactor — defunct CloudFront secret removed, 10KB payload limit enforced (#20)
-- S3 upload size enforcement — 25MB limit via ContentLength on presigned PUT URL; Lambda threshold accounts for 28-byte AES-GCM overhead (#19)
-- Terraform scaffold — dev environment in `terraform/`, `modules/regional/` module covers full regional slice (#18)
-
-Up Next:
-- Footer attribution — copyright and LinkedIn link (#6)
-- Terraform CI workflow — automate plan/apply via GitHub Actions (#24)
-- Region selector and data residency — blocked on #18; CloudFront Function routes by ?region= param (#16)
-- Design / polish pass continued
-- Revisit UploadCard panel styles once upload/done/error states are properly mocked up — currently mirrors FileDropZone styles as a placeholder
+- Do not use Tailwind, component libraries, or gradients
+- Do not use decorative animations (fly-ins, bounces, entrance effects) — functional micro-transitions are permitted (e.g. 150ms opacity fade-in on state swap, hover transitions)
