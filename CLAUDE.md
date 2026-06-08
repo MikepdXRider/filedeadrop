@@ -111,7 +111,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - All API calls in src/utils/api.ts, never inline in components
 - All encryption/decryption logic lives in src/utils/crypto.ts
 - View page extracts :id from the URL path param and passes it to GET /view/{id}
-- Share URL format: {origin}/view/{id}#{base64url-key}:{encoded-filename} — both key and filename in fragment, nothing sensitive in query params
+- Share URL format: {origin}/view/{id}#{base64url-key}:{base64url-encrypted-filename} — both key and encrypted filename in fragment, nothing sensitive in query params
 - Use Uint8Array<ArrayBuffer> (not ArrayBufferLike) for BodyInit compatibility with TypeScript 6
 - Default AWS region: us-west-2
 - CSS Modules only for component styles — each component has a co-located .module.css file
@@ -122,7 +122,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Encryption key passed in URL fragment (#) never query params
 - AES-GCM-128 encryption; IV (12 bytes) prepended to ciphertext, 16-byte auth tag appended by crypto.subtle.encrypt — encrypted payload is always file.size + 28 bytes
 - Key exported as base64url (URL-safe, no padding) for the fragment
-- Original filename encoded in the URL fragment after the key, separated by `:` — never sent to any server
+- Original filename AES-GCM encrypted (same key, fresh IV) and base64url-encoded in the URL fragment after the key, separated by `:` — never sent to any server; only recoverable by the keyholder
 - File bytes never touch Lambda, go direct to S3 via presigned URL
 - DynamoDB conditional delete with ReturnValues ALL_OLD handles race conditions on view
 - S3 lifecycle policy handles post access file cleanup, DynamoDB conditional delete is the access control gate
@@ -172,6 +172,7 @@ Completed:
 - View page design (fetching, decrypting, ready, downloaded, not-found states)
 - Authorizer refactor — defunct CloudFront secret removed, 10KB payload limit enforced (#20)
 - S3 upload size enforcement — 25MB limit via ContentLength on presigned PUT URL; Lambda threshold accounts for 28-byte AES-GCM overhead (#19)
+- Encrypted filename in share URL fragment — AES-GCM with fresh IV, same key as file; only keyholder can recover original filename (#25)
 
 Up Next:
 - Footer attribution — copyright and LinkedIn link (#6)
