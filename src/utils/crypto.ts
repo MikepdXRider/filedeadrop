@@ -45,3 +45,25 @@ export async function importKeyFromBase64(b64: string): Promise<CryptoKey> {
     ['decrypt']
   )
 }
+
+export async function encryptFilename(filename: string, key: CryptoKey): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(AES_IV_LENGTH))
+  const encoded = new TextEncoder().encode(filename)
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded)
+  const combined = new Uint8Array(iv.length + ciphertext.byteLength)
+  combined.set(iv, 0)
+  combined.set(new Uint8Array(ciphertext), iv.length)
+  let binary = ''
+  for (let i = 0; i < combined.length; i++) binary += String.fromCharCode(combined[i])
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
+export async function decryptFilename(encryptedB64: string, key: CryptoKey): Promise<string> {
+  const binary = atob(encryptedB64.replace(/-/g, '+').replace(/_/g, '/'))
+  const combined = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) combined[i] = binary.charCodeAt(i)
+  const iv = combined.slice(0, AES_IV_LENGTH)
+  const ciphertext = combined.slice(AES_IV_LENGTH)
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext)
+  return new TextDecoder().decode(decrypted)
+}

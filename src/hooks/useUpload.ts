@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { UploadStatus } from '../types'
 import { DEFAULT_REGION, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../utils/constants'
-import { generateKey, encryptFile, exportKeyToBase64 } from '../utils/crypto'
+import { generateKey, encryptFile, exportKeyToBase64, encryptFilename } from '../utils/crypto'
 import { requestUpload, uploadToS3 } from '../utils/api'
 
 interface UploadState {
@@ -34,7 +34,8 @@ export function useUpload() {
       const encryptedBytes = await encryptFile(file, key)
       const { presignedUrl, sharePath } = await requestUpload(encryptedBytes.byteLength, DEFAULT_REGION)
       const keyB64 = await exportKeyToBase64(key)
-      const finalUrl = `${window.location.origin}${sharePath}#${keyB64}:${encodeURIComponent(file.name)}`
+      const encryptedFilename = await encryptFilename(file.name, key)
+      const finalUrl = `${window.location.origin}${sharePath}#${keyB64}:${encryptedFilename}`
       setState(s => ({ ...s, status: 'uploading' }))
       await uploadToS3(presignedUrl, encryptedBytes)
       setState({ status: 'done', file: null, shareUrl: finalUrl, error: null })
