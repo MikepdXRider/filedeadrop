@@ -23,11 +23,19 @@ const faqs = [
     q: 'What file types are supported?',
     a: `Any file type up to ${MAX_FILE_SIZE_MB}MB. We do not inspect, process, or scan file contents.`,
   },
+  {
+    q: 'What is file metadata?',
+    a: "Metadata is information embedded in a file by the device or software that created it. Depending on the file type, it can include GPS coordinates, device make and model, the author's name, organization, revision history, or creation timestamps. These details aren't visible when you open the file but travel with it whenever it's shared.",
+  },
+  {
+    q: 'Does FileDeadrop manage or strip file metadata?',
+    a: "No. Your file is encrypted and delivered exactly as-is. Any metadata the file contains is included in the encrypted payload and can be accessed by a recipient who knows how to inspect it. If you're sharing sensitive content, consider removing metadata locally before uploading.",
+  },
 ]
 
 export default function FaqSection() {
   return (
-    <section className={styles.section}>
+    <section id="faq" className={styles.section}>
       <SectionLabel>FAQ</SectionLabel>
       <div className={styles.faq}>
         {faqs.map(({ q, a }) => (
