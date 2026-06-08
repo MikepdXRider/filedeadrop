@@ -45,30 +45,6 @@ aws dynamodb create-table \
 
 ---
 
-## One-Time: Prepare Production Lambda Functions
-
-> **Do this before merging any Lambda source changes to `main`.**
-
-The Lambda handlers now read `BUCKET_NAME` and `TABLE_NAME` from environment variables. The existing production functions must have these set before the updated code deploys, or they will fail at runtime.
-
-Set them on each production function via the AWS console (Lambda → Function → Configuration → Environment variables) or CLI:
-
-```bash
-for fn in ephemeral-upload ephemeral-view; do
-  aws lambda update-function-configuration \
-    --function-name $fn \
-    --environment "Variables={BUCKET_NAME=ephemeral-uploads,TABLE_NAME=ephemeral-uploads}" \
-    --region us-west-2
-done
-
-aws lambda update-function-configuration \
-  --function-name filedeadrop-delete \
-  --environment "Variables={BUCKET_NAME=ephemeral-uploads}" \
-  --region us-west-2
-```
-
----
-
 ## Configuration
 
 Edit `terraform.tfvars` before running:
@@ -133,12 +109,10 @@ Then run `npm run dev` as normal. The frontend will route all API requests to th
 
 ## Deploy
 
+All Terraform commands must be run from the `terraform/` directory — the module uses a relative path to locate Lambda source files.
+
 ```bash
 cd terraform
-
-# All terraform commands must be run from the terraform/ directory.
-# The module uses a relative path (../api/lambda/) to locate Lambda source files,
-# which breaks if terraform is invoked from the repo root.
 
 # Initialize — downloads providers, configures backend
 terraform init
@@ -146,7 +120,7 @@ terraform init
 # Preview changes
 terraform plan
 
-# Apply
+# Apply — provisions all infrastructure and deploys Lambda code
 terraform apply
 ```
 
@@ -163,6 +137,20 @@ terraform destroy
 ```
 
 This removes all dev resources. Production resources are unaffected — they are not managed by this Terraform config.
+
+---
+
+## GitHub Secrets
+
+The `deploy-terraform.yml` CI workflow requires these secrets in addition to those used by the frontend workflow:
+
+| Secret | Description |
+|---|---|
+| `AWS_ROLE_ARN` | IAM role assumed via OIDC (shared with frontend workflow) |
+| `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID — passed to Terraform as `var.route53_zone_id` |
+| `TF_VAR_DEV_API_KEY` | Dev API key — passed to Terraform as `var.dev_api_key` |
+
+The IAM role behind `AWS_ROLE_ARN` must have permission to create and manage: Lambda, API Gateway, S3, DynamoDB, IAM roles/policies, ACM certificates, Route 53 records, and read/write access to the Terraform state bucket and lock table.
 
 ---
 

@@ -83,22 +83,18 @@ Triggers on changes to: `src/**`, `public/**`, `index.html`, `vite.config.*`, `p
 
 Steps: `npm ci` → `npm run build` → S3 sync (`--delete`) → CloudFront invalidation (`/*`)
 
-### Lambda — `deploy-lambda.yml`
-Triggers on changes to: `api/lambda/**`
+### Terraform — `deploy-terraform.yml`
+Triggers on changes to: `terraform/**`, `api/lambda/**`
 
-Runs a matrix job for each function — zips `index.mjs` from the named subdirectory and calls `aws lambda update-function-code`:
-- `api/lambda/upload/index.mjs` → `ephemeral-upload`
-- `api/lambda/view/index.mjs` → `ephemeral-view`
-- `api/lambda/delete/index.mjs` → `filedeadrop-delete`
-- `api/lambda/authorizer/index.mjs` → `filedeadrop-api-gateway-authorizer`
-
-The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all four function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
+Runs `terraform apply` from the `terraform/` directory — provisions all infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}` (e.g. `dev-filedeadrop-upload`).
 
 ### Required GitHub secrets
-- `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC
-- `S3_BUCKET_NAME` — destination S3 bucket (frontend)
+- `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC (used by both frontend and Terraform workflows)
+- `S3_BUCKET_NAME` — destination S3 bucket (frontend workflow)
 - `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after frontend deploy
 - `VITE_API_URL` — injected at build time
+- `TF_VAR_ROUTE53_ZONE_ID` — hosted zone ID passed to Terraform
+- `TF_VAR_DEV_API_KEY` — dev API key passed to Terraform
 
 ## Reference Material
 The `docs/` directory contains reference artifacts — consult them for context when needed:
