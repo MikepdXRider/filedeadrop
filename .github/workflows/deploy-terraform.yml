@@ -1,0 +1,45 @@
+name: Deploy Terraform
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'terraform/**'
+      - 'api/lambda/**'
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+concurrency:
+  group: terraform-apply
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-west-2
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~> 1.14"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_dev_api_key: ${{ secrets.TF_VAR_DEV_API_KEY }}
+          TF_VAR_route53_zone_id: ${{ secrets.TF_VAR_ROUTE53_ZONE_ID }}
