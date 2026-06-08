@@ -9,6 +9,8 @@
   background: var(--color-inset);
   margin-bottom: 28px;
   cursor: pointer;
+  min-height: 220px;
+  justify-content: center;
 }
 
 .primary {

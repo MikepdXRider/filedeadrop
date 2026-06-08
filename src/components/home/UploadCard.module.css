@@ -55,6 +55,8 @@
   text-align: center;
   background: var(--color-inset);
   margin-bottom: 28px;
+  min-height: 220px;
+  justify-content: center;
 }
 
 .panelClickable {
