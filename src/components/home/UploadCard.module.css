@@ -73,6 +73,13 @@
   color: var(--color-muted);
 }
 
+.disclaimer {
+  font-size: 12px;
+  color: var(--color-secondary);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
 .panelUrl {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;

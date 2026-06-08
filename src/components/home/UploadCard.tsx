@@ -25,6 +25,11 @@ export default function UploadCard({ status, file, shareUrl, error, onFileSelect
         {(status === 'idle' || status === 'ready') && (
           <>
             <FileDropZone onFileSelect={onFileSelect} disabled={false} selectedFile={file} />
+            <p className={styles.disclaimer}>
+              Did you know your file may contain hidden personal information in its metadata?
+              <br />
+              <a href="#faq">Learn more in our FAQ.</a>
+            </p>
             <div className={styles.controls}>
               <button className={styles.button} onClick={onUpload} disabled={status === 'idle'}>
                 Generate link →
