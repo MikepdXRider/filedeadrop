@@ -25,12 +25,8 @@
 - [x] **5. Lambda functions have no `timeout` or `memory_size`** — `lambda.tf`
   Set `timeout = 10` on all four functions. Memory left at 128 MB — functions are I/O-bound with no large in-memory data; default is sufficient.
 
-- [ ] **6. Authorizer caching disabled — every request invokes Lambda** — `api_gateway.tf:20`
-  `identity_sources = []` disables result caching; API Gateway can't cache without a cache key. For a simple API key check, set identity sources and a TTL:
-  ```hcl
-  identity_sources                  = ["$request.header.x-api-key"]
-  authorizer_result_ttl_in_seconds  = 300
-  ```
+- [x] **6. Authorizer caching disabled — every request invokes Lambda** — `api_gateway.tf:20`
+  **Not applicable:** Each share link is used once — there's no repeat caller pattern for cached auth decisions to benefit. Accepted as-is. Long-term: a REST API with native request validation (OpenAPI/Swagger) may eliminate the need for the Lambda authorizer entirely.
 
 - [ ] **7. `auto_deploy = true` is risky for prod** — `api_gateway.tf:71`
   Fine for dev, but any Terraform change to routes or integrations goes live immediately. When a `prod` module call is added, this should be `false` with an explicit `aws_apigatewayv2_deployment` resource.
