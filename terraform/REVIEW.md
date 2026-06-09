@@ -11,7 +11,7 @@
   allow_headers = ["Content-Type", "Content-Length", "x-api-key"]
   ```
 
-- [ ] **3. S3 lifecycle `days = 1` doesn't guarantee 24-hour expiry** — `storage.tf:36`
+- [x] **3. S3 lifecycle `days = 1` doesn't guarantee 24-hour expiry** — `storage.tf:36`
   AWS processes lifecycle rules once per day at a day boundary, so objects can survive anywhere from minutes to ~48 hours. DynamoDB TTL is the more reliable access-control gate — S3 lifecycle is just cleanup. Worth documenting this discrepancy so the "deleted after 24 hours" promise isn't overstated.
 
 ---
