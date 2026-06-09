@@ -107,6 +107,22 @@ Then run `npm run dev` as normal. The frontend will route all API requests to th
 
 ---
 
+## Before You Apply: API Gateway CloudWatch Role
+
+This configuration includes `aws_api_gateway_account`, which sets the CloudWatch Logs IAM role for **all API Gateway APIs in the AWS account and region** — not just the ones managed here. Applying it will overwrite any existing CloudWatch role configuration.
+
+Before running `terraform apply` for the first time, check whether a role is already set:
+
+```bash
+aws apigateway get-account --region us-west-2
+```
+
+If `cloudwatchRoleArn` is populated, an existing role is in use. Verify the new role (`${env}-filedeadrop-apigw-logs`) has equivalent or broader permissions before applying — otherwise you may break CloudWatch logging for other APIs in the account, including any existing production functions.
+
+If this is a fresh AWS account with no existing API Gateway configuration, no action is needed.
+
+---
+
 ## Deploy
 
 All Terraform commands must be run from the `terraform/` directory — the module uses a relative path to locate Lambda source files.

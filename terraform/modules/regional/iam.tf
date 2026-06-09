@@ -1,3 +1,9 @@
+# NOTE: aws_api_gateway_account is account-scoped, not per-API.
+# Applying this resource sets the CloudWatch Logs role for ALL API Gateway
+# APIs in this AWS account and region. If a role is already configured,
+# this will overwrite it. Coordinate before applying in a shared account.
+# Check current setting: aws apigateway get-account --region us-west-2
+
 locals {
   lambda_trust_policy = jsonencode({
     Version = "2012-10-17"
@@ -113,4 +119,27 @@ resource "aws_iam_role" "authorizer_exec" {
 resource "aws_iam_role_policy_attachment" "authorizer_basic" {
   role       = aws_iam_role.authorizer_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# --- API Gateway CloudWatch Logs (account-scoped) ---
+
+resource "aws_iam_role" "apigw_cloudwatch" {
+  name = "${var.env}-filedeadrop-apigw-logs"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "apigateway.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "apigw_cloudwatch" {
+  role       = aws_iam_role.apigw_cloudwatch.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+resource "aws_api_gateway_account" "main" {
+  cloudwatch_role_arn = aws_iam_role.apigw_cloudwatch.arn
 }

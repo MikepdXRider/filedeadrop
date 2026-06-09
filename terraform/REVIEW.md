@@ -28,11 +28,12 @@
 - [x] **6. Authorizer caching disabled — every request invokes Lambda** — `api_gateway.tf:20`
   **Not applicable:** Each share link is used once — there's no repeat caller pattern for cached auth decisions to benefit. Accepted as-is. Long-term: a REST API with native request validation (OpenAPI/Swagger) may eliminate the need for the Lambda authorizer entirely.
 
-- [ ] **7. `auto_deploy = true` is risky for prod** — `api_gateway.tf:71`
-  Fine for dev, but any Terraform change to routes or integrations goes live immediately. When a `prod` module call is added, this should be `false` with an explicit `aws_apigatewayv2_deployment` resource.
+- [x] **7. `auto_deploy = true` is risky for prod** — `api_gateway.tf:71`
+  **Deferred:** Acceptable for dev. Revisit when adding a `prod` module call — either switch to `false` with an explicit deployment resource for hard cut-over control, or keep `true` and rely on PR review as the gate.
 
-- [ ] **8. No API Gateway access logging** — `api_gateway.tf`
-  The `$default` stage has no `access_log_settings`. Without it, the only visibility into traffic is Lambda CloudWatch logs. Add a CloudWatch log group and `access_log_settings` block to the stage with a useful log format (`$context.requestId`, `$context.status`, `$context.routeKey`, `$context.integrationErrorMessage`).
+- [x] **8. No API Gateway access logging** — `api_gateway.tf`
+  Added CloudWatch log group and structured JSON `access_log_settings` to the `$default` stage. Added `aws_api_gateway_account` in `iam.tf` to wire the CloudWatch role.
+  **⚠️ Account-wide impact:** `aws_api_gateway_account` sets the CloudWatch Logs role for all API Gateway APIs in the region — not just this one. Check existing account config before applying: `aws apigateway get-account --region us-west-2`. See `terraform/README.md` for full guidance.
 
 ---
 
