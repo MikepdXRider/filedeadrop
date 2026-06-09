@@ -18,21 +18,12 @@
 
 ## Security / Best Practice
 
-- [ ] **4. No S3 server-side encryption configured** — `storage.tf`
-  Files are already client-side AES-GCM encrypted, but SSE should be declared explicitly as defense-in-depth.
-  ```hcl
-  resource "aws_s3_bucket_server_side_encryption_configuration" "files" {
-    bucket = aws_s3_bucket.files.id
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-  ```
+- [x] **4. No S3 server-side encryption configured** — `storage.tf`
+  ~~Files are already client-side AES-GCM encrypted, but SSE should be declared explicitly as defense-in-depth.~~
+  **Accepted:** AWS enables SSE-S3 (AES-256) by default on all new buckets as of Jan 2023. Explicit declaration adds no new security control at this stage. Revisit if a compliance requirement emerges.
 
-- [ ] **5. Lambda functions have no `timeout` or `memory_size`** — `lambda.tf`
-  All four functions use defaults: 3-second timeout, 128 MB memory. Cold starts alone can eat 1–2 seconds. Set explicit values (e.g. `timeout = 10`, `memory_size = 256`) to document intent and avoid silent timeouts under load.
+- [x] **5. Lambda functions have no `timeout` or `memory_size`** — `lambda.tf`
+  Set `timeout = 10` on all four functions. Memory left at 128 MB — functions are I/O-bound with no large in-memory data; default is sufficient.
 
 - [ ] **6. Authorizer caching disabled — every request invokes Lambda** — `api_gateway.tf:20`
   `identity_sources = []` disables result caching; API Gateway can't cache without a cache key. For a simple API key check, set identity sources and a TTL:

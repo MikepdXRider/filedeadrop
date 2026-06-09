@@ -29,6 +29,7 @@ resource "aws_lambda_function" "upload" {
   handler          = "index.handler"
   filename         = data.archive_file.upload.output_path
   source_code_hash = data.archive_file.upload.output_base64sha256
+  timeout          = 10
 
   environment {
     variables = {
@@ -45,6 +46,7 @@ resource "aws_lambda_function" "view" {
   handler          = "index.handler"
   filename         = data.archive_file.view.output_path
   source_code_hash = data.archive_file.view.output_base64sha256
+  timeout          = 10
 
   environment {
     variables = {
@@ -61,6 +63,7 @@ resource "aws_lambda_function" "delete" {
   handler          = "index.handler"
   filename         = data.archive_file.delete.output_path
   source_code_hash = data.archive_file.delete.output_base64sha256
+  timeout          = 10
 
   environment {
     variables = {
@@ -76,6 +79,7 @@ resource "aws_lambda_function" "authorizer" {
   handler          = "index.handler"
   filename         = data.archive_file.authorizer.output_path
   source_code_hash = data.archive_file.authorizer.output_base64sha256
+  timeout          = 10
 
   dynamic "environment" {
     for_each = var.dev_api_key != null ? [1] : []
