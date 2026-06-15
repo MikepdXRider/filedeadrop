@@ -18,5 +18,5 @@ variable "dev_api_key" {
 variable "frontend_origins" {
   description = "Allowed CORS origins for the dev API"
   type        = list(string)
-  default     = ["https://filedeadrop.com", "https://www.filedeadrop.com", "http://localhost:5173"]
+  default     = ["http://localhost:5173"]
 }
