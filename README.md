@@ -12,9 +12,9 @@ Files are encrypted entirely in the browser before upload. The encryption key ne
 
 1. The browser generates an AES-GCM-128 key using the Web Crypto API
 2. The file is encrypted client-side; the IV is prepended to the ciphertext
-3. The client requests a presigned S3 URL from the API
+3. The client selects a storage region (US or EU) and calls the corresponding regional API to request a presigned S3 URL
 4. The encrypted bytes are uploaded directly to S3 — they never pass through the application server
-5. The encryption key and AES-GCM-encrypted filename are embedded in the share URL fragment (`#key:encrypted-filename`)
+5. The encryption key, AES-GCM-encrypted filename, and storage region (encoded in the share URL host) are embedded in the share link — e.g. `eu.filedeadrop.com/view/{id}#key:filename` for an EU upload
 
 ### View
 
@@ -59,6 +59,9 @@ A 24-hour S3 lifecycle rule handles object expiry independently of application l
 **Encrypted filename in the URL fragment**
 The original filename is encrypted with the same AES-GCM key (a fresh IV is generated independently) before being embedded in the fragment. The filename is never sent to any server and is only recoverable by someone who holds the key — making the share link the sole source of both file and filename access.
 
+**Regional data residency**
+Users choose a storage region (US or EU) at upload time. The share URL host encodes where the file is stored — `us.filedeadrop.com/view/...` for US, `eu.filedeadrop.com/view/...` for EU. The view page derives the correct regional API URL from `window.location.hostname` at runtime, so no rebuild is needed to add a region and files never cross regional boundaries.
+
 **Anonymous access**
 No accounts, sessions, or cookies. The share link is the only credential.
 
@@ -73,6 +76,7 @@ No accounts, sessions, or cookies. The share link is the only credential.
 | Styling | CSS Modules, Inter + JetBrains Mono (Google Fonts) |
 | Encryption | Web Crypto API (AES-GCM-128) |
 | Backend | AWS Lambda (Node.js) |
+| IaC | Terraform |
 | API | AWS API Gateway (HTTP API) |
 | Storage | Amazon S3 |
 | Database | Amazon DynamoDB |
@@ -104,25 +108,38 @@ npm run build
 
 ## Deployment
 
-Push to `main` triggers path-filtered GitHub Actions workflows. Authentication uses OIDC (`aws-actions/configure-aws-credentials`) — no long-lived AWS credentials are stored in GitHub.
+Path-filtered GitHub Actions workflows trigger on push to `dev` or `main`. Authentication uses OIDC (`aws-actions/configure-aws-credentials`) — no long-lived AWS credentials are stored in GitHub.
 
 ### Frontend (`deploy-frontend.yml`)
-Triggers on changes to `src/**`, `public/**`, `index.html`, `vite.config.*`, `package*.json`.
+Triggers on push to `main` with changes to `src/**`, `public/**`, `index.html`, `vite.config.*`, `package*.json`.
 
-1. `npm ci` + `npm run build` (with `VITE_API_URL` injected at build time)
+1. `npm ci` + `npm run build`
 2. `aws s3 sync dist/ s3://<bucket> --delete`
 3. CloudFront invalidation (`/*`) to serve the fresh build immediately
 
 ### Infrastructure & Lambda (`deploy-terraform.yml`)
-Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply` from the appropriate environment directory (`terraform/environments/dev/` on the `dev` branch, `terraform/environments/prod/` on `main`) — provisions all AWS infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}`.
+Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply` from the appropriate environment directory — `terraform/environments/dev/` on `dev`, `terraform/environments/prod/` on `main`. Provisions all AWS infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}`.
 
-**Required GitHub secrets**
+**GitHub secrets — repository level** (frontend workflow)
 
 | Secret | Description |
 |---|---|
-| `AWS_ROLE_ARN` | IAM role assumed via OIDC — must have broad AWS permissions to manage all infrastructure |
-| `S3_BUCKET_NAME` | Destination S3 bucket (frontend workflow) |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Distribution invalidated after each frontend deploy |
-| `VITE_API_URL` | Local dev fallback API URL — production routing is hostname/region-based at runtime |
-| `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID passed to Terraform |
-| `TF_VAR_DEV_API_KEY` | Dev environment API key passed to Terraform |
+| `AWS_ROLE_ARN` | IAM role assumed via OIDC |
+| `S3_BUCKET_NAME` | Destination S3 bucket |
+| `CLOUDFRONT_DISTRIBUTION_ID` | Distribution invalidated after each deploy |
+| `VITE_API_URL` | Local dev fallback only — production API routing is hostname-based at runtime |
+
+**GitHub secrets — `dev` environment** (Terraform workflow, dev branch)
+
+| Secret | Description |
+|---|---|
+| `AWS_ROLE_ARN` | IAM role assumed via OIDC |
+| `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID for `filedeadrop.com` |
+| `TF_VAR_DEV_API_KEY` | Dev API key — must match `VITE_DEV_API_KEY` in `.env.local` |
+
+**GitHub secrets — `production` environment** (Terraform workflow, main branch)
+
+| Secret | Description |
+|---|---|
+| `AWS_ROLE_ARN` | IAM role assumed via OIDC |
+| `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID for `filedeadrop.com` |
