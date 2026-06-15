@@ -11,6 +11,9 @@ permissions:
   id-token: write   # required for OIDC
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: terraform-apply-${{ github.ref_name }}
   cancel-in-progress: false
