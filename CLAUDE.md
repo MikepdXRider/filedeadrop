@@ -51,7 +51,10 @@ terraform/
                # deploy-terraform.yml — Terraform apply on terraform/** or api/lambda/** changes; dev job on dev branch, prod job on main
 
 ## API
-Base URL: import.meta.env.VITE_API_URL
+Base URL: derived at runtime — not a single env var.
+- Upload: `getApiUrlForUpload(region)` in `api.ts` maps AWS region → API URL via `REGION_API_URLS` in `constants.ts`
+- View: `getApiUrlForView()` in `api.ts` maps `window.location.hostname` → API URL via `HOSTNAME_API_URLS` in `constants.ts`
+- `VITE_API_URL` is the local dev fallback when no hostname/region mapping exists
 
 All API calls live in src/utils/api.ts
 All requests use fetch with async/await
@@ -59,7 +62,7 @@ All requests include header: Content-Type: application/json
 
 Endpoints:
 PUT /upload
-  body: { fileSize: number, region: string }  # fileSize is encryptedBytes.byteLength, not file.size
+  body: { fileSize: number }  # fileSize is encryptedBytes.byteLength, not file.size
   returns: { presignedUrl: string, sharePath: string }
 
 GET /view/{id}
@@ -70,7 +73,7 @@ DELETE /delete/{id}
   note: DynamoDB access gate is handled on view — this endpoint is S3 cleanup only, best-effort
 
 ## Environment Variables
-VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
+VITE_API_URL= # local dev fallback only — e.g. https://dev.api.filedeadrop.com; production routing is hostname/region-based
 
 Never hardcode these values. Always reference via import.meta.env
 
@@ -124,7 +127,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - All API calls in src/utils/api.ts, never inline in components
 - All encryption/decryption logic lives in src/utils/crypto.ts
 - View page extracts :id from the URL path param and passes it to GET /view/{id}
-- Share URL format: {origin}/view/{id}#{base64url-key}:{base64url-encrypted-filename} — both key and encrypted filename in fragment, nothing sensitive in query params
+- Share URL format: {regional-origin}/view/{id}#{base64url-key}:{base64url-encrypted-filename} — host encodes the storage region (e.g. eu.filedeadrop.com for EU uploads); key and encrypted filename in fragment, nothing sensitive in query params
 - Use Uint8Array<ArrayBuffer> (not ArrayBufferLike) for BodyInit compatibility with TypeScript 6
 - Default AWS region: us-west-2
 - CSS Modules only for component styles — each component has a co-located .module.css file
@@ -144,6 +147,9 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
 - 25MB file size limit: frontend validates file.size ≤ 25MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 25MB + 28 bytes to account for AES-GCM overhead
 - Lambda resource names (BUCKET_NAME, TABLE_NAME) are read from environment variables — Terraform sets these per environment; production values must be set manually before deploying Lambda source changes
+- Runtime API URL routing: upload uses `getApiUrlForUpload(region)` → `REGION_API_URLS` lookup; view uses `getApiUrlForView()` → `HOSTNAME_API_URLS` lookup on `window.location.hostname`; `VITE_API_URL` is the localhost fallback only
+- Share URL host reflects the upload region: EU upload on any frontend → share link is `eu.filedeadrop.com/view/{id}` so the view page routes to `eu.api.filedeadrop.com`
+- Adding a new region requires only new entries in `REGION_API_URLS`, `HOSTNAME_API_URLS`, `REGION_FRONTEND_ORIGINS`, `SUPPORTED_REGIONS` (all in `constants.ts`) plus a new Terraform module block
 - MVP user is anonymous, no account required
 
 ## Design

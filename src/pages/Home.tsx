@@ -7,7 +7,7 @@ import SecurityCard from '../components/home/SecurityCard'
 import FaqSection from '../components/home/FaqSection'
 
 export default function Home() {
-  const { status, file, shareUrl, error, handleFileSelect, handleUpload, reset } = useUpload()
+  const { status, file, shareUrl, error, selectedRegion, handleFileSelect, handleRegionSelect, handleUpload, reset } = useUpload()
 
   return (
     <main>
@@ -18,7 +18,9 @@ export default function Home() {
         file={file}
         shareUrl={shareUrl}
         error={error}
+        selectedRegion={selectedRegion}
         onFileSelect={handleFileSelect}
+        onRegionChange={handleRegionSelect}
         onUpload={handleUpload}
         onReset={reset}
       />
