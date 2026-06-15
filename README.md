@@ -123,6 +123,6 @@ Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply`
 | `AWS_ROLE_ARN` | IAM role assumed via OIDC — must have broad AWS permissions to manage all infrastructure |
 | `S3_BUCKET_NAME` | Destination S3 bucket (frontend workflow) |
 | `CLOUDFRONT_DISTRIBUTION_ID` | Distribution invalidated after each frontend deploy |
-| `VITE_API_URL` | API base URL injected at frontend build time |
+| `VITE_API_URL` | Local dev fallback API URL — production routing is hostname/region-based at runtime |
 | `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID passed to Terraform |
 | `TF_VAR_DEV_API_KEY` | Dev environment API key passed to Terraform |
