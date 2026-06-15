@@ -7,8 +7,8 @@ const s3 = new S3Client({});
 const dynamo = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamo);
 
-const BUCKET = "ephemeral-uploads";
-const TABLE = "ephemeral-uploads";
+const BUCKET = process.env.BUCKET_NAME;
+const TABLE = process.env.TABLE_NAME;
 const ITEM_TYPE = "META";
 const AES_GCM_OVERHEAD = 12 + 16; // IV + auth tag prepended/appended by AES-GCM
 const MAX_FILE_SIZE = 25 * 1024 * 1024 + AES_GCM_OVERHEAD;

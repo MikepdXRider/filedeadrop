@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ==================== BACKGROUND GROUPS ==================== -->
+
+    <mxCell id="2" value="DNS &amp; TLS" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;verticalAlign=top;arcSize=5;opacity=50;" vertex="1" parent="1">
+      <mxGeometry x="170" y="185" width="200" height="340" as="geometry" />
+    </mxCell>
+
+    <mxCell id="3" value="API Gateway — dev-filedeadrop-api" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;verticalAlign=top;arcSize=3;opacity=50;" vertex="1" parent="1">
+      <mxGeometry x="420" y="65" width="230" height="510" as="geometry" />
+    </mxCell>
+
+    <mxCell id="4" value="Lambda Functions" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;verticalAlign=top;arcSize=3;opacity=50;" vertex="1" parent="1">
+      <mxGeometry x="670" y="130" width="210" height="510" as="geometry" />
+    </mxCell>
+
+    <mxCell id="5" value="Storage" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;verticalAlign=top;arcSize=3;opacity=50;" vertex="1" parent="1">
+      <mxGeometry x="960" y="185" width="210" height="380" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== NODES ==================== -->
+
+    <!-- Client -->
+    <mxCell id="6" value="Browser / Client" style="shape=mxgraph.cisco.computers_and_peripherals.pc;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+      <mxGeometry x="30" y="355" width="80" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Route 53 -->
+    <mxCell id="7" value="Route 53&#xa;A record alias&#xa;dev.api.filedeadrop.com" style="rounded=1;whiteSpace=wrap;fillColor=#8C4FFF;strokeColor=#6B35FF;fontColor=#ffffff;fontSize=11;html=1;" vertex="1" parent="1">
+      <mxGeometry x="190" y="225" width="160" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- ACM Certificate -->
+    <mxCell id="8" value="ACM Certificate&#xa;dev.api.filedeadrop.com&#xa;DNS validated" style="rounded=1;whiteSpace=wrap;fillColor=#DD344C;strokeColor=#BE2A3A;fontColor=#ffffff;fontSize=11;html=1;" vertex="1" parent="1">
+      <mxGeometry x="190" y="390" width="160" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- API Gateway -->
+    <mxCell id="9" value="&lt;b&gt;HTTP API&lt;/b&gt;  |  Protocol: HTTP  |  auto_deploy: true" style="rounded=1;whiteSpace=wrap;fillColor=#8C4FFF;strokeColor=#6B35FF;fontColor=#ffffff;fontSize=11;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="95" width="200" height="45" as="geometry" />
+    </mxCell>
+
+    <!-- Stage -->
+    <mxCell id="10" value="$default stage  |  throttle: 50 req/s upload  ·  50 req/s default" style="rounded=1;whiteSpace=wrap;fillColor=#9673a6;strokeColor=#7952A3;fontColor=#ffffff;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="160" width="200" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- Authorizer indicator -->
+    <mxCell id="11" value="&lt;b&gt;Lambda Authorizer&lt;/b&gt; — fires on every request" style="rounded=1;whiteSpace=wrap;fillColor=#9673a6;strokeColor=#7952A3;fontColor=#ffffff;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="218" width="200" height="35" as="geometry" />
+    </mxCell>
+
+    <!-- PUT /upload route -->
+    <mxCell id="12" value="&lt;b&gt;PUT /upload&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="273" width="200" height="35" as="geometry" />
+    </mxCell>
+
+    <!-- GET /view/{id} route -->
+    <mxCell id="13" value="&lt;b&gt;GET /view/{id}&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="328" width="200" height="35" as="geometry" />
+    </mxCell>
+
+    <!-- DELETE /delete/{id} route -->
+    <mxCell id="14" value="&lt;b&gt;DELETE /delete/{id}&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="383" width="200" height="35" as="geometry" />
+    </mxCell>
+
+    <!-- CORS note -->
+    <mxCell id="15" value="CORS at API level&#xa;allow_headers: Content-Type, Content-Length, x-api-key" style="text;html=1;fontSize=9;fontStyle=2;align=center;verticalAlign=middle;" vertex="1" parent="1">
+      <mxGeometry x="430" y="430" width="210" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- Authorizer Lambda -->
+    <mxCell id="16" value="&lt;b&gt;dev-filedeadrop-authorizer&lt;/b&gt;&#xa;• Validates x-api-key (dev only)&#xa;• Enforces 10KB payload limit&#xa;IAM: basic execution only" style="rounded=1;whiteSpace=wrap;fillColor=#FF9900;strokeColor=#E08600;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="683" y="163" width="185" height="75" as="geometry" />
+    </mxCell>
+
+    <!-- Upload Lambda -->
+    <mxCell id="17" value="&lt;b&gt;dev-filedeadrop-upload&lt;/b&gt;&#xa;IAM role:&#xa;• s3:PutObject&#xa;• dynamodb:PutItem" style="rounded=1;whiteSpace=wrap;fillColor=#FF9900;strokeColor=#E08600;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="683" y="268" width="185" height="75" as="geometry" />
+    </mxCell>
+
+    <!-- View Lambda -->
+    <mxCell id="18" value="&lt;b&gt;dev-filedeadrop-view&lt;/b&gt;&#xa;IAM role:&#xa;• s3:GetObject, s3:DeleteObject&#xa;• dynamodb:DeleteItem" style="rounded=1;whiteSpace=wrap;fillColor=#FF9900;strokeColor=#E08600;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="683" y="373" width="185" height="75" as="geometry" />
+    </mxCell>
+
+    <!-- Delete Lambda -->
+    <mxCell id="19" value="&lt;b&gt;dev-filedeadrop-delete&lt;/b&gt;&#xa;IAM role:&#xa;• s3:DeleteObject" style="rounded=1;whiteSpace=wrap;fillColor=#FF9900;strokeColor=#E08600;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="683" y="483" width="185" height="65" as="geometry" />
+    </mxCell>
+
+    <!-- S3 Bucket -->
+    <mxCell id="20" value="&lt;b&gt;S3: dev-filedeadrop-files&lt;/b&gt;&#xa;Private — no public access&#xa;CORS: presigned URL origins&#xa;Lifecycle: delete after 24h" style="rounded=1;whiteSpace=wrap;fillColor=#3F8624;strokeColor=#2D6419;fontColor=#ffffff;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="975" y="215" width="180" height="80" as="geometry" />
+    </mxCell>
+
+    <!-- DynamoDB -->
+    <mxCell id="21" value="&lt;b&gt;DynamoDB: dev-filedeadrop-metadata&lt;/b&gt;&#xa;Hash: documentId  |  Range: itemType&#xa;TTL: expiresAt (lag up to 48h)&#xa;Billing: PAY_PER_REQUEST" style="rounded=1;whiteSpace=wrap;fillColor=#3334B9;strokeColor=#1E1F7B;fontColor=#ffffff;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="975" y="385" width="180" height="80" as="geometry" />
+    </mxCell>
+
+    <!-- CloudWatch Logs -->
+    <mxCell id="22" value="&lt;b&gt;CloudWatch Logs&lt;/b&gt;&#xa;/aws/apigateway/dev-filedeadrop&#xa;Retention: 30 days" style="rounded=1;whiteSpace=wrap;fillColor=#E7157B;strokeColor=#C70C63;fontColor=#ffffff;fontSize=10;html=1;" vertex="1" parent="1">
+      <mxGeometry x="435" y="680" width="200" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== EDGES ==================== -->
+
+    <!-- Client → Route 53 -->
+    <mxCell id="23" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;fontStyle=1;" edge="1" source="6" target="7" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Route 53 → API GW -->
+    <mxCell id="24" value="alias" style="edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" source="7" target="9" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ACM → API GW (dashed) -->
+    <mxCell id="25" value="TLS cert" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#DD344C;fontSize=10;" edge="1" source="8" target="9" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Authorizer indicator → Authorizer Lambda -->
+    <mxCell id="26" value="resource policy: /authorizers/{id}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;fontStyle=2;fontSize=9;" edge="1" source="11" target="16" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- PUT /upload → Upload Lambda -->
+    <mxCell id="27" value="resource policy: $default/PUT/upload" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;fontStyle=2;fontSize=9;" edge="1" source="12" target="17" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- GET /view → View Lambda -->
+    <mxCell id="28" value="resource policy: $default/GET/view/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;fontStyle=2;fontSize=9;" edge="1" source="13" target="18" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- DELETE /delete → Delete Lambda -->
+    <mxCell id="29" value="resource policy: $default/DELETE/delete/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;fontStyle=2;fontSize=9;" edge="1" source="14" target="19" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Upload Lambda → S3 -->
+    <mxCell id="30" value="PutObject (IAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#3F8624;fontSize=10;" edge="1" source="17" target="20" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Upload Lambda → DynamoDB -->
+    <mxCell id="31" value="PutItem (IAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#3334B9;fontSize=10;" edge="1" source="17" target="21" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- View Lambda → S3 -->
+    <mxCell id="32" value="GetObject + DeleteObject (IAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#3F8624;fontSize=10;" edge="1" source="18" target="20" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- View Lambda → DynamoDB -->
+    <mxCell id="33" value="DeleteItem (IAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#3334B9;fontSize=10;" edge="1" source="18" target="21" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Delete Lambda → S3 -->
+    <mxCell id="34" value="DeleteObject (IAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#3F8624;fontSize=10;" edge="1" source="19" target="20" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- API GW → CloudWatch -->
+    <mxCell id="35" value="access logs (apigw IAM role)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#E7157B;fontSize=10;" edge="1" source="9" target="22" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Client → S3 presigned URL (routes over the top, bypasses all middleware) -->
+    <mxCell id="36" value="presigned PUT + GET (direct — bypasses API GW + Lambda)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#3F8624;fontSize=10;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="6" target="20" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="70" y="30" />
+          <mxPoint x="1065" y="30" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+
+  </root>
+</mxGraphModel>
