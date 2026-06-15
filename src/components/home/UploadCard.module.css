@@ -52,10 +52,20 @@
   background-position: right 9px center;
 }
 
+.regionGroupHidden {
+  visibility: hidden;
+}
+
 .regionSelect:focus {
   outline: 1.5px solid var(--color-text);
   outline-offset: 2px;
 }
+
+.regionSelect:disabled {
+  color: var(--color-muted);
+  cursor: default;
+}
+
 
 .regionSelect option {
   background: var(--color-surface);
