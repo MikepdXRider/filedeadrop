@@ -1,7 +1,7 @@
 # Dev environment entry point — provisions the full regional stack for the dev
-# environment in us-west-2. State is stored in the shared S3 backend (key is
-# unchanged from the original root config to avoid a state migration on a live
-# environment). To add production, see environments/prod/main.tf.
+# environment in us-west-2. State is stored in the shared S3 backend; the key
+# is unchanged from the original root config to avoid a state migration on a
+# live environment. To add production, see environments/prod/main.tf.
 
 terraform {
   required_version = "~> 1.14"
