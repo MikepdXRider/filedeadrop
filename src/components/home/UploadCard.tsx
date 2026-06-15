@@ -65,20 +65,19 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
         </p>
 
         <div className={styles.controls}>
-          {(status === 'idle' || status === 'ready') && (
-            <div className={styles.regionGroup}>
-              <span className={styles.regionLabel}>Region</span>
-              <select
-                className={styles.regionSelect}
-                value={selectedRegion}
-                onChange={e => onRegionChange(e.target.value)}
-              >
-                {SUPPORTED_REGIONS.map(r => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className={`${styles.regionGroup} ${status === 'done' ? styles.regionGroupHidden : ''}`}>
+            <span className={styles.regionLabel}>Region</span>
+            <select
+              className={styles.regionSelect}
+              value={selectedRegion}
+              onChange={e => onRegionChange(e.target.value)}
+              disabled={status === 'encrypting' || status === 'uploading'}
+            >
+              {SUPPORTED_REGIONS.map(r => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
+            </select>
+          </div>
 
           {(status === 'idle' || status === 'ready') && (
             <button className={styles.button} onClick={onUpload} disabled={status === 'idle'}>
