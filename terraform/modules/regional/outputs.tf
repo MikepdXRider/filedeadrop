@@ -1,3 +1,7 @@
+# Module outputs — exposes the key identifiers produced by this regional stack
+# so the root module can surface them to the operator and so other modules or
+# resources can reference them without hardcoding names.
+
 output "api_url" {
   description = "Base URL for the API (custom domain)"
   value       = "https://${aws_apigatewayv2_domain_name.api.domain_name}"

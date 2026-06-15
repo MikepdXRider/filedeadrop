@@ -1,31 +1,38 @@
+# Lambda functions — packages and deploys the four Node.js handlers that form
+# the API backend. archive_file zips each handler from source at apply time;
+# source_code_hash ensures AWS receives the updated zip whenever the source
+# changes. Each function gets its own IAM execution role (defined in iam.tf)
+# and the environment variables it needs to locate its S3 bucket and DynamoDB
+# table. The authorizer runs on every request before any route handler fires.
+
 data "archive_file" "upload" {
   type        = "zip"
-  source_file = "${path.root}/../api/lambda/upload/index.mjs"
-  output_path = "${path.module}/dist/upload.zip"
+  source_file = "${var.lambda_source_dir}/upload/index.mjs"
+  output_path = "${path.root}/dist/${var.env}/upload.zip"
 }
 
 data "archive_file" "view" {
   type        = "zip"
-  source_file = "${path.root}/../api/lambda/view/index.mjs"
-  output_path = "${path.module}/dist/view.zip"
+  source_file = "${var.lambda_source_dir}/view/index.mjs"
+  output_path = "${path.root}/dist/${var.env}/view.zip"
 }
 
 data "archive_file" "delete" {
   type        = "zip"
-  source_file = "${path.root}/../api/lambda/delete/index.mjs"
-  output_path = "${path.module}/dist/delete.zip"
+  source_file = "${var.lambda_source_dir}/delete/index.mjs"
+  output_path = "${path.root}/dist/${var.env}/delete.zip"
 }
 
 data "archive_file" "authorizer" {
   type        = "zip"
-  source_file = "${path.root}/../api/lambda/authorizer/index.mjs"
-  output_path = "${path.module}/dist/authorizer.zip"
+  source_file = "${var.lambda_source_dir}/authorizer/index.mjs"
+  output_path = "${path.root}/dist/${var.env}/authorizer.zip"
 }
 
 resource "aws_lambda_function" "upload" {
   function_name    = "${var.env}-filedeadrop-upload"
   role             = aws_iam_role.upload_exec.arn
-  runtime          = "nodejs24.x"
+  runtime          = "nodejs22.x"
   handler          = "index.handler"
   filename         = data.archive_file.upload.output_path
   source_code_hash = data.archive_file.upload.output_base64sha256
@@ -42,7 +49,7 @@ resource "aws_lambda_function" "upload" {
 resource "aws_lambda_function" "view" {
   function_name    = "${var.env}-filedeadrop-view"
   role             = aws_iam_role.view_exec.arn
-  runtime          = "nodejs24.x"
+  runtime          = "nodejs22.x"
   handler          = "index.handler"
   filename         = data.archive_file.view.output_path
   source_code_hash = data.archive_file.view.output_base64sha256
@@ -59,7 +66,7 @@ resource "aws_lambda_function" "view" {
 resource "aws_lambda_function" "delete" {
   function_name    = "${var.env}-filedeadrop-delete"
   role             = aws_iam_role.delete_exec.arn
-  runtime          = "nodejs24.x"
+  runtime          = "nodejs22.x"
   handler          = "index.handler"
   filename         = data.archive_file.delete.output_path
   source_code_hash = data.archive_file.delete.output_base64sha256
@@ -75,7 +82,7 @@ resource "aws_lambda_function" "delete" {
 resource "aws_lambda_function" "authorizer" {
   function_name    = "${var.env}-filedeadrop-authorizer"
   role             = aws_iam_role.authorizer_exec.arn
-  runtime          = "nodejs24.x"
+  runtime          = "nodejs22.x"
   handler          = "index.handler"
   filename         = data.archive_file.authorizer.output_path
   source_code_hash = data.archive_file.authorizer.output_base64sha256
@@ -96,7 +103,7 @@ resource "aws_lambda_permission" "authorizer" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.authorizer.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/authorizers/${aws_apigatewayv2_authorizer.lambda.id}"
 }
 
 resource "aws_lambda_permission" "upload" {
@@ -104,7 +111,7 @@ resource "aws_lambda_permission" "upload" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.upload.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/${aws_apigatewayv2_stage.default.name}/PUT/upload"
 }
 
 resource "aws_lambda_permission" "view" {
@@ -112,7 +119,7 @@ resource "aws_lambda_permission" "view" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.view.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/${aws_apigatewayv2_stage.default.name}/GET/view/*"
 }
 
 resource "aws_lambda_permission" "delete" {
@@ -120,5 +127,5 @@ resource "aws_lambda_permission" "delete" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.delete.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/${aws_apigatewayv2_stage.default.name}/DELETE/delete/*"
 }

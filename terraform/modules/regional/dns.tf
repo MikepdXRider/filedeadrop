@@ -1,3 +1,10 @@
+# DNS and TLS — provisions the ACM certificate for the regional API subdomain
+# (e.g. dev.api.filedeadrop.com), validates it automatically via Route 53 DNS
+# records, and wires the validated certificate to a custom API Gateway domain
+# name. The Route 53 A record aliases the custom domain to the API Gateway
+# regional endpoint. Terraform waits for DNS propagation during certificate
+# validation — this step can take up to 30 minutes on first apply.
+
 resource "aws_acm_certificate" "api" {
   domain_name       = var.api_domain
   validation_method = "DNS"

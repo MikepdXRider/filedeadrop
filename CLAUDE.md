@@ -36,13 +36,12 @@ docs/
   filedeadrop_home_mockup.html   # HTML mockup of the home page design
   filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
 terraform/
-  main.tf              # backend config + dev environment module call
-  variables.tf         # route53_zone_id, frontend_origin
-  outputs.tf           # dev API URL and resource names
-  terraform.tfvars     # non-secret values (gitignored if secrets present)
   README.md            # bootstrap instructions and manual workflow
   modules/
     regional/          # parameterized per-region module (S3, DynamoDB, Lambda, API GW, ACM, Route 53)
+  environments/
+    dev/               # dev environment — main.tf, variables.tf, outputs.tf, terraform.tfvars, secrets.tfvars (gitignored)
+    prod/              # production + EU data residency — main.tf, variables.tf (module blocks added when ready)
 .claude/
   skills/
     create-pr/   # SKILL.md — /create-pr skill for opening pull requests; includes pre-PR doc check

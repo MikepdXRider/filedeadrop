@@ -1,3 +1,7 @@
+# Dev environment outputs — surfaces key resource identifiers after apply.
+# Run `terraform output` to retrieve these values. Use dev_api_url to set
+# VITE_API_URL in the frontend .env.local for local development.
+
 output "dev_api_url" {
   description = "Dev environment API base URL"
   value       = module.dev.api_url

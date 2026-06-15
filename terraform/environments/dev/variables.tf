@@ -1,3 +1,8 @@
+# Dev environment input variables — sensitive values (route53_zone_id, dev_api_key)
+# are supplied at apply time via secrets.tfvars or TF_VAR_* env vars and are
+# never committed to the repository. frontend_origins is safe to commit and
+# lives in terraform.tfvars.
+
 variable "route53_zone_id" {
   description = "Hosted zone ID for filedeadrop.com"
   type        = string

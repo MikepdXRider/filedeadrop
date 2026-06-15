@@ -1,3 +1,11 @@
+# IAM — execution roles and policies for all four Lambda functions, following
+# least-privilege: each function gets only the specific S3 and DynamoDB actions
+# it actually calls. A shared local (lambda_trust_policy) avoids repeating the
+# assume-role boilerplate. The API Gateway CloudWatch role is account-scoped —
+# applying it overwrites the CloudWatch Logs role for all API Gateway APIs in
+# the region, not just this one. Verify no existing role is in use before the
+# first apply: aws apigateway get-account --region us-west-2
+
 # NOTE: aws_api_gateway_account is account-scoped, not per-API.
 # Applying this resource sets the CloudWatch Logs role for ALL API Gateway
 # APIs in this AWS account and region. If a role is already configured,
@@ -69,7 +77,7 @@ resource "aws_iam_role_policy" "view_resources" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["s3:GetObject"]
+        Action   = ["s3:GetObject", "s3:DeleteObject"]
         Resource = "${aws_s3_bucket.files.arn}/*"
       },
       {

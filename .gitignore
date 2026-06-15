@@ -13,14 +13,18 @@ dist-ssr
 *.local
 .env
 
+.claude
+
 # Terraform
 .terraform/
-.terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
 *.tfplan
-terraform/modules/regional/dist/
-terraform/secrets.tfvars
+terraform/environments/*/dist/
+terraform/environments/*/secrets.tfvars
+
+# Claude artifacts
+claude-artifacts/
 
 # Editor directories and files
 .vscode/*

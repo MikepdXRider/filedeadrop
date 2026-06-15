@@ -87,9 +87,11 @@ No accounts, sessions, or cookies. The share link is the only credential.
 # Install dependencies
 npm install
 
-# Set the API base URL
-cp .env.example .env
-# Edit .env and set VITE_API_URL=https://api.filedeadrop.com
+# Set environment variables (gitignored by Vite)
+cp .env.example .env.local
+# Edit .env.local:
+#   VITE_API_URL=https://dev.api.filedeadrop.com
+#   VITE_DEV_API_KEY=your-dev-api-key   # must match dev_api_key in secrets.tfvars
 
 # Start the dev server
 npm run dev
@@ -112,7 +114,7 @@ Triggers on changes to `src/**`, `public/**`, `index.html`, `vite.config.*`, `pa
 3. CloudFront invalidation (`/*`) to serve the fresh build immediately
 
 ### Infrastructure & Lambda (`deploy-terraform.yml`)
-Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply` from the `terraform/` directory — provisions all AWS infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}`.
+Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply` from the appropriate environment directory (`terraform/environments/dev/` on the `dev` branch, `terraform/environments/prod/` on `main`) — provisions all AWS infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}`.
 
 **Required GitHub secrets**
 

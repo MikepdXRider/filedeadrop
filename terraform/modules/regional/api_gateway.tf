@@ -1,3 +1,11 @@
+# API Gateway — HTTP API that receives all client requests and routes them to
+# the appropriate Lambda function. The Lambda authorizer runs before every
+# route, enforcing the 10KB payload limit and the dev API key check. CORS is
+# configured at the API level so preflight requests are handled without hitting
+# Lambda. Upload gets its own tighter throttle (50 req/s dev, 100 req/s prod);
+# all other routes share the default stage throttle. Access logs are written to
+# CloudWatch in structured JSON for observability.
+
 resource "aws_apigatewayv2_api" "main" {
   name          = "${var.env}-filedeadrop-api"
   protocol_type = "HTTP"
@@ -94,13 +102,10 @@ resource "aws_apigatewayv2_stage" "default" {
     throttling_rate_limit  = var.default_rate_limit
     throttling_burst_limit = var.default_burst_limit
   }
-}
 
-resource "aws_apigatewayv2_route_settings" "upload" {
-  api_id     = aws_apigatewayv2_api.main.id
-  stage_name = aws_apigatewayv2_stage.default.name
-  route_key  = aws_apigatewayv2_route.upload.route_key
-
-  throttling_rate_limit  = var.upload_rate_limit
-  throttling_burst_limit = var.upload_burst_limit
+  route_settings {
+    route_key              = aws_apigatewayv2_route.upload.route_key
+    throttling_rate_limit  = var.upload_rate_limit
+    throttling_burst_limit = var.upload_burst_limit
+  }
 }
