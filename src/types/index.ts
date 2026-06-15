@@ -1,6 +1,5 @@
 export interface UploadRequest {
   fileSize: number
-  region: string
 }
 
 export interface UploadResponse {

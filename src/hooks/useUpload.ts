@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { UploadStatus } from '../types'
-import { DEFAULT_REGION, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../utils/constants'
+import { DEFAULT_REGION, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB, REGION_FRONTEND_ORIGINS } from '../utils/constants'
 import { generateKey, encryptFile, exportKeyToBase64, encryptFilename } from '../utils/crypto'
-import { requestUpload, uploadToS3 } from '../utils/api'
+import { getApiUrlForUpload, requestUpload, uploadToS3 } from '../utils/api'
 
 interface UploadState {
   status: UploadStatus
@@ -15,6 +15,7 @@ const initialState: UploadState = { status: 'idle', file: null, shareUrl: null, 
 
 export function useUpload() {
   const [state, setState] = useState<UploadState>(initialState)
+  const [selectedRegion, setSelectedRegion] = useState(DEFAULT_REGION)
 
   const handleFileSelect = (file: File) => {
     if (state.status !== 'idle' && state.status !== 'ready') return
@@ -25,6 +26,11 @@ export function useUpload() {
     setState({ status: 'ready', file, shareUrl: null, error: null })
   }
 
+  const handleRegionSelect = (region: string) => {
+    if (state.status !== 'idle' && state.status !== 'ready') return
+    setSelectedRegion(region)
+  }
+
   const handleUpload = async () => {
     if ((state.status !== 'ready' && state.status !== 'error') || !state.file) return
     const file = state.file
@@ -32,10 +38,14 @@ export function useUpload() {
     try {
       const key = await generateKey()
       const encryptedBytes = await encryptFile(file, key)
-      const { presignedUrl, sharePath } = await requestUpload(encryptedBytes.byteLength, DEFAULT_REGION)
+      const apiUrl = getApiUrlForUpload(selectedRegion)
+      const { presignedUrl, sharePath } = await requestUpload(encryptedBytes.byteLength, apiUrl)
       const keyB64 = await exportKeyToBase64(key)
       const encryptedFilename = await encryptFilename(file.name, key)
-      const finalUrl = `${window.location.origin}${sharePath}#${keyB64}:${encryptedFilename}`
+      const shareOrigin = window.location.hostname === 'localhost'
+        ? window.location.origin
+        : (REGION_FRONTEND_ORIGINS[selectedRegion] ?? window.location.origin)
+      const finalUrl = `${shareOrigin}${sharePath}#${keyB64}:${encryptedFilename}`
       setState(s => ({ ...s, status: 'uploading' }))
       await uploadToS3(presignedUrl, encryptedBytes)
       setState({ status: 'done', file: null, shareUrl: finalUrl, error: null })
@@ -50,5 +60,5 @@ export function useUpload() {
 
   const reset = () => setState(initialState)
 
-  return { ...state, handleFileSelect, handleUpload, reset }
+  return { ...state, selectedRegion, handleFileSelect, handleRegionSelect, handleUpload, reset }
 }
