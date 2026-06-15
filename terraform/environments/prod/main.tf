@@ -35,10 +35,10 @@ provider "aws" {
 module "prod" {
   source = "../../modules/regional"
 
-  env               = "prod"
+  env               = "us"
   region            = "us-west-2"
   lambda_source_dir = "${path.module}/../../../api/lambda"
-  api_domain        = "api.filedeadrop.com"
+  api_domain        = "us.api.filedeadrop.com"
   frontend_origins  = var.frontend_origins
   route53_zone_id   = var.route53_zone_id
 
@@ -47,6 +47,7 @@ module "prod" {
   default_rate_limit  = 100
   default_burst_limit = 200
 }
+
 module "eu" {
   source    = "../../modules/regional"
   providers = { aws = aws.eu_central_1 }
