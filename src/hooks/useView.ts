@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { ViewStatus } from '../types'
 import { importKeyFromBase64, decryptFile, decryptFilename } from '../utils/crypto'
-import { requestView, requestCleanup } from '../utils/api'
+import { getApiUrlForView, requestView, requestCleanup } from '../utils/api'
 
 interface ViewState {
   status: ViewStatus
@@ -29,11 +29,12 @@ export function useView(id: string) {
     const controller = new AbortController()
 
     const run = async () => {
-      const { presignedUrl } = await requestView(id, controller.signal)
+      const apiUrl = getApiUrlForView()
+      const { presignedUrl } = await requestView(id, apiUrl, controller.signal)
       const encryptedRes = await fetch(presignedUrl, { signal: controller.signal })
       if (!encryptedRes.ok) throw new Error(`${encryptedRes.status}`)
       const encryptedBytes = await encryptedRes.arrayBuffer()
-      requestCleanup(id).catch(() => {})
+      requestCleanup(id, apiUrl).catch(() => {})
       const key = await importKeyFromBase64(keyB64)
       const fileName = encryptedFilenameB64
         ? await decryptFilename(encryptedFilenameB64, key)

@@ -1,17 +1,25 @@
 import type { UploadRequest, UploadResponse } from '../types'
+import { REGION_API_URLS, HOSTNAME_API_URLS } from './constants'
 
-const BASE_URL = import.meta.env.VITE_API_URL
 const DEV_API_KEY = import.meta.env.VITE_DEV_API_KEY
 
 function devHeaders(): Record<string, string> {
   return DEV_API_KEY ? { 'x-api-key': DEV_API_KEY } : {}
 }
 
-export async function requestUpload(fileSize: number, region: string): Promise<UploadResponse> {
-  const res = await fetch(`${BASE_URL}/upload`, {
+export function getApiUrlForUpload(region: string): string {
+  return REGION_API_URLS[region] ?? import.meta.env.VITE_API_URL
+}
+
+export function getApiUrlForView(): string {
+  return HOSTNAME_API_URLS[window.location.hostname] ?? import.meta.env.VITE_API_URL
+}
+
+export async function requestUpload(fileSize: number, apiUrl: string): Promise<UploadResponse> {
+  const res = await fetch(`${apiUrl}/upload`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...devHeaders() },
-    body: JSON.stringify({ fileSize, region } satisfies UploadRequest),
+    body: JSON.stringify({ fileSize } satisfies UploadRequest),
   })
   if (!res.ok) throw new Error(`Upload request failed: ${res.status}`)
   return res.json() as Promise<UploadResponse>
@@ -26,12 +34,12 @@ export async function uploadToS3(presignedUrl: string, encryptedBytes: Uint8Arra
   if (!res.ok) throw new Error(`S3 upload failed: ${res.status}`)
 }
 
-export async function requestCleanup(id: string): Promise<void> {
-  await fetch(`${BASE_URL}/delete/${id}`, { method: 'DELETE', headers: { ...devHeaders() } })
+export async function requestCleanup(id: string, apiUrl: string): Promise<void> {
+  await fetch(`${apiUrl}/delete/${id}`, { method: 'DELETE', headers: { ...devHeaders() } })
 }
 
-export async function requestView(id: string, signal?: AbortSignal): Promise<{ presignedUrl: string }> {
-  const res = await fetch(`${BASE_URL}/view/${id}`, {
+export async function requestView(id: string, apiUrl: string, signal?: AbortSignal): Promise<{ presignedUrl: string }> {
+  const res = await fetch(`${apiUrl}/view/${id}`, {
     headers: { 'Content-Type': 'application/json', ...devHeaders() },
     signal,
   })

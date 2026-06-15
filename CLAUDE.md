@@ -51,7 +51,10 @@ terraform/
                # deploy-terraform.yml — Terraform apply on terraform/** or api/lambda/** changes; dev job on dev branch, prod job on main
 
 ## API
-Base URL: import.meta.env.VITE_API_URL
+Base URL: derived at runtime — not a single env var.
+- Upload: `getApiUrlForUpload(region)` in `api.ts` maps AWS region → API URL via `REGION_API_URLS` in `constants.ts`
+- View: `getApiUrlForView()` in `api.ts` maps `window.location.hostname` → API URL via `HOSTNAME_API_URLS` in `constants.ts`
+- `VITE_API_URL` is the local dev fallback when no hostname/region mapping exists
 
 All API calls live in src/utils/api.ts
 All requests use fetch with async/await
@@ -59,7 +62,7 @@ All requests include header: Content-Type: application/json
 
 Endpoints:
 PUT /upload
-  body: { fileSize: number, region: string }  # fileSize is encryptedBytes.byteLength, not file.size
+  body: { fileSize: number }  # fileSize is encryptedBytes.byteLength, not file.size
   returns: { presignedUrl: string, sharePath: string }
 
 GET /view/{id}
@@ -70,7 +73,7 @@ DELETE /delete/{id}
   note: DynamoDB access gate is handled on view — this endpoint is S3 cleanup only, best-effort
 
 ## Environment Variables
-VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
+VITE_API_URL= # local dev fallback only — e.g. https://dev.api.filedeadrop.com; production routing is hostname/region-based
 
 Never hardcode these values. Always reference via import.meta.env
 

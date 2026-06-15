@@ -1,4 +1,5 @@
 import type { UploadStatus as UploadStatusType } from '../../types'
+import { SUPPORTED_REGIONS } from '../../utils/constants'
 import FileDropZone from '../FileDropZone'
 import TrustStrip from './TrustStrip'
 import styles from './UploadCard.module.css'
@@ -8,12 +9,14 @@ interface UploadCardProps {
   file: File | null
   shareUrl: string | null
   error: string | null
+  selectedRegion: string
   onFileSelect: (file: File) => void
   onUpload: () => void
   onReset: () => void
+  onRegionChange: (region: string) => void
 }
 
-export default function UploadCard({ status, file, shareUrl, error, onFileSelect, onUpload, onReset }: UploadCardProps) {
+export default function UploadCard({ status, file, shareUrl, error, selectedRegion, onFileSelect, onUpload, onReset, onRegionChange }: UploadCardProps) {
   const handleCopy = () => {
     if (shareUrl) navigator.clipboard.writeText(shareUrl)
   }
@@ -62,6 +65,21 @@ export default function UploadCard({ status, file, shareUrl, error, onFileSelect
         </p>
 
         <div className={styles.controls}>
+          {(status === 'idle' || status === 'ready') && (
+            <div className={styles.regionGroup}>
+              <span className={styles.regionLabel}>Region</span>
+              <select
+                className={styles.regionSelect}
+                value={selectedRegion}
+                onChange={e => onRegionChange(e.target.value)}
+              >
+                {SUPPORTED_REGIONS.map(r => (
+                  <option key={r.value} value={r.value}>{r.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {(status === 'idle' || status === 'ready') && (
             <button className={styles.button} onClick={onUpload} disabled={status === 'idle'}>
               Generate link →
