@@ -48,7 +48,7 @@ terraform/
     manage-docs/ # SKILL.md — /manage-docs skill for creating and updating skills and CLAUDE.md
 .github/
   workflows/   # deploy-frontend.yml — frontend to S3 + CloudFront on src/** changes
-               # deploy-lambda.yml   — Lambda functions on api/lambda/** changes
+               # deploy-terraform.yml — Terraform apply on terraform/** or api/lambda/** changes; dev job on dev branch, prod job on main
 
 ## API
 Base URL: import.meta.env.VITE_API_URL
@@ -75,7 +75,7 @@ VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
 Never hardcode these values. Always reference via import.meta.env
 
 ## Deployment
-Both workflows trigger on push to `main`, filtered by path. Authentication uses OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
+Workflows trigger on push to their respective branches, filtered by path. Authentication uses OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
 
 ### Frontend — `deploy-frontend.yml`
 Triggers on changes to: `src/**`, `public/**`, `index.html`, `vite.config.*`, `package*.json`
@@ -85,15 +85,25 @@ Steps: `npm ci` → `npm run build` → S3 sync (`--delete`) → CloudFront inva
 ### Terraform — `deploy-terraform.yml`
 Triggers on changes to: `terraform/**`, `api/lambda/**`
 
-Runs `terraform apply` from the `terraform/` directory — provisions all infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}` (e.g. `dev-filedeadrop-upload`).
+Two jobs, each gated by branch:
+- `deploy-dev` — runs on push to `dev`, uses GitHub Environment `dev`, working dir `terraform/environments/dev/`
+- `deploy-prod` — runs on push to `main`, uses GitHub Environment `production`, working dir `terraform/environments/prod/`
+
+Runs `terraform apply` — provisions all infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}` (e.g. `dev-filedeadrop-upload`).
 
 ### Required GitHub secrets
-- `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC (used by both frontend and Terraform workflows)
-- `S3_BUCKET_NAME` — destination S3 bucket (frontend workflow)
-- `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after frontend deploy
-- `VITE_API_URL` — injected at build time
+Secrets are scoped to GitHub Environments (`dev` and `production`) — not repository-level secrets.
+
+Frontend workflow secrets (repository-level):
+- `AWS_ROLE_ARN` — IAM role assumed via OIDC
+- `S3_BUCKET_NAME` — destination S3 bucket
+- `CLOUDFRONT_DISTRIBUTION_ID` — distribution invalidated after deploy
+- `VITE_API_URL` — API base URL injected at build time
+
+Terraform workflow secrets (per GitHub Environment):
+- `AWS_ROLE_ARN` — IAM role assumed via OIDC
 - `TF_VAR_ROUTE53_ZONE_ID` — hosted zone ID passed to Terraform
-- `TF_VAR_DEV_API_KEY` — dev API key passed to Terraform
+- `TF_VAR_DEV_API_KEY` — dev API key (`dev` environment only)
 
 ## Reference Material
 The `docs/` directory contains reference artifacts — consult them for context when needed:
