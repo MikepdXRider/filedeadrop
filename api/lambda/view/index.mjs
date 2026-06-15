@@ -8,8 +8,8 @@ const dynamo = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamo);
 
 const ITEM_TYPE = "META"
-const BUCKET = "ephemeral-uploads";
-const TABLE = "ephemeral-uploads";
+const BUCKET = process.env.BUCKET_NAME;
+const TABLE = process.env.TABLE_NAME;
 const PRESIGNED_URL_EXPIRY = 30;
 
 export const handler = async (event) => {

@@ -35,13 +35,20 @@ docs/
   architecture/  # draw.io system architecture and sequence diagrams (PNG)
   filedeadrop_home_mockup.html   # HTML mockup of the home page design
   filedeadrop_view_mockup.html   # HTML mockup of the view/download page design
+terraform/
+  README.md            # bootstrap instructions and manual workflow
+  modules/
+    regional/          # parameterized per-region module (S3, DynamoDB, Lambda, API GW, ACM, Route 53)
+  environments/
+    dev/               # dev environment — main.tf, variables.tf, outputs.tf, terraform.tfvars, secrets.tfvars (gitignored)
+    prod/              # production + EU data residency — main.tf, variables.tf (module blocks added when ready)
 .claude/
   skills/
     create-pr/   # SKILL.md — /create-pr skill for opening pull requests; includes pre-PR doc check
     manage-docs/ # SKILL.md — /manage-docs skill for creating and updating skills and CLAUDE.md
 .github/
   workflows/   # deploy-frontend.yml — frontend to S3 + CloudFront on src/** changes
-               # deploy-lambda.yml   — Lambda functions on api/lambda/** changes
+               # deploy-terraform.yml — Terraform apply on terraform/** or api/lambda/** changes; dev job on dev branch, prod job on main
 
 ## API
 Base URL: import.meta.env.VITE_API_URL
@@ -68,29 +75,35 @@ VITE_API_URL= # base API URL e.g. https://api.filedeadrop.com
 Never hardcode these values. Always reference via import.meta.env
 
 ## Deployment
-Both workflows trigger on push to `main`, filtered by path. Authentication uses OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
+Workflows trigger on push to their respective branches, filtered by path. Authentication uses OIDC via `aws-actions/configure-aws-credentials@v4` — no long-lived credentials stored in GitHub.
 
 ### Frontend — `deploy-frontend.yml`
 Triggers on changes to: `src/**`, `public/**`, `index.html`, `vite.config.*`, `package*.json`
 
 Steps: `npm ci` → `npm run build` → S3 sync (`--delete`) → CloudFront invalidation (`/*`)
 
-### Lambda — `deploy-lambda.yml`
-Triggers on changes to: `api/lambda/**`
+### Terraform — `deploy-terraform.yml`
+Triggers on changes to: `terraform/**`, `api/lambda/**`
 
-Runs a matrix job for each function — zips `index.mjs` from the named subdirectory and calls `aws lambda update-function-code`:
-- `api/lambda/upload/index.mjs` → `ephemeral-upload`
-- `api/lambda/view/index.mjs` → `ephemeral-view`
-- `api/lambda/delete/index.mjs` → `filedeadrop-delete`
-- `api/lambda/authorizer/index.mjs` → `filedeadrop-api-gateway-authorizer`
+Two jobs, each gated by branch:
+- `deploy-dev` — runs on push to `dev`, uses GitHub Environment `dev`, working dir `terraform/environments/dev/`
+- `deploy-prod` — runs on push to `main`, uses GitHub Environment `production`, working dir `terraform/environments/prod/`
 
-The IAM role behind `AWS_ROLE_ARN` must have `lambda:UpdateFunctionCode` on all four function ARNs in addition to the S3/CloudFront permissions for the frontend workflow.
+Runs `terraform apply` — provisions all infrastructure and packages/deploys Lambda code in a single step. Lambda function names follow the pattern `${env}-filedeadrop-{function}` (e.g. `dev-filedeadrop-upload`).
 
 ### Required GitHub secrets
-- `AWS_ROLE_ARN` — IAM role the workflow assumes via OIDC
-- `S3_BUCKET_NAME` — destination S3 bucket (frontend)
-- `CLOUDFRONT_DISTRIBUTION_ID` — distribution to invalidate after frontend deploy
-- `VITE_API_URL` — injected at build time
+Secrets are scoped to GitHub Environments (`dev` and `production`) — not repository-level secrets.
+
+Frontend workflow secrets (repository-level):
+- `AWS_ROLE_ARN` — IAM role assumed via OIDC
+- `S3_BUCKET_NAME` — destination S3 bucket
+- `CLOUDFRONT_DISTRIBUTION_ID` — distribution invalidated after deploy
+- `VITE_API_URL` — API base URL injected at build time
+
+Terraform workflow secrets (per GitHub Environment):
+- `AWS_ROLE_ARN` — IAM role assumed via OIDC
+- `TF_VAR_ROUTE53_ZONE_ID` — hosted zone ID passed to Terraform
+- `TF_VAR_DEV_API_KEY` — dev API key (`dev` environment only)
 
 ## Reference Material
 The `docs/` directory contains reference artifacts — consult them for context when needed:
@@ -130,6 +143,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
 - API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
 - 25MB file size limit: frontend validates file.size ≤ 25MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 25MB + 28 bytes to account for AES-GCM overhead
+- Lambda resource names (BUCKET_NAME, TABLE_NAME) are read from environment variables — Terraform sets these per environment; production values must be set manually before deploying Lambda source changes
 - MVP user is anonymous, no account required
 
 ## Design

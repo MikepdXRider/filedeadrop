@@ -1,11 +1,16 @@
 import type { UploadRequest, UploadResponse } from '../types'
 
 const BASE_URL = import.meta.env.VITE_API_URL
+const DEV_API_KEY = import.meta.env.VITE_DEV_API_KEY
+
+function devHeaders(): Record<string, string> {
+  return DEV_API_KEY ? { 'x-api-key': DEV_API_KEY } : {}
+}
 
 export async function requestUpload(fileSize: number, region: string): Promise<UploadResponse> {
   const res = await fetch(`${BASE_URL}/upload`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...devHeaders() },
     body: JSON.stringify({ fileSize, region } satisfies UploadRequest),
   })
   if (!res.ok) throw new Error(`Upload request failed: ${res.status}`)
@@ -22,12 +27,12 @@ export async function uploadToS3(presignedUrl: string, encryptedBytes: Uint8Arra
 }
 
 export async function requestCleanup(id: string): Promise<void> {
-  await fetch(`${BASE_URL}/delete/${id}`, { method: 'DELETE' })
+  await fetch(`${BASE_URL}/delete/${id}`, { method: 'DELETE', headers: { ...devHeaders() } })
 }
 
 export async function requestView(id: string, signal?: AbortSignal): Promise<{ presignedUrl: string }> {
   const res = await fetch(`${BASE_URL}/view/${id}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...devHeaders() },
     signal,
   })
   if (!res.ok) throw new Error(`View request failed: ${res.status}`)
