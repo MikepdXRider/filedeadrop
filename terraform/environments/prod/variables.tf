@@ -10,5 +10,5 @@ variable "route53_zone_id" {
 variable "frontend_origins" {
   description = "Allowed CORS origins for the production API"
   type        = list(string)
-  default     = ["https://filedeadrop.com", "https://www.filedeadrop.com"]
+  default     = ["https://filedeadrop.com", "https://www.filedeadrop.com", "https://us.filedeadrop.com", "https://eu.filedeadrop.com"]
 }

@@ -27,6 +27,11 @@ provider "aws" {
   region = "us-west-2"
 }
 
+provider "aws" {
+  alias  = "eu_central_1"
+  region = "eu-central-1"
+}
+
 module "prod" {
   source = "../../modules/regional"
 
@@ -42,19 +47,19 @@ module "prod" {
   default_rate_limit  = 100
   default_burst_limit = 200
 }
-#
-# module "eu" {
-#   source = "../../modules/regional"
-#
-#   env               = "eu"
-#   region            = "eu-central-1"
-#   lambda_source_dir = "${path.module}/../../../api/lambda"
-#   api_domain        = "eu.api.filedeadrop.com"
-#   frontend_origins  = ["https://eu.filedeadrop.com"]
-#   route53_zone_id   = var.route53_zone_id
-#
-#   upload_rate_limit   = 100
-#   upload_burst_limit  = 200
-#   default_rate_limit  = 100
-#   default_burst_limit = 200
-# }
+module "eu" {
+  source    = "../../modules/regional"
+  providers = { aws = aws.eu_central_1 }
+
+  env               = "eu"
+  region            = "eu-central-1"
+  lambda_source_dir = "${path.module}/../../../api/lambda"
+  api_domain        = "eu.api.filedeadrop.com"
+  frontend_origins  = var.frontend_origins
+  route53_zone_id   = var.route53_zone_id
+
+  upload_rate_limit   = 100
+  upload_burst_limit  = 200
+  default_rate_limit  = 100
+  default_burst_limit = 200
+}
