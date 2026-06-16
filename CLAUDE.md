@@ -132,7 +132,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Default AWS region: us-west-2
 - CSS Modules only for component styles — each component has a co-located .module.css file
 - Global index.css for base styles only (variables, reset, body, typography, layout)
-- Fonts: Inter (body) and JetBrains Mono (labels, code, step numbers) via Google Fonts
+- Fonts: Inter (body) and JetBrains Mono (labels, code, step numbers) — self-hosted from `public/fonts/` (no third-party font CDN)
 
 ## Key Architecture Decisions
 - Encryption key passed in URL fragment (#) never query params
@@ -154,7 +154,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 
 ## Design
 - Spec: DESIGN.md — colors, typography, spacing rules, component guidelines
-- Fonts: Inter (all text), JetBrains Mono (labels, code, step numbers) — loaded via Google Fonts
+- Fonts: Inter (all text), JetBrains Mono (labels, code, step numbers) — self-hosted woff2 (latin + latin-ext) in `public/fonts/`, declared via `@font-face` in `src/index.css`; no Google Fonts request (privacy)
 - Color palette and spacing defined as CSS custom properties in src/index.css
 - Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
 
