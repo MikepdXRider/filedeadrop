@@ -22,6 +22,8 @@ terraform.tfstate.backup
 *.tfplan
 terraform/environments/*/dist/
 terraform/environments/*/secrets.tfvars
+# terraform/ is not a root module — only env dirs init; this lock file is stray
+terraform/.terraform.lock.hcl
 
 # Claude artifacts
 claude-artifacts/
