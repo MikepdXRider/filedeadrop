@@ -9,7 +9,7 @@ terraform/
   modules/regional/    # shared module — one stack per call
   environments/
     dev/               # dev environment (us-west-2)
-    prod/              # production + EU data residency (added when ready)
+    prod/              # production (us-west-2) + EU data residency (eu-central-1)
 ```
 
 ---
@@ -174,24 +174,25 @@ The role needs permission to create and manage: Lambda, API Gateway, S3, DynamoD
 
 ## Part 3: Production
 
-Production is not yet configured. When ready, uncomment the module blocks in `environments/prod/main.tf` and add production secrets to a `production` GitHub Environment.
+Production is live. Two module blocks run in `environments/prod/main.tf` — `module "us"` (us-west-2) and `module "eu"` (eu-central-1) — both deploy on every merge to `main`. Secrets are stored in the `production` GitHub Environment.
 
-### What changes for production
+### How production differs from dev
 
-| Setting | Dev | Prod |
-|---|---|---|
-| `env` | `"dev"` | `"prod"` |
-| `api_domain` | `"dev.api.filedeadrop.com"` | `"api.filedeadrop.com"` |
-| `dev_api_key` | set — required | omitted |
-| `upload_rate_limit` | `50` | `100` |
-| `upload_burst_limit` | `100` | `200` |
-| `default_rate_limit` | `50` | `100` |
-| `default_burst_limit` | `100` | `200` |
-| `frontend_origins` | includes `localhost:5173` | production domains only |
+| Setting | Dev | US Prod | EU Prod |
+|---|---|---|---|
+| `env` | `"dev"` | `"us"` | `"eu"` |
+| `region` | `"us-west-2"` | `"us-west-2"` | `"eu-central-1"` |
+| `api_domain` | `"dev.api.filedeadrop.com"` | `"us.api.filedeadrop.com"` | `"eu.api.filedeadrop.com"` |
+| `dev_api_key` | set — required | omitted | omitted |
+| `upload_rate_limit` | `50` | `100` | `100` |
+| `upload_burst_limit` | `100` | `200` | `200` |
+| `default_rate_limit` | `50` | `100` | `100` |
+| `default_burst_limit` | `100` | `200` | `200` |
+| `frontend_origins` | `["http://localhost:5173"]` | all production domains | all production domains |
 
-### Adding EU data residency
+### Adding a new region
 
-EU is a production deployment in a different region — add a `module "eu"` block to `environments/prod/main.tf` alongside `module "prod"`. Both deploy together on every merge to `main`. See issue #16.
+Add a new `module` block to `environments/prod/main.tf` with a provider alias for the target region, then add corresponding entries to `REGION_API_URLS`, `HOSTNAME_API_URLS`, `REGION_FRONTEND_ORIGINS`, and `SUPPORTED_REGIONS` in `src/utils/constants.ts`. No other changes required.
 
 ---
 
@@ -212,7 +213,7 @@ A fully parameterized module that provisions one complete regional API stack. Re
 
 | Variable | Description |
 |---|---|
-| `env` | Environment prefix for all resource names (`dev`, `prod`, `eu`, etc.) |
+| `env` | Environment prefix for all resource names (`dev`, `us`, `eu`, etc.) |
 | `region` | AWS region for this stack |
 | `lambda_source_dir` | Absolute path to `api/lambda/` — pass `"${path.module}/../../../api/lambda"` from an environment directory |
 | `api_domain` | Custom subdomain for the API Gateway (`dev.api.filedeadrop.com`, etc.) |
