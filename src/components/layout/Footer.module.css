@@ -62,5 +62,13 @@
 @media (max-width: 600px) {
   .footer {
     padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tagline {
+    text-align: center;
   }
 }
