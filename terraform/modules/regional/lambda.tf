@@ -29,6 +29,31 @@ data "archive_file" "authorizer" {
   output_path = "${path.root}/dist/${var.env}/authorizer.zip"
 }
 
+# CloudWatch log groups — declared explicitly so retention is capped at 30 days,
+# matching the API Gateway access logs. Without these, Lambda auto-creates each
+# group on first invocation with no expiry, retaining logs indefinitely. Each
+# function depends on its group so the group exists before any invocation.
+
+resource "aws_cloudwatch_log_group" "upload" {
+  name              = "/aws/lambda/${var.env}-filedeadrop-upload"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "view" {
+  name              = "/aws/lambda/${var.env}-filedeadrop-view"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "delete" {
+  name              = "/aws/lambda/${var.env}-filedeadrop-delete"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "authorizer" {
+  name              = "/aws/lambda/${var.env}-filedeadrop-authorizer"
+  retention_in_days = 30
+}
+
 resource "aws_lambda_function" "upload" {
   function_name    = "${var.env}-filedeadrop-upload"
   role             = aws_iam_role.upload_exec.arn
@@ -44,6 +69,8 @@ resource "aws_lambda_function" "upload" {
       TABLE_NAME  = aws_dynamodb_table.metadata.id
     }
   }
+
+  depends_on = [aws_cloudwatch_log_group.upload]
 }
 
 resource "aws_lambda_function" "view" {
@@ -61,6 +88,8 @@ resource "aws_lambda_function" "view" {
       TABLE_NAME  = aws_dynamodb_table.metadata.id
     }
   }
+
+  depends_on = [aws_cloudwatch_log_group.view]
 }
 
 resource "aws_lambda_function" "delete" {
@@ -77,6 +106,8 @@ resource "aws_lambda_function" "delete" {
       BUCKET_NAME = aws_s3_bucket.files.id
     }
   }
+
+  depends_on = [aws_cloudwatch_log_group.delete]
 }
 
 resource "aws_lambda_function" "authorizer" {
@@ -96,6 +127,8 @@ resource "aws_lambda_function" "authorizer" {
       }
     }
   }
+
+  depends_on = [aws_cloudwatch_log_group.authorizer]
 }
 
 resource "aws_lambda_permission" "authorizer" {
