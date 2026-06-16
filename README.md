@@ -73,7 +73,7 @@ No accounts, sessions, or cookies. The share link is the only credential.
 |---|---|
 | Frontend | React 19, TypeScript ~6.0, Vite |
 | Routing | React Router DOM v7 |
-| Styling | CSS Modules, Inter + JetBrains Mono (Google Fonts) |
+| Styling | CSS Modules, Inter + JetBrains Mono (self-hosted woff2) |
 | Encryption | Web Crypto API (AES-GCM-128) |
 | Backend | AWS Lambda (Node.js) |
 | IaC | Terraform |
