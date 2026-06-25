@@ -1,4 +1,4 @@
-# Lambda functions — packages and deploys the four Node.js handlers that form
+# Lambda functions — packages and deploys the five Node.js handlers that form
 # the API backend. archive_file zips each handler from source at apply time;
 # source_code_hash ensures AWS receives the updated zip whenever the source
 # changes. Each function gets its own IAM execution role (defined in iam.tf)
@@ -29,6 +29,13 @@ data "archive_file" "authorizer" {
   output_path = "${path.root}/dist/${var.env}/authorizer.zip"
 }
 
+data "archive_file" "expiry" {
+  type        = "zip"
+  source_file = "${var.lambda_source_dir}/expiry/index.mjs"
+  output_path = "${path.root}/dist/${var.env}/expiry.zip"
+}
+
+
 # CloudWatch log groups — declared explicitly so retention is capped at 30 days,
 # matching the API Gateway access logs. Without these, Lambda auto-creates each
 # group on first invocation with no expiry, retaining logs indefinitely. Each
@@ -54,6 +61,12 @@ resource "aws_cloudwatch_log_group" "authorizer" {
   retention_in_days = 30
 }
 
+resource "aws_cloudwatch_log_group" "expiry" {
+  name              = "/aws/lambda/${var.env}-filedeadrop-expiry"
+  retention_in_days = 30
+}
+
+
 resource "aws_lambda_function" "upload" {
   function_name    = "${var.env}-filedeadrop-upload"
   role             = aws_iam_role.upload_exec.arn
@@ -65,8 +78,11 @@ resource "aws_lambda_function" "upload" {
 
   environment {
     variables = {
-      BUCKET_NAME = aws_s3_bucket.files.id
-      TABLE_NAME  = aws_dynamodb_table.metadata.id
+      BUCKET_NAME         = aws_s3_bucket.files.id
+      TABLE_NAME          = aws_dynamodb_table.metadata.id
+      EXPIRY_LAMBDA_ARN   = aws_lambda_function.expiry.arn
+      SCHEDULER_ROLE_ARN  = aws_iam_role.scheduler_exec.arn
+      SCHEDULE_GROUP_NAME = aws_scheduler_schedule_group.main.name
     }
   }
 
@@ -162,3 +178,23 @@ resource "aws_lambda_permission" "delete" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/${aws_apigatewayv2_stage.default.name}/DELETE/delete/*"
 }
+
+resource "aws_lambda_function" "expiry" {
+  function_name    = "${var.env}-filedeadrop-expiry"
+  role             = aws_iam_role.expiry_exec.arn
+  runtime          = "nodejs22.x"
+  handler          = "index.handler"
+  filename         = data.archive_file.expiry.output_path
+  source_code_hash = data.archive_file.expiry.output_base64sha256
+  timeout          = 10
+
+  environment {
+    variables = {
+      BUCKET_NAME = aws_s3_bucket.files.id
+      TABLE_NAME  = aws_dynamodb_table.metadata.id
+    }
+  }
+
+  depends_on = [aws_cloudwatch_log_group.expiry]
+}
+
