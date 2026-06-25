@@ -8,7 +8,7 @@ function devHeaders(): Record<string, string> {
 }
 
 export function getApiUrlForUpload(region: string): string {
-  return REGION_API_URLS[region] ?? import.meta.env.VITE_API_URL
+  return import.meta.env.VITE_API_URL ?? REGION_API_URLS[region]
 }
 
 export function getApiUrlForView(): string {
