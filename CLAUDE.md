@@ -184,3 +184,4 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Do not use global CSS for component styles — use CSS Modules
 - Do not use Tailwind, component libraries, or gradients
 - Do not use decorative animations (fly-ins, bounces, entrance effects) — functional micro-transitions are permitted (e.g. 150ms opacity fade-in on state swap, hover transitions)
+- Do not expose raw `error.message` or stack traces in Lambda response bodies — return a generic `{ error: '...' }` to clients and log full detail server-side via `console.error` (→ CloudWatch)
