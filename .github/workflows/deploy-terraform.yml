@@ -6,6 +6,11 @@ on:
     paths:
       - 'terraform/**'
       - 'api/lambda/**'
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'terraform/**'
+      - 'api/lambda/**'
 
 permissions:
   id-token: write   # required for OIDC
@@ -19,7 +24,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test-lambda:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run test:lambda
+
   deploy-dev:
+    needs: test-lambda
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     environment: dev
@@ -50,6 +70,7 @@ jobs:
           TF_VAR_dev_api_key: ${{ secrets.TF_VAR_DEV_API_KEY }}
 
   deploy-prod:
+    needs: test-lambda
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production

@@ -102,6 +102,9 @@ npm run dev
 
 # Type check and build
 npm run build
+
+# Run Lambda unit tests
+npm run test:lambda
 ```
 
 ---

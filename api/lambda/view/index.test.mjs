@@ -1,0 +1,102 @@
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { mockClient } from 'aws-sdk-client-mock';
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { DynamoDBDocumentClient, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+
+vi.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: () => Promise.resolve('https://mock-presigned.url/test'),
+}));
+
+const s3Mock = mockClient(S3Client);
+const ddbMock = mockClient(DynamoDBDocumentClient);
+
+const FUTURE = Math.floor(Date.now() / 1000) + 86400;
+
+let handler;
+beforeAll(async () => {
+  process.env.BUCKET_NAME = 'test-bucket';
+  process.env.TABLE_NAME = 'test-table';
+  const mod = await import('./index.mjs');
+  handler = mod.handler;
+});
+
+beforeEach(() => {
+  s3Mock.reset();
+  ddbMock.reset();
+});
+
+describe('GET /view/{id} — validation', () => {
+  it('returns 400 when id is missing', async () => {
+    const result = await handler({ pathParameters: null });
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Share key is required' });
+  });
+});
+
+describe('GET /view/{id} — not found', () => {
+  it('returns 404 when DynamoDB returns no item', async () => {
+    ddbMock.on(DeleteCommand).resolves({ Attributes: undefined });
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(404);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Share link not found' });
+  });
+});
+
+describe('GET /view/{id} — happy path', () => {
+  it('returns 200 with a presigned URL for a valid non-expired item', async () => {
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE },
+    });
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body)).toEqual({ presignedUrl: 'https://mock-presigned.url/test' });
+  });
+
+  it('sends DeleteCommand with the correct table and key', async () => {
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE },
+    });
+    await handler({ pathParameters: { id: 'test-id' } });
+    const calls = ddbMock.commandCalls(DeleteCommand);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].args[0].input).toMatchObject({
+      TableName: 'test-table',
+      Key: { documentId: 'test-id', itemType: 'META' },
+      ReturnValues: 'ALL_OLD',
+    });
+  });
+});
+
+describe('GET /view/{id} — expired item', () => {
+  it('returns 410 and deletes the orphaned S3 object', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(410);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Share link has expired' });
+  });
+
+  it('sends DeleteObjectCommand with the correct bucket and key on expiry cleanup', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    await handler({ pathParameters: { id: 'test-id' } });
+    const calls = s3Mock.commandCalls(DeleteObjectCommand);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].args[0].input).toEqual({ Bucket: 'test-bucket', Key: 'test-id' });
+  });
+});
+
+describe('GET /view/{id} — error handling', () => {
+  it('returns 500 on an unexpected error', async () => {
+    ddbMock.on(DeleteCommand).rejects(new Error('DynamoDB error'));
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(500);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Internal error' });
+  });
+});
