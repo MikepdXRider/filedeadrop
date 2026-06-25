@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px dashed var(--color-dim);
+  border: 1px dashed var(--color-muted);
   border-radius: 4px;
   padding: 52px 32px;
   text-align: center;
@@ -29,7 +29,7 @@
 .limit {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
-  color: var(--color-dim);
+  color: var(--color-muted);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding-top: 20px;
