@@ -60,15 +60,17 @@
 }
 
 :root {
-  --color-bg:        #F3F3F1;
-  --color-surface:   #FAFAF8;
-  --color-text:      #111111;
-  --color-secondary: #666666;
-  --color-muted:     #BABAB4;
-  --color-dim:       #CACAC6;
-  --color-border:    #DDDDD8;
-  --color-inset:     #F0F0EE;
-  --color-gutter:    #ECECEA;
+  --color-bg:           #F3F3F1;
+  --color-surface:      #FAFAF8;
+  --color-text:         #111111;
+  --color-dark-surface: #111111;
+  --color-interactive:  #333333;
+  --color-secondary:    #666666;
+  --color-muted:        #BABAB4;
+  --color-dim:          #CACAC6;
+  --color-border:       #DDDDD8;
+  --color-inset:        #F0F0EE;
+  --color-gutter:       #ECECEA;
 }
 
 *, *::before, *::after {

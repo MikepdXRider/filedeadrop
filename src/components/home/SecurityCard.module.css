@@ -3,7 +3,7 @@
 }
 
 .card {
-  background: #111111;
+  background: var(--color-dark-surface);
   border-radius: 6px;
   padding: 48px;
 }
@@ -13,7 +13,7 @@
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #444;
+  color: var(--color-secondary);
   margin-bottom: 20px;
 }
 
@@ -27,7 +27,7 @@
 
 .body {
   font-size: 14px;
-  color: #777;
+  color: var(--color-dim);
   line-height: 2.0;
 }
 

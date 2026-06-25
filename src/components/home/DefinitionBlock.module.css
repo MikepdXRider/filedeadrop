@@ -27,7 +27,7 @@
 
 .definition {
   font-size: 17px;
-  color: #444;
+  color: var(--color-secondary);
   line-height: 1.8;
   padding-left: 20px;
   border-left: 2px solid var(--color-border);
