@@ -64,3 +64,34 @@ module "eu" {
   default_rate_limit  = 100
   default_burst_limit = 200
 }
+
+# Account-scoped: API Gateway CloudWatch Logs role.
+# aws_api_gateway_account is account+region scoped — one per AWS account per
+# region. Managed here (prod) rather than in the shared module to avoid dev
+# and prod competing to own the same setting on every apply.
+# IAM roles are global — one role covers both US and EU API Gateway accounts.
+resource "aws_iam_role" "apigw_cloudwatch" {
+  name = "prod-filedeadrop-apigw-logs"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "apigateway.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "apigw_cloudwatch" {
+  role       = aws_iam_role.apigw_cloudwatch.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+resource "aws_api_gateway_account" "us" {
+  cloudwatch_role_arn = aws_iam_role.apigw_cloudwatch.arn
+}
+
+resource "aws_api_gateway_account" "eu" {
+  provider            = aws.eu_central_1
+  cloudwatch_role_arn = aws_iam_role.apigw_cloudwatch.arn
+}

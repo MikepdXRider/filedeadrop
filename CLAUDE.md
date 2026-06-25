@@ -15,11 +15,12 @@ or 24 hours, whichever comes first.
 ## Structure
 api/
   lambda/
-    upload/     # index.mjs — upload Lambda handler
-    view/       # index.mjs — view Lambda handler
-    delete/     # index.mjs — delete Lambda handler
-    authorizer/ # index.mjs — API Gateway authorizer Lambda handler
-    expiry/     # index.mjs — EventBridge Scheduler-invoked Lambda; deletes S3 object + DynamoDB record at T+24h
+    upload/     # index.mjs — upload Lambda handler; index.test.mjs — unit tests
+    view/       # index.mjs — view Lambda handler; index.test.mjs — unit tests
+    delete/     # index.mjs — delete Lambda handler; index.test.mjs — unit tests
+    authorizer/ # index.mjs — API Gateway authorizer Lambda handler; index.test.mjs — unit tests
+    expiry/     # index.mjs — EventBridge Scheduler-invoked Lambda; index.test.mjs — unit tests
+    test.setup.mjs  # Vitest global setup — mocks console.log/error/warn across all Lambda tests
 src/
   components/
     layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
@@ -47,9 +48,10 @@ terraform/
   skills/
     create-pr/   # SKILL.md — /create-pr skill for opening pull requests; includes pre-PR doc check
     manage-docs/ # SKILL.md — /manage-docs skill for creating and updating skills and CLAUDE.md
+vitest.config.ts   # Vitest config — node environment, targets api/lambda/**/*.test.mjs
 .github/
   workflows/   # deploy-frontend.yml — frontend to S3 + CloudFront on src/** changes
-               # deploy-terraform.yml — Terraform apply on terraform/** or api/lambda/** changes; dev job on dev branch, prod job on main
+               # deploy-terraform.yml — Lambda tests then Terraform apply on terraform/** or api/lambda/** changes; dev job on dev branch, prod job on main
 
 ## API
 Base URL: derived at runtime — not a single env var.
@@ -160,10 +162,16 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Color palette and spacing defined as CSS custom properties in src/index.css
 - Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
 
+## Testing
+- `npm run test:lambda` — Vitest unit tests for all Lambda handlers
+- Test files are co-located with each handler (`index.test.mjs`); AWS SDK calls are fully mocked — no real service calls in tests
+- Run `npm run test:lambda` before committing any changes to `api/lambda/`
+
 ## Git
 - Never commit directly to `main` — all work happens on feature branches
 - Never push to any branch without explicit user direction
 - Branch naming: `type/description` (e.g. `refactor/authorizer`, `feat/upload-limit`)
+- Run `npm run test:lambda` before committing any changes to `api/lambda/`
 - Use `/create-pr` skill when opening pull requests — includes a pre-PR documentation check and commit
 
 ## Do Not
