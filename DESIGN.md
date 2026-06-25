@@ -17,9 +17,8 @@ All tokens are CSS custom properties declared in `src/index.css` and must be ref
 | `--color-dark-surface` | `#111111` | Inverted (dark) card background |
 | `--color-text` | `#111111` | Primary text |
 | `--color-interactive` | `#333333` | Button hover / active state |
-| `--color-secondary` | `#666666` | Secondary text, body text on dark surfaces |
-| `--color-muted` | `#BABAB4` | Placeholder, subdued labels, disabled text |
-| `--color-dim` | `#CACAC6` | Dashed borders, very subdued UI; body text on dark surfaces |
+| `--color-secondary` | `#666666` | Secondary text |
+| `--color-muted` | `#BABAB4` | Subdued labels, dashed borders, disabled text, body text on dark surfaces |
 | `--color-border` | `#DDDDD8` | All borders and dividers |
 | `--color-inset` | `#F0F0EE` | Dropzone / inset panel background |
 | `--color-gutter` | `#ECECEA` | Trust strip background, step number column |
@@ -33,24 +32,48 @@ Two font families only. Both are self-hosted from `public/fonts/` — no externa
 - **Inter** — all prose, UI labels, buttons. Weights: 400 (body), 500 (emphasis/controls), 600 (section headings).
 - **JetBrains Mono** — technical / meta content (see [Monospace Usage](#monospace-usage)). Weight: 400.
 
+`html { font-size: 62.5% }` is set globally so that `1rem = 10px`. All font sizes are authored in rem against this base.
+
 ### Type Scale
 
-| Role | Font | Size | Weight | Line height | Letter spacing |
-|---|---|---|---|---|---|
-| Page heading (h1) | Inter | 1.5rem (24px) | 500 | 1.2 | — |
-| Section heading | Inter | 18px | 600 | 1.4 | — |
-| Feature / capability title | Inter | 14px | 600 | — | — |
-| Step title | Inter | 13px | 600 | — | — |
-| Body (default) | Inter | 16px | 400 | 1.65 | — |
-| Definition text | Inter | 17px | 400 | 1.8 | — |
-| Body (small) | Inter | 14px | 400 | 1.75–1.8 | — |
-| Body (FAQ) | Inter | 13px | 400 | 1.8 | — |
-| Controls / buttons | Inter | 13px | 500 | — | 0.01em |
-| Disclaimer / notice | Inter | 12px | 400 | 1.5 | — |
-| Footer / meta | Inter | 12px | 400 | — | -0.01em |
-| Mono label (uppercase) | JetBrains Mono | 10–11px | 400 | — | 0.08–0.12em |
-| Mono small | JetBrains Mono | 11–12px | 400 | — | 0.04–0.08em |
-| Mono caption | JetBrains Mono | 9px | 400 | — | 0.1em |
+6 steps. Do not introduce new sizes — fit new elements into the closest existing step.
+
+| Step | rem | px | Typical role |
+|---|---|---|---|
+| xs | 1.1rem | 11px | Labels, mono metadata, footer, region select |
+| sm | 1.3rem | 13px | Controls, buttons, small body (FAQ, steps) |
+| md | 1.5rem | 15px | Prominent UI — wordmark, dropzone prompt, feature title, file name |
+| base | 1.6rem | 16px | Body reading text, PrivacyPolicy content |
+| lg | 2.0rem | 20px | Section heading (SecurityCard only) |
+| xl | 2.4rem | 24px | h1 |
+
+### Weights
+
+- 400 — body, labels, mono
+- 500 — h1, controls, emphasis
+- 600 — headings, feature titles, step titles, wordmark
+
+### Line Heights
+
+3 values only:
+
+| Value | Role |
+|---|---|
+| 1.2 | Tight — headings and sub-headings |
+| 1.65 | Body default — set on `body`, inherit where possible |
+| 1.8 | Spacious — long-form reading (definitions, FAQ, capabilities, PrivacyPolicy) |
+
+### Letter Spacing
+
+3 values only:
+
+| Value | Role |
+|---|---|
+| -0.01em | Wordmarks (Header, Footer) |
+| 0.01em | Controls and buttons |
+| 0.1em | All uppercase labels (`text-transform: uppercase`) |
+
+Do not add letter-spacing to non-uppercase text — the typeface's natural spacing is correct.
 
 All uppercase labels use `text-transform: uppercase`.
 
@@ -96,7 +119,7 @@ An implicit 8px base grid. Use multiples of 4 for fine-grained spacing, multiple
 |---|---|
 | Standard border | `1px solid var(--color-border)` |
 | Section divider (`<hr>`) | `1px solid var(--color-border)` |
-| Dashed dropzone border | `1px dashed var(--color-dim)` |
+| Dashed dropzone border | `1px dashed var(--color-muted)` |
 | Definition left accent | `2px solid var(--color-border)` |
 | FAQ row dividers | `1px solid var(--color-border)` (top + bottom) |
 | Input / small element radius | 4px |
@@ -140,7 +163,7 @@ color: var(--color-bg)
 border: none
 border-radius: 4px
 padding: 10px 22px
-font: 13px/500 Inter, letter-spacing: 0.01em
+font: 1.3rem/500 Inter, letter-spacing: 0.01em
 ```
 
 **Secondary button**
@@ -150,7 +173,7 @@ color: var(--color-text)
 border: 1px solid var(--color-border)
 border-radius: 4px
 padding: 9px 20px
-font: 13px/500 Inter
+font: 1.3rem/500 Inter
 ```
 
 **Disabled state** (primary only): `background: var(--color-muted)`, cursor default.
@@ -162,7 +185,7 @@ Form elements (select, input): `outline: 1.5px solid var(--color-text); outline-
 ### Select / Dropdown
 
 ```
-font: 12px JetBrains Mono
+font: 1.1rem JetBrains Mono
 appearance: none
 background-image: custom SVG chevron (stroke: var(--color-muted))
 padding: 7px 28px 7px 10px
@@ -212,7 +235,7 @@ The SecurityCard component uses a dark background (`var(--color-dark-surface)` =
 | Role | Token | Result on dark |
 |---|---|---|
 | Primary text | `var(--color-bg)` (#F3F3F1) | Near-white — for titles |
-| Body text | `var(--color-dim)` (#CACAC6) | Light gray — readable body copy |
+| Body text | `var(--color-muted)` (#BABAB4) | Light gray — readable body copy |
 | Subdued label | `var(--color-secondary)` (#666666) | Dark-but-visible ghost label |
 
 Do not introduce new dark-mode tokens. Apply the existing palette with this mapping. The dark surface pattern is intentionally limited to the SecurityCard — do not extend it to other components without discussion.
@@ -237,11 +260,11 @@ Cards never stack shadows — one shadow per logical card only.
 
 ### Section Label (SectionLabel component)
 
-10–11px JetBrains Mono, all-caps, `letter-spacing: 0.12em`, `color: var(--color-muted)`. Used as a section classifier above a heading. Has a fixed bottom margin before the content it labels.
+1.1rem JetBrains Mono, all-caps, `letter-spacing: 0.1em`, `color: var(--color-muted)`. Used as a section classifier above a heading. Has a fixed bottom margin before the content it labels.
 
 ### Trust Strip
 
-Background: `var(--color-gutter)` (#ECECEA). Horizontal flex, centered items, 10px 16px padding. Items use 9–11px JetBrains Mono, `letter-spacing: 0.1em`, all-caps. Appears as a footer inside cards, separated by a top border.
+Background: `var(--color-gutter)` (#ECECEA). Horizontal flex, centered items, 10px 16px padding. Items use 1.1rem JetBrains Mono, `letter-spacing: 0.1em`, all-caps. Appears as a footer inside cards, separated by a top border.
 
 ### Section Spacing
 
