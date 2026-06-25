@@ -1,14 +1,14 @@
 .updated {
   display: block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   margin-top: -16px;
   margin-bottom: 36px;
 }
 
 .lead {
-  font-size: 15px;
+  font-size: 1.5rem;
   line-height: 1.8;
   color: var(--color-secondary);
   margin: 0 0 16px;
@@ -20,7 +20,7 @@
 
 .sublabel {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-muted);
@@ -28,7 +28,7 @@
 }
 
 .heading {
-  font-size: 1rem;
+  font-size: 1.6rem;
   font-weight: 500;
   color: var(--color-text);
   margin: 0 0 16px;
@@ -36,7 +36,7 @@
 }
 
 .body {
-  font-size: 15px;
+  font-size: 1.5rem;
   line-height: 1.8;
   color: var(--color-secondary);
   margin: 0 0 14px;
@@ -51,7 +51,7 @@
 }
 
 .list {
-  font-size: 15px;
+  font-size: 1.5rem;
   line-height: 1.8;
   color: var(--color-secondary);
   margin: 0 0 14px;
@@ -82,7 +82,7 @@
 
 .table th {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-muted);
@@ -92,7 +92,7 @@
 }
 
 .table td {
-  font-size: 13px;
+  font-size: 1.3rem;
   line-height: 1.6;
   color: var(--color-secondary);
   padding: 10px 12px;

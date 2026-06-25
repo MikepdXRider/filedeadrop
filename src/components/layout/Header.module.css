@@ -15,7 +15,7 @@
 }
 
 .wordmark {
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-text);
@@ -23,6 +23,6 @@
 }
 
 .note {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
 }

@@ -9,14 +9,14 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 8px;
 }
 
 .desc {
-  font-size: 14px;
+  font-size: 1.3rem;
   color: var(--color-secondary);
   line-height: 1.8;
   max-width: 540px;

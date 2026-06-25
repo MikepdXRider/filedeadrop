@@ -14,21 +14,21 @@
 }
 
 .primary {
-  font-size: 15px;
+  font-size: 1.5rem;
   font-weight: 500;
   color: var(--color-text);
   margin-bottom: 6px;
 }
 
 .secondary {
-  font-size: 13px;
+  font-size: 1.3rem;
   color: var(--color-muted);
   margin-bottom: 20px;
 }
 
 .limit {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 1.1rem;
   color: var(--color-dim);
   letter-spacing: 0.08em;
   text-transform: uppercase;

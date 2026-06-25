@@ -4,7 +4,7 @@
 
 .word {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 2px;
@@ -12,13 +12,13 @@
 
 .pronunciation {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   margin-bottom: 12px;
 }
 
 .pos {
-  font-size: 11px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -26,8 +26,8 @@
 }
 
 .definition {
-  font-size: 17px;
-  color: var(--color-secondary);
+  font-size: 1.7rem;
+  color: var(--color-text);
   line-height: 1.8;
   padding-left: 20px;
   border-left: 2px solid var(--color-border);

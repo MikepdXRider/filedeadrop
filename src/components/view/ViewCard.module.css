@@ -35,7 +35,7 @@
 
 .statusLine {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-text);
   letter-spacing: 0.06em;
   padding: 24px;
@@ -58,14 +58,14 @@
 }
 
 .fileName {
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 500;
   color: var(--color-text);
 }
 
 .fileMeta {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   letter-spacing: 0.04em;
 }
@@ -78,7 +78,7 @@
 }
 
 .notice {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   line-height: 1.5;
   animation: fadeIn 150ms ease-in;
@@ -91,7 +91,7 @@
 
 .buttonPrimary {
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 1.3rem;
   font-weight: 500;
   color: var(--color-bg);
   background: var(--color-text);
@@ -113,7 +113,7 @@
 .buttonSecondary {
   display: inline-block;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 1.3rem;
   font-weight: 500;
   color: var(--color-text);
   background: transparent;
@@ -135,14 +135,14 @@
 }
 
 .terminalTitle {
-  font-size: 15px;
+  font-size: 1.5rem;
   font-weight: 500;
   color: var(--color-text);
   margin-bottom: 10px;
 }
 
 .terminalDesc {
-  font-size: 14px;
+  font-size: 1.3rem;
   color: var(--color-secondary);
   line-height: 1.75;
   max-width: 360px;

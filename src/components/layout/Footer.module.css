@@ -7,7 +7,7 @@
 }
 
 .wordmark {
-  font-size: 12px;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-muted);
   letter-spacing: -0.01em;
@@ -21,18 +21,18 @@
 }
 
 .sep {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-dim);
   user-select: none;
 }
 
 .copyright {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
 }
 
 .externalLink {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   text-decoration: none;
   transition: color 150ms;
@@ -43,7 +43,7 @@
 }
 
 .link {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   text-decoration: none;
   transition: color 150ms;
@@ -54,7 +54,7 @@
 }
 
 .tagline {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-dim);
   text-align: right;
 }

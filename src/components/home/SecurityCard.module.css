@@ -10,7 +10,7 @@
 
 .label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 1.1rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-secondary);
@@ -18,7 +18,7 @@
 }
 
 .title {
-  font-size: 18px;
+  font-size: 1.8rem;
   font-weight: 600;
   color: var(--color-bg);
   line-height: 1.4;
@@ -26,7 +26,7 @@
 }
 
 .body {
-  font-size: 14px;
+  font-size: 1.3rem;
   color: var(--color-dim);
   line-height: 2.0;
 }
