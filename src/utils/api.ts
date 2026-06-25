@@ -46,3 +46,10 @@ export async function requestView(id: string, apiUrl: string, signal?: AbortSign
   if (!res.ok) throw new Error(`View request failed: ${res.status}`)
   return res.json() as Promise<{ presignedUrl: string }>
 }
+
+// Content-Type header intentionally omitted — presigned S3 URL, same as uploadToS3
+export async function requestDownload(presignedUrl: string, signal?: AbortSignal): Promise<ArrayBuffer> {
+  const res = await fetch(presignedUrl, { signal })
+  if (!res.ok) throw new Error(`${res.status}`)
+  return res.arrayBuffer()
+}
