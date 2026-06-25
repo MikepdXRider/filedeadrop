@@ -149,7 +149,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; EventBridge Scheduler is the backstop if the client-side delete call fails; S3 lifecycle is the final fallback
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
 - API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
-- 25MB file size limit: frontend validates file.size ≤ 25MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 25MB + 28 bytes to account for AES-GCM overhead
+- 250MB file size limit: frontend validates file.size ≤ 250MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 250MB + 28 bytes to account for AES-GCM overhead
 - Lambda resource names (BUCKET_NAME, TABLE_NAME) are read from environment variables — Terraform sets these per environment; production values must be set manually before deploying Lambda source changes; upload Lambda also receives EXPIRY_LAMBDA_ARN, SCHEDULER_ROLE_ARN, SCHEDULE_GROUP_NAME (all set by Terraform)
 - Runtime API URL routing: upload uses `getApiUrlForUpload(region)` → `REGION_API_URLS` lookup; view uses `getApiUrlForView()` → `HOSTNAME_API_URLS` lookup on `window.location.hostname`; `VITE_API_URL` is the localhost fallback only
 - Share URL host reflects the upload region: EU upload on any frontend → share link is `eu.filedeadrop.com/view/{id}` so the view page routes to `eu.api.filedeadrop.com`
@@ -184,3 +184,4 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Do not use global CSS for component styles — use CSS Modules
 - Do not use Tailwind, component libraries, or gradients
 - Do not use decorative animations (fly-ins, bounces, entrance effects) — functional micro-transitions are permitted (e.g. 150ms opacity fade-in on state swap, hover transitions)
+- Do not expose raw `error.message` or stack traces in Lambda response bodies — return a generic `{ error: '...' }` to clients and log full detail server-side via `console.error` (→ CloudWatch)

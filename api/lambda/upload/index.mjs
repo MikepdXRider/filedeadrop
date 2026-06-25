@@ -16,7 +16,7 @@ const SCHEDULER_ROLE_ARN = process.env.SCHEDULER_ROLE_ARN;
 const SCHEDULE_GROUP_NAME = process.env.SCHEDULE_GROUP_NAME;
 const ITEM_TYPE = "META";
 const AES_GCM_OVERHEAD = 12 + 16; // IV + auth tag prepended/appended by AES-GCM
-const MAX_FILE_SIZE = 25 * 1024 * 1024 + AES_GCM_OVERHEAD;
+const MAX_FILE_SIZE = 250 * 1024 * 1024 + AES_GCM_OVERHEAD;
 
 export const handler = async (event) => {
   try {
@@ -25,7 +25,7 @@ export const handler = async (event) => {
     if (!Number.isInteger(fileSize) || fileSize <= 0 || fileSize > MAX_FILE_SIZE) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'File must be 25MB or under' })
+        body: JSON.stringify({ error: 'File must be 250MB or under' })
       };
     }
 

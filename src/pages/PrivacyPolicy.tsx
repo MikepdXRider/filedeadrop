@@ -255,7 +255,7 @@ export default function PrivacyPolicy() {
       <section className={styles.section}>
         <h2 className={styles.heading}>8. File size limit</h2>
         <p className={styles.body}>
-          Files are limited to 25 MB. This limit is enforced at the API layer before a presigned
+          Files are limited to 250 MB. This limit is enforced at the API layer before a presigned
           upload URL is issued.
         </p>
       </section>
