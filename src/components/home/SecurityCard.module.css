@@ -11,7 +11,7 @@
 .label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-secondary);
   margin-bottom: 20px;

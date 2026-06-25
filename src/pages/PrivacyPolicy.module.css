@@ -22,7 +22,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   color: var(--color-muted);
   margin: 24px 0 10px;
 }
@@ -84,7 +84,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   color: var(--color-muted);
   text-align: left;
   padding: 8px 12px;

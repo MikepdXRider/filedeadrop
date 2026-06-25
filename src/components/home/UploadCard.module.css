@@ -42,7 +42,7 @@
   font-size: 1.1rem;
   color: var(--color-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .regionSelect {

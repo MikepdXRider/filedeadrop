@@ -37,7 +37,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   color: var(--color-text);
-  letter-spacing: 0.06em;
+
   padding: 24px;
   text-align: center;
   min-height: 100px;
@@ -67,7 +67,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   color: var(--color-muted);
-  letter-spacing: 0.04em;
+
 }
 
 .controls {
