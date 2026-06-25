@@ -112,7 +112,7 @@ You are responsible for protecting the share link. Once a file has been accessed
 
 ## 8. File size limit
 
-Files are limited to 25 MB. This limit is enforced at the API layer before a presigned upload URL is issued.
+Files are limited to 250 MB. This limit is enforced at the API layer before a presigned upload URL is issued.
 
 ---
 

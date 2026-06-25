@@ -48,7 +48,7 @@ URL fragments (`#`) are never included in HTTP requests. Placing the key there m
 File bytes flow directly between the browser and S3. The Lambda function handles only metadata — issuing presigned URLs and writing to DynamoDB — which keeps Lambda costs low and removes it as a bottleneck for large files.
 
 **File size enforcement at the storage layer**
-The presigned PUT URL is signed with an exact `ContentLength` matching the encrypted payload size. S3 rejects any upload where the `Content-Length` header doesn't match the signed value, preventing oversized uploads regardless of how the URL was obtained. The Lambda also validates the size before issuing the URL. The 25MB limit applies to the original file; the Lambda threshold adds 28 bytes to accommodate AES-GCM overhead (12-byte IV + 16-byte auth tag).
+The presigned PUT URL is signed with an exact `ContentLength` matching the encrypted payload size. S3 rejects any upload where the `Content-Length` header doesn't match the signed value, preventing oversized uploads regardless of how the URL was obtained. The Lambda also validates the size before issuing the URL. The 250MB limit applies to the original file; the Lambda threshold adds 28 bytes to accommodate AES-GCM overhead (12-byte IV + 16-byte auth tag).
 
 **DynamoDB conditional delete as the access gate**
 The view Lambda performs a conditional `DeleteItem` with `ReturnValues: ALL_OLD`. If the item no longer exists (already accessed or expired), the delete fails and the Lambda returns an error — preventing any race condition where two simultaneous requests could both retrieve the file.

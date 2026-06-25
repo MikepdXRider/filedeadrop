@@ -12,7 +12,7 @@ const s3Mock = mockClient(S3Client);
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const schedulerMock = mockClient(SchedulerClient);
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024 + 28;
+const MAX_FILE_SIZE = 250 * 1024 * 1024 + 28;
 
 let handler;
 beforeAll(async () => {
@@ -39,31 +39,31 @@ describe('PUT /upload — validation', () => {
   it('returns 400 when fileSize is missing', async () => {
     const result = await handler({ body: '{}' });
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 25MB or under' });
+    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 250MB or under' });
   });
 
   it('returns 400 when fileSize is 0', async () => {
     const result = await handler({ body: JSON.stringify({ fileSize: 0 }) });
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 25MB or under' });
+    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 250MB or under' });
   });
 
   it('returns 400 when fileSize is negative', async () => {
     const result = await handler({ body: JSON.stringify({ fileSize: -1 }) });
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 25MB or under' });
+    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 250MB or under' });
   });
 
   it('returns 400 when fileSize is a float', async () => {
     const result = await handler({ body: JSON.stringify({ fileSize: 1.5 }) });
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 25MB or under' });
+    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 250MB or under' });
   });
 
-  it('returns 400 when fileSize exceeds 25MB + AES-GCM overhead', async () => {
+  it('returns 400 when fileSize exceeds 250MB + AES-GCM overhead', async () => {
     const result = await handler({ body: JSON.stringify({ fileSize: MAX_FILE_SIZE + 1 }) });
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 25MB or under' });
+    expect(JSON.parse(result.body)).toEqual({ error: 'File must be 250MB or under' });
   });
 });
 
