@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
@@ -29,6 +29,10 @@ beforeEach(() => {
   s3Mock.reset();
   ddbMock.reset();
   schedulerMock.reset();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('PUT /upload — validation', () => {
@@ -79,6 +83,24 @@ describe('PUT /upload — success', () => {
     schedulerMock.on(CreateScheduleCommand).resolves({});
     const result = await handler({ body: JSON.stringify({ fileSize: MAX_FILE_SIZE }) });
     expect(result.statusCode).toBe(200);
+  });
+
+  it('sends CreateScheduleCommand with the correct input shape', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-25T00:00:00.000Z'));
+    ddbMock.on(PutCommand).resolves({});
+    schedulerMock.on(CreateScheduleCommand).resolves({});
+    await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    const calls = schedulerMock.commandCalls(CreateScheduleCommand);
+    expect(calls).toHaveLength(1);
+    const input = calls[0].args[0].input;
+    expect(input.ScheduleExpression).toBe('at(2026-06-26T00:00:00)');
+    expect(input.GroupName).toBe('test-group');
+    expect(input.FlexibleTimeWindow).toEqual({ Mode: 'OFF' });
+    expect(input.Target.Arn).toBe('arn:aws:lambda:us-west-2:123456789012:function:expiry');
+    expect(input.Target.RoleArn).toBe('arn:aws:iam::123456789012:role/scheduler');
+    expect(input.ActionAfterCompletion).toBe('DELETE');
+    expect(JSON.parse(input.Target.Input)).toEqual({ fileId: input.Name });
   });
 
   it('sends PutCommand with the correct table and item shape', async () => {
