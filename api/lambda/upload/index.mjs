@@ -22,7 +22,7 @@ export const handler = async (event) => {
   try {
     const { fileSize } = JSON.parse(event.body ?? '{}');
 
-    if (!fileSize || fileSize > MAX_FILE_SIZE) {
+    if (!Number.isInteger(fileSize) || fileSize <= 0 || fileSize > MAX_FILE_SIZE) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'File must be 25MB or under' })
@@ -79,7 +79,7 @@ export const handler = async (event) => {
     console.error(error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ error: 'Internal error' })
     };
   }
 };
