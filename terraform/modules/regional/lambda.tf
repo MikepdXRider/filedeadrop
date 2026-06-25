@@ -35,6 +35,7 @@ data "archive_file" "expiry" {
   output_path = "${path.root}/dist/${var.env}/expiry.zip"
 }
 
+
 # CloudWatch log groups — declared explicitly so retention is capped at 30 days,
 # matching the API Gateway access logs. Without these, Lambda auto-creates each
 # group on first invocation with no expiry, retaining logs indefinitely. Each
@@ -64,6 +65,7 @@ resource "aws_cloudwatch_log_group" "expiry" {
   name              = "/aws/lambda/${var.env}-filedeadrop-expiry"
   retention_in_days = 30
 }
+
 
 resource "aws_lambda_function" "upload" {
   function_name    = "${var.env}-filedeadrop-upload"
