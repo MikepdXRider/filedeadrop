@@ -51,6 +51,16 @@ resource "aws_iam_role_policy" "upload_resources" {
         Effect   = "Allow"
         Action   = ["dynamodb:PutItem"]
         Resource = aws_dynamodb_table.metadata.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["scheduler:CreateSchedule"]
+        Resource = "arn:aws:scheduler:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:schedule/${aws_scheduler_schedule_group.main.name}/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["iam:PassRole"]
+        Resource = aws_iam_role.scheduler_exec.arn
       }
     ]
   })
@@ -112,6 +122,39 @@ resource "aws_iam_role_policy" "delete_resources" {
         Effect   = "Allow"
         Action   = ["s3:DeleteObject"]
         Resource = "${aws_s3_bucket.files.arn}/*"
+      }
+    ]
+  })
+}
+
+# --- Expiry ---
+
+resource "aws_iam_role" "expiry_exec" {
+  name               = "${var.env}-filedeadrop-expiry-exec"
+  assume_role_policy = local.lambda_trust_policy
+}
+
+resource "aws_iam_role_policy_attachment" "expiry_basic" {
+  role       = aws_iam_role.expiry_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "expiry_resources" {
+  name = "${var.env}-filedeadrop-expiry-resources"
+  role = aws_iam_role.expiry_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:DeleteObject"]
+        Resource = "${aws_s3_bucket.files.arn}/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["dynamodb:DeleteItem"]
+        Resource = aws_dynamodb_table.metadata.arn
       }
     ]
   })

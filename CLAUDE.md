@@ -19,6 +19,7 @@ api/
     view/       # index.mjs — view Lambda handler
     delete/     # index.mjs — delete Lambda handler
     authorizer/ # index.mjs — API Gateway authorizer Lambda handler
+    expiry/     # index.mjs — EventBridge Scheduler-invoked Lambda; deletes S3 object + DynamoDB record at T+24h
 src/
   components/
     layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
@@ -38,7 +39,7 @@ docs/
 terraform/
   README.md            # bootstrap instructions and manual workflow
   modules/
-    regional/          # parameterized per-region module (S3, DynamoDB, Lambda, API GW, ACM, Route 53)
+    regional/          # parameterized per-region module (S3, DynamoDB, Lambda, API GW, ACM, Route 53, EventBridge Scheduler)
   environments/
     dev/               # dev environment — main.tf, variables.tf, outputs.tf, terraform.tfvars, secrets.tfvars (gitignored)
     prod/              # production + EU data residency — main.tf, variables.tf (module blocks added when ready)
@@ -141,12 +142,13 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Original filename AES-GCM encrypted (same key, fresh IV) and base64url-encoded in the URL fragment after the key, separated by `:` — never sent to any server; only recoverable by the keyholder
 - File bytes never touch Lambda, go direct to S3 via presigned URL
 - DynamoDB conditional delete with ReturnValues ALL_OLD handles race conditions on view
-- S3 lifecycle policy handles post access file cleanup, DynamoDB conditional delete is the access control gate
-- DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; S3 lifecycle is the fallback if the delete call fails
+- File expiry is three-layer: (1) client-side DELETE /delete/{id} after download — primary path; (2) EventBridge Scheduler one-time event at exactly T+24h targeting the expiry Lambda — guaranteed backstop for unaccessed files; (3) S3 lifecycle rule (`days=1`) — tertiary safety net
+- EventBridge Scheduler: upload Lambda creates one schedule per upload (`Name: fileId`, group `${env}-filedeadrop`, `ActionAfterCompletion: DELETE`); schedule fires at `expiresAt` and invokes the expiry Lambda with `{ fileId }`; scheduler creation is best-effort — upload succeeds even if it fails
+- DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; EventBridge Scheduler is the backstop if the client-side delete call fails; S3 lifecycle is the final fallback
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
 - API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
 - 25MB file size limit: frontend validates file.size ≤ 25MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 25MB + 28 bytes to account for AES-GCM overhead
-- Lambda resource names (BUCKET_NAME, TABLE_NAME) are read from environment variables — Terraform sets these per environment; production values must be set manually before deploying Lambda source changes
+- Lambda resource names (BUCKET_NAME, TABLE_NAME) are read from environment variables — Terraform sets these per environment; production values must be set manually before deploying Lambda source changes; upload Lambda also receives EXPIRY_LAMBDA_ARN, SCHEDULER_ROLE_ARN, SCHEDULE_GROUP_NAME (all set by Terraform)
 - Runtime API URL routing: upload uses `getApiUrlForUpload(region)` → `REGION_API_URLS` lookup; view uses `getApiUrlForView()` → `HOSTNAME_API_URLS` lookup on `window.location.hostname`; `VITE_API_URL` is the localhost fallback only
 - Share URL host reflects the upload region: EU upload on any frontend → share link is `eu.filedeadrop.com/view/{id}` so the view page routes to `eu.api.filedeadrop.com`
 - Adding a new region requires only new entries in `REGION_API_URLS`, `HOSTNAME_API_URLS`, `REGION_FRONTEND_ORIGINS`, `SUPPORTED_REGIONS` (all in `constants.ts`) plus a new Terraform module block

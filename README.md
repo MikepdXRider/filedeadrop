@@ -53,8 +53,8 @@ The presigned PUT URL is signed with an exact `ContentLength` matching the encry
 **DynamoDB conditional delete as the access gate**
 The view Lambda performs a conditional `DeleteItem` with `ReturnValues: ALL_OLD`. If the item no longer exists (already accessed or expired), the delete fails and the Lambda returns an error — preventing any race condition where two simultaneous requests could both retrieve the file.
 
-**S3 lifecycle policy for TTL**
-A 24-hour S3 lifecycle rule handles object expiry independently of application logic, ensuring files are cleaned up even if the DynamoDB record is deleted before the object is accessed.
+**Guaranteed 24-hour expiry via EventBridge Scheduler**
+File cleanup is three-layer: (1) the client calls `DELETE /delete/{id}` immediately after download, removing the S3 object in the primary path; (2) the upload Lambda creates a one-time EventBridge Scheduler event set to fire at exactly `upload_time + 24 hours`, targeting an expiry Lambda that deletes both the S3 object and DynamoDB record — this is the guaranteed backstop for files that are never accessed; (3) an S3 lifecycle rule (`days=1`) acts as a tertiary safety net. The EventBridge schedule auto-deletes after firing.
 
 **Encrypted filename in the URL fragment**
 The original filename is encrypted with the same AES-GCM key (a fresh IV is generated independently) before being embedded in the fragment. The filename is never sent to any server and is only recoverable by someone who holds the key — making the share link the sole source of both file and filename access.
