@@ -80,7 +80,7 @@
 .notice {
   font-size: 1.1rem;
   color: var(--color-muted);
-  line-height: 1.5;
+
   animation: fadeIn 150ms ease-in;
 }
 
@@ -144,7 +144,7 @@
 .terminalDesc {
   font-size: 1.3rem;
   color: var(--color-secondary);
-  line-height: 1.75;
+  line-height: 1.8;
   max-width: 360px;
   margin: 0 auto 24px;
 }
