@@ -1,5 +1,5 @@
 .section {
-  padding: 96px 0;
+  padding: 9.6rem 0;
 }
 
 .steps {
@@ -36,7 +36,7 @@
 }
 
 .body {
-  padding: 24px 28px;
+  padding: 2.4rem 2.8rem;
 }
 
 .title {
@@ -44,7 +44,7 @@
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: 0.01em;
-  margin-bottom: 6px;
+  margin-bottom: 0.6rem;
 }
 
 .desc {

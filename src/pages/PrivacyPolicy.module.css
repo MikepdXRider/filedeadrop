@@ -3,19 +3,19 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   color: var(--color-muted);
-  margin-top: -16px;
-  margin-bottom: 36px;
+  margin-top: -1.6rem;
+  margin-bottom: 3.6rem;
 }
 
 .lead {
   font-size: 1.6rem;
   line-height: 1.8;
   color: var(--color-secondary);
-  margin: 0 0 16px;
+  margin: 0 0 1.6rem;
 }
 
 .section {
-  padding-bottom: 4px;
+  padding-bottom: 0.4rem;
 }
 
 .sublabel {
@@ -24,14 +24,14 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--color-muted);
-  margin: 24px 0 10px;
+  margin: 2.4rem 0 1.0rem;
 }
 
 .heading {
   font-size: 1.6rem;
   font-weight: 500;
   color: var(--color-text);
-  margin: 0 0 16px;
+  margin: 0 0 1.6rem;
   line-height: 1.2;
 }
 
@@ -39,7 +39,7 @@
   font-size: 1.6rem;
   line-height: 1.8;
   color: var(--color-secondary);
-  margin: 0 0 14px;
+  margin: 0 0 1.4rem;
 }
 
 .body a {
@@ -54,12 +54,12 @@
   font-size: 1.6rem;
   line-height: 1.8;
   color: var(--color-secondary);
-  margin: 0 0 14px;
-  padding-left: 20px;
+  margin: 0 0 1.4rem;
+  padding-left: 2.0rem;
 }
 
 .list li {
-  margin-bottom: 6px;
+  margin-bottom: 0.6rem;
 }
 
 .list a {
@@ -72,7 +72,7 @@
 
 .tableWrap {
   overflow-x: auto;
-  margin-bottom: 14px;
+  margin-bottom: 1.4rem;
 }
 
 .table {
@@ -87,7 +87,7 @@
   letter-spacing: 0.1em;
   color: var(--color-muted);
   text-align: left;
-  padding: 8px 12px;
+  padding: 0.8rem 1.2rem;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -95,7 +95,7 @@
   font-size: 1.3rem;
 
   color: var(--color-secondary);
-  padding: 10px 12px;
+  padding: 1.0rem 1.2rem;
   border-bottom: 1px solid var(--color-border);
   vertical-align: top;
 }

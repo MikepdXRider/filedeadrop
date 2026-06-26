@@ -1,11 +1,11 @@
 .section {
-  padding: 0 0 96px;
+  padding: 0 0 9.6rem;
 }
 
 .card {
   background: var(--color-dark-surface);
   border-radius: 6px;
-  padding: 48px;
+  padding: 4.8rem;
 }
 
 .label {
@@ -14,7 +14,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-secondary);
-  margin-bottom: 20px;
+  margin-bottom: 2.0rem;
 }
 
 .title {
@@ -22,7 +22,7 @@
   font-weight: 600;
   color: var(--color-bg);
   line-height: 1.2;
-  margin-bottom: 20px;
+  margin-bottom: 2.0rem;
 }
 
 .body {
