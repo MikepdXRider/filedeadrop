@@ -159,7 +159,8 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 ## Design
 - Spec: DESIGN.md — colors, typography, spacing rules, component guidelines
 - Fonts: Inter (all text), JetBrains Mono (labels, code, step numbers) — self-hosted woff2 (latin + latin-ext) in `public/fonts/`, declared via `@font-face` in `src/index.css`; no Google Fonts request (privacy)
-- Color palette and spacing defined as CSS custom properties in src/index.css
+- Color palette defined as CSS custom properties in `src/index.css`; never hardcode a color value
+- `html { font-size: 62.5% }` — 1rem = 10px; all spacing (margin, padding, gap) in rem; borders, border-radius, box-shadow, min-height, max-width, and media query breakpoints stay in px
 - Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
 
 ## Testing

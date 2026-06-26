@@ -1,6 +1,6 @@
 .header {
   border-bottom: 1px solid var(--color-border);
-  padding: 0 48px;
+  padding: 0 4.8rem;
   height: 48px;
   display: flex;
   align-items: center;
@@ -10,12 +10,12 @@
 
 @media (max-width: 600px) {
   .header {
-    padding: 0 24px;
+    padding: 0 2.4rem;
   }
 }
 
 .wordmark {
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-text);
@@ -23,6 +23,6 @@
 }
 
 .note {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
 }

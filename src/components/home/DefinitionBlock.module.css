@@ -1,35 +1,35 @@
 .block {
-  margin-bottom: 64px;
+  margin-bottom: 6.4rem;
 }
 
 .word {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 2px;
+  margin-bottom: 0.2rem;
 }
 
 .pronunciation {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-muted);
-  margin-bottom: 12px;
+  margin-bottom: 1.2rem;
 }
 
 .pos {
-  font-size: 11px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 1.2rem;
 }
 
 .definition {
-  font-size: 17px;
-  color: #444;
+  font-size: 1.6rem;
+  color: var(--color-text);
   line-height: 1.8;
-  padding-left: 20px;
+  padding-left: 2.0rem;
   border-left: 2px solid var(--color-border);
   max-width: 560px;
 }
