@@ -67,7 +67,7 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
         </p>
 
         <div className={styles.controls}>
-          <div className={`${styles.selectorRow} ${status === 'done' ? styles.regionGroupHidden : ''}`}>
+          <div className={`${styles.selectorRow} ${status === 'done' ? styles.selectorRowHidden : ''}`}>
             <div className={styles.selectorGroup}>
               <label htmlFor="region-select" className={styles.selectorLabel}>Region</label>
               <select
