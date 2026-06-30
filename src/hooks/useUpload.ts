@@ -64,7 +64,11 @@ export function useUpload() {
     }
   }
 
-  const reset = () => setState(initialState)
+  const reset = () => {
+    setState(initialState)
+    setSelectedTtl(DEFAULT_TTL)
+    setSelectedRegion(DEFAULT_REGION)
+  }
 
   return { ...state, selectedRegion, selectedTtl, handleFileSelect, handleRegionSelect, handleTtlSelect, handleUpload, reset }
 }
