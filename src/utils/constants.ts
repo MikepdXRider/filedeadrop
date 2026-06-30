@@ -5,6 +5,16 @@ export const AES_GCM_TAG_LENGTH = 16   // bytes, appended by crypto.subtle.encry
 export const MAX_FILE_SIZE_MB = 250
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
+export const DEFAULT_TTL = 86400
+
+// Keep in sync with VALID_TTLS in api/lambda/upload/index.mjs
+export const TTL_OPTIONS = [
+  { label: '5 minutes', seconds: 300 },
+  { label: '1 hour',    seconds: 3600 },
+  { label: '6 hours',   seconds: 21600 },
+  { label: '24 hours',  seconds: 86400 },
+] as const
+
 export const SUPPORTED_REGIONS = [
   { value: 'us-west-2',    label: 'United States' },
   { value: 'eu-central-1', label: 'European Union' },

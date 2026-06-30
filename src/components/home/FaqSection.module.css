@@ -1,5 +1,5 @@
 .section {
-  padding: 0 0 96px;
+  padding: 0 0 9.6rem;
 }
 
 .faq {
@@ -10,24 +10,24 @@
 .row {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
-  gap: 48px;
-  padding: 28px 0;
-  border-bottom: 1px solid #E8E8E4;
+  gap: 4.8rem;
+  padding: 2.8rem 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .row:first-child {
-  border-top: 1px solid #E8E8E4;
+  border-top: 1px solid var(--color-border);
 }
 
 .question {
-  font-size: 13px;
+  font-size: 1.3rem;
   font-weight: 500;
   color: var(--color-text);
-  line-height: 1.7;
+
 }
 
 .answer {
-  font-size: 13px;
+  font-size: 1.3rem;
   color: var(--color-secondary);
   line-height: 1.8;
 }
@@ -35,6 +35,6 @@
 @media (max-width: 600px) {
   .row {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 1.2rem;
   }
 }

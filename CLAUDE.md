@@ -65,7 +65,7 @@ All requests include header: Content-Type: application/json
 
 Endpoints:
 PUT /upload
-  body: { fileSize: number }  # fileSize is encryptedBytes.byteLength, not file.size
+  body: { fileSize: number, ttl: number }  # fileSize is encryptedBytes.byteLength; ttl is seconds — must be one of [300, 3600, 21600, 86400]
   returns: { presignedUrl: string, sharePath: string }
 
 GET /view/{id}
@@ -144,7 +144,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Original filename AES-GCM encrypted (same key, fresh IV) and base64url-encoded in the URL fragment after the key, separated by `:` — never sent to any server; only recoverable by the keyholder
 - File bytes never touch Lambda, go direct to S3 via presigned URL
 - DynamoDB conditional delete with ReturnValues ALL_OLD handles race conditions on view
-- File expiry is three-layer: (1) client-side DELETE /delete/{id} after download — primary path; (2) EventBridge Scheduler one-time event at exactly T+24h targeting the expiry Lambda — guaranteed backstop for unaccessed files; (3) S3 lifecycle rule (`days=1`) — tertiary safety net
+- File expiry is three-layer: (1) client-side DELETE /delete/{id} after download — primary path; (2) EventBridge Scheduler one-time event at exactly T+{ttl} targeting the expiry Lambda — guaranteed backstop for unaccessed files; (3) S3 lifecycle rule (`days=1`) — tertiary safety net
 - EventBridge Scheduler: upload Lambda creates one schedule per upload (`Name: fileId`, group `${env}-filedeadrop`, `ActionAfterCompletion: DELETE`); schedule fires at `expiresAt` and invokes the expiry Lambda with `{ fileId }`; scheduler creation is best-effort — upload succeeds even if it fails
 - DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; EventBridge Scheduler is the backstop if the client-side delete call fails; S3 lifecycle is the final fallback
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
@@ -159,7 +159,8 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 ## Design
 - Spec: DESIGN.md — colors, typography, spacing rules, component guidelines
 - Fonts: Inter (all text), JetBrains Mono (labels, code, step numbers) — self-hosted woff2 (latin + latin-ext) in `public/fonts/`, declared via `@font-face` in `src/index.css`; no Google Fonts request (privacy)
-- Color palette and spacing defined as CSS custom properties in src/index.css
+- Color palette defined as CSS custom properties in `src/index.css`; never hardcode a color value
+- `html { font-size: 62.5% }` — 1rem = 10px; all spacing (margin, padding, gap) in rem; borders, border-radius, box-shadow, min-height, max-width, and media query breakpoints stay in px
 - Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
 
 ## Testing

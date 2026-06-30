@@ -7,12 +7,12 @@
 }
 
 .inner {
-  padding: 36px;
+  padding: 3.6rem;
 }
 
 @media (max-width: 600px) {
   .inner {
-    padding: 24px;
+    padding: 2.4rem;
   }
 
   .controls {
@@ -28,31 +28,37 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 1.6rem;
 }
 
-.regionGroup {
+.selectorRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1.6rem;
 }
 
-.regionLabel {
+.selectorGroup {
+  display: flex;
+  align-items: center;
+  gap: 1.0rem;
+}
+
+.selectorLabel {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 1.1rem;
   color: var(--color-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
-.regionSelect {
+.selectorSelect {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  padding: 7px 28px 7px 10px;
+  padding: 0.7rem 2.8rem 0.7rem 1.0rem;
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
@@ -61,42 +67,41 @@
   background-position: right 9px center;
 }
 
-.regionGroupHidden {
+.selectorRowHidden {
   visibility: hidden;
 }
 
-.regionSelect:focus {
+.selectorSelect:focus {
   outline: 1.5px solid var(--color-text);
   outline-offset: 2px;
 }
 
-.regionSelect:disabled {
+.selectorSelect:disabled {
   color: var(--color-muted);
   cursor: default;
 }
 
-
-.regionSelect option {
+.selectorSelect option {
   background: var(--color-surface);
   color: var(--color-text);
 }
 
 .button {
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 1.3rem;
   font-weight: 500;
   color: var(--color-bg);
   background: var(--color-text);
   border: none;
   border-radius: 4px;
-  padding: 10px 22px;
+  padding: 1.0rem 2.2rem;
   cursor: pointer;
   letter-spacing: 0.01em;
   transition: background 150ms ease-out;
 }
 
 .button:hover:not(:disabled) {
-  background: #333;
+  background: var(--color-interactive);
 }
 
 .button:disabled {
@@ -108,12 +113,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px dashed var(--color-dim);
+  border: 1px dashed var(--color-muted);
   border-radius: 4px;
-  padding: 52px 32px;
+  padding: 5.2rem 3.2rem;
   text-align: center;
   background: var(--color-inset);
-  margin-bottom: 28px;
+  margin-bottom: 2.8rem;
   min-height: 220px;
   justify-content: center;
 }
@@ -128,31 +133,30 @@
 }
 
 .panelPrimary {
-  font-size: 15px;
+  font-size: 1.5rem;
   font-weight: 500;
   color: var(--color-text);
-  margin-bottom: 6px;
+  margin-bottom: 0.6rem;
   animation: fadeIn 150ms ease-in;
 }
 
 .panelSecondary {
-  font-size: 13px;
+  font-size: 1.3rem;
   color: var(--color-muted);
   animation: fadeIn 150ms ease-in;
 }
 
 .disclaimer {
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-secondary);
-  line-height: 1.5;
-  margin-bottom: 20px;
+  margin-bottom: 2.0rem;
 }
 
 .panelUrl {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 1.1rem;
   color: var(--color-text);
   word-break: break-all;
-  margin-bottom: 6px;
+  margin-bottom: 0.6rem;
   animation: fadeIn 150ms ease-in;
 }

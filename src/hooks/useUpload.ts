@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { UploadStatus } from '../types'
-import { DEFAULT_REGION, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB, REGION_FRONTEND_ORIGINS } from '../utils/constants'
+import { DEFAULT_REGION, DEFAULT_TTL, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB, REGION_FRONTEND_ORIGINS } from '../utils/constants'
 import { generateKey, encryptFile, exportKeyToBase64, encryptFilename } from '../utils/crypto'
 import { getApiUrlForUpload, requestUpload, uploadToS3 } from '../utils/api'
 
@@ -16,6 +16,7 @@ const initialState: UploadState = { status: 'idle', file: null, shareUrl: null, 
 export function useUpload() {
   const [state, setState] = useState<UploadState>(initialState)
   const [selectedRegion, setSelectedRegion] = useState(DEFAULT_REGION)
+  const [selectedTtl, setSelectedTtl] = useState(DEFAULT_TTL)
 
   const handleFileSelect = (file: File) => {
     if (state.status !== 'idle' && state.status !== 'ready') return
@@ -27,8 +28,13 @@ export function useUpload() {
   }
 
   const handleRegionSelect = (region: string) => {
-    if (state.status !== 'idle' && state.status !== 'ready') return
+    if (state.status === 'encrypting' || state.status === 'uploading' || state.status === 'done') return
     setSelectedRegion(region)
+  }
+
+  const handleTtlSelect = (ttl: number) => {
+    if (state.status === 'encrypting' || state.status === 'uploading' || state.status === 'done') return
+    setSelectedTtl(ttl)
   }
 
   const handleUpload = async () => {
@@ -39,7 +45,7 @@ export function useUpload() {
       const key = await generateKey()
       const encryptedBytes = await encryptFile(file, key)
       const apiUrl = getApiUrlForUpload(selectedRegion)
-      const { presignedUrl, sharePath } = await requestUpload(encryptedBytes.byteLength, apiUrl)
+      const { presignedUrl, sharePath } = await requestUpload(encryptedBytes.byteLength, selectedTtl, apiUrl)
       const keyB64 = await exportKeyToBase64(key)
       const encryptedFilename = await encryptFilename(file.name, key)
       const shareOrigin = window.location.hostname === 'localhost'
@@ -58,7 +64,11 @@ export function useUpload() {
     }
   }
 
-  const reset = () => setState(initialState)
+  const reset = () => {
+    setState(initialState)
+    setSelectedTtl(DEFAULT_TTL)
+    setSelectedRegion(DEFAULT_REGION)
+  }
 
-  return { ...state, selectedRegion, handleFileSelect, handleRegionSelect, handleUpload, reset }
+  return { ...state, selectedRegion, selectedTtl, handleFileSelect, handleRegionSelect, handleTtlSelect, handleUpload, reset }
 }
