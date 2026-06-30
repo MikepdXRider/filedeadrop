@@ -21,7 +21,10 @@ export async function requestUpload(fileSize: number, ttl: number, apiUrl: strin
     headers: { 'Content-Type': 'application/json', ...devHeaders() },
     body: JSON.stringify({ fileSize, ttl } satisfies UploadRequest),
   })
-  if (!res.ok) throw new Error(`Upload request failed: ${res.status}`)
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({})) as { error?: string }
+    throw new Error(errBody.error ?? `Upload request failed: ${res.status}`)
+  }
   return res.json() as Promise<UploadResponse>
 }
 
