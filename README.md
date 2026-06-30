@@ -1,6 +1,6 @@
 # FileDeadrop
 
-A one-time, end-to-end encrypted file sharing service. Upload a file, receive a share link, and the file is permanently deleted after the first access or 24 hours — whichever comes first.
+A one-time, end-to-end encrypted file sharing service. Upload a file, receive a share link, and the file is permanently deleted after the first access or your chosen expiry time — whichever comes first.
 
 Files are encrypted entirely in the browser before upload. The encryption key never leaves the client and is never transmitted to any server.
 
@@ -53,8 +53,8 @@ The presigned PUT URL is signed with an exact `ContentLength` matching the encry
 **DynamoDB conditional delete as the access gate**
 The view Lambda performs a conditional `DeleteItem` with `ReturnValues: ALL_OLD`. If the item no longer exists (already accessed or expired), the delete fails and the Lambda returns an error — preventing any race condition where two simultaneous requests could both retrieve the file.
 
-**Guaranteed 24-hour expiry via EventBridge Scheduler**
-File cleanup is three-layer: (1) the client calls `DELETE /delete/{id}` immediately after download, removing the S3 object in the primary path; (2) the upload Lambda creates a one-time EventBridge Scheduler event set to fire at exactly `upload_time + 24 hours`, targeting an expiry Lambda that deletes both the S3 object and DynamoDB record — this is the guaranteed backstop for files that are never accessed; (3) an S3 lifecycle rule (`days=1`) acts as a tertiary safety net. The EventBridge schedule auto-deletes after firing.
+**Guaranteed expiry via EventBridge Scheduler**
+File cleanup is three-layer: (1) the client calls `DELETE /delete/{id}` immediately after download, removing the S3 object in the primary path; (2) the upload Lambda creates a one-time EventBridge Scheduler event set to fire at exactly `upload_time + ttl`, targeting an expiry Lambda that deletes both the S3 object and DynamoDB record — this is the guaranteed backstop for files that are never accessed; (3) an S3 lifecycle rule (`days=1`) acts as a tertiary safety net. The EventBridge schedule auto-deletes after firing.
 
 **Encrypted filename in the URL fragment**
 The original filename is encrypted with the same AES-GCM key (a fresh IV is generated independently) before being embedded in the fragment. The filename is never sent to any server and is only recoverable by someone who holds the key — making the share link the sole source of both file and filename access.
