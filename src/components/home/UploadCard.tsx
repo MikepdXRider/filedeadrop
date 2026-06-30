@@ -69,8 +69,9 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
         <div className={styles.controls}>
           <div className={`${styles.selectorRow} ${status === 'done' ? styles.regionGroupHidden : ''}`}>
             <div className={styles.regionGroup}>
-              <span className={styles.regionLabel}>Region</span>
+              <label htmlFor="region-select" className={styles.regionLabel}>Region</label>
               <select
+                id="region-select"
                 className={styles.regionSelect}
                 value={selectedRegion}
                 onChange={e => onRegionChange(e.target.value)}
@@ -83,8 +84,9 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
             </div>
 
             <div className={styles.regionGroup}>
-              <span className={styles.regionLabel}>Expires</span>
+              <label htmlFor="ttl-select" className={styles.regionLabel}>Expires</label>
               <select
+                id="ttl-select"
                 className={styles.regionSelect}
                 value={selectedTtl}
                 onChange={e => onTtlChange(Number(e.target.value))}
