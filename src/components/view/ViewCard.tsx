@@ -37,7 +37,7 @@ export default function ViewCard({ status, fileName, fileSize, fileUrl, download
             <p className={styles.terminalDesc}>
               {downloaded
                 ? 'Your file was saved to your device and permanently deleted from our servers. This link is no longer valid.'
-                : 'This link is invalid or has already been used.'}
+                : 'This link is invalid, has already been used, or has expired.'}
             </p>
             <Link to="/" className={styles.buttonSecondary}>Send your own file →</Link>
           </div>
