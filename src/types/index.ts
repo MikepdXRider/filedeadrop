@@ -1,5 +1,6 @@
 export interface UploadRequest {
   fileSize: number
+  ttl: number
 }
 
 export interface UploadResponse {

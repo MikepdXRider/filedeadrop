@@ -65,13 +65,31 @@ describe('PUT /upload — validation', () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body)).toEqual({ error: 'File must be 250MB or under' });
   });
+
+  it('returns 400 when ttl is missing', async () => {
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Invalid TTL' });
+  });
+
+  it('returns 400 when ttl is not in the allowed set', async () => {
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 9999 }) });
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Invalid TTL' });
+  });
+
+  it('returns 400 when ttl is a string instead of a number', async () => {
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: '86400' }) });
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Invalid TTL' });
+  });
 });
 
 describe('PUT /upload — success', () => {
   it('returns 200 with presignedUrl and sharePath for a valid fileSize', async () => {
     ddbMock.on(PutCommand).resolves({});
     schedulerMock.on(CreateScheduleCommand).resolves({});
-    const result = await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400 }) });
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body);
     expect(body.presignedUrl).toBe('https://mock-presigned.url/test');
@@ -81,16 +99,16 @@ describe('PUT /upload — success', () => {
   it('accepts the maximum valid fileSize', async () => {
     ddbMock.on(PutCommand).resolves({});
     schedulerMock.on(CreateScheduleCommand).resolves({});
-    const result = await handler({ body: JSON.stringify({ fileSize: MAX_FILE_SIZE }) });
+    const result = await handler({ body: JSON.stringify({ fileSize: MAX_FILE_SIZE, ttl: 86400 }) });
     expect(result.statusCode).toBe(200);
   });
 
-  it('sends CreateScheduleCommand with the correct input shape', async () => {
+  it('sends CreateScheduleCommand with the correct input shape for 24h ttl', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-25T00:00:00.000Z'));
     ddbMock.on(PutCommand).resolves({});
     schedulerMock.on(CreateScheduleCommand).resolves({});
-    await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400 }) });
     const calls = schedulerMock.commandCalls(CreateScheduleCommand);
     expect(calls).toHaveLength(1);
     const input = calls[0].args[0].input;
@@ -103,10 +121,20 @@ describe('PUT /upload — success', () => {
     expect(JSON.parse(input.Target.Input)).toEqual({ fileId: input.Name });
   });
 
+  it('uses the provided ttl in the schedule expression', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-25T00:00:00.000Z'));
+    ddbMock.on(PutCommand).resolves({});
+    schedulerMock.on(CreateScheduleCommand).resolves({});
+    await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 300 }) });
+    const input = schedulerMock.commandCalls(CreateScheduleCommand)[0].args[0].input;
+    expect(input.ScheduleExpression).toBe('at(2026-06-25T00:05:00)');
+  });
+
   it('sends PutCommand with the correct table and item shape', async () => {
     ddbMock.on(PutCommand).resolves({});
     schedulerMock.on(CreateScheduleCommand).resolves({});
-    await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400 }) });
     const calls = ddbMock.commandCalls(PutCommand);
     expect(calls).toHaveLength(1);
     const input = calls[0].args[0].input;
@@ -118,7 +146,7 @@ describe('PUT /upload — success', () => {
   it('returns 200 even when scheduler creation fails (best-effort)', async () => {
     ddbMock.on(PutCommand).resolves({});
     schedulerMock.on(CreateScheduleCommand).rejects(new Error('Scheduler unavailable'));
-    const result = await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400 }) });
     expect(result.statusCode).toBe(200);
   });
 });
@@ -126,7 +154,7 @@ describe('PUT /upload — success', () => {
 describe('PUT /upload — error handling', () => {
   it('returns 500 when DynamoDB throws', async () => {
     ddbMock.on(PutCommand).rejects(new Error('DynamoDB error'));
-    const result = await handler({ body: JSON.stringify({ fileSize: 1024 }) });
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400 }) });
     expect(result.statusCode).toBe(500);
     expect(JSON.parse(result.body)).toEqual({ error: 'Internal error' });
   });
