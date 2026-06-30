@@ -17,6 +17,7 @@ const SCHEDULE_GROUP_NAME = process.env.SCHEDULE_GROUP_NAME;
 const ITEM_TYPE = "META";
 const AES_GCM_OVERHEAD = 12 + 16; // IV + auth tag prepended/appended by AES-GCM
 const MAX_FILE_SIZE = 250 * 1024 * 1024 + AES_GCM_OVERHEAD;
+// Keep in sync with TTL_OPTIONS in src/utils/constants.ts
 const VALID_TTLS = new Set([300, 3600, 21600, 86400]);
 
 export const handler = async (event) => {

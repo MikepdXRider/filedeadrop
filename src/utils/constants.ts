@@ -7,6 +7,7 @@ export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 export const DEFAULT_TTL = 86400
 
+// Keep in sync with VALID_TTLS in api/lambda/upload/index.mjs
 export const TTL_OPTIONS = [
   { label: '5 minutes', seconds: 300 },
   { label: '1 hour',    seconds: 3600 },
