@@ -28,12 +28,12 @@ export function useUpload() {
   }
 
   const handleRegionSelect = (region: string) => {
-    if (state.status !== 'idle' && state.status !== 'ready') return
+    if (state.status === 'encrypting' || state.status === 'uploading' || state.status === 'done') return
     setSelectedRegion(region)
   }
 
   const handleTtlSelect = (ttl: number) => {
-    if (state.status !== 'idle' && state.status !== 'ready') return
+    if (state.status === 'encrypting' || state.status === 'uploading' || state.status === 'done') return
     setSelectedTtl(ttl)
   }
 
