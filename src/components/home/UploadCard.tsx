@@ -1,5 +1,5 @@
 import type { UploadStatus as UploadStatusType } from '../../types'
-import { SUPPORTED_REGIONS } from '../../utils/constants'
+import { SUPPORTED_REGIONS, TTL_OPTIONS } from '../../utils/constants'
 import FileDropZone from '../FileDropZone'
 import TrustStrip from './TrustStrip'
 import styles from './UploadCard.module.css'
@@ -10,13 +10,15 @@ interface UploadCardProps {
   shareUrl: string | null
   error: string | null
   selectedRegion: string
+  selectedTtl: number
   onFileSelect: (file: File) => void
   onUpload: () => void
   onReset: () => void
   onRegionChange: (region: string) => void
+  onTtlChange: (ttl: number) => void
 }
 
-export default function UploadCard({ status, file, shareUrl, error, selectedRegion, onFileSelect, onUpload, onReset, onRegionChange }: UploadCardProps) {
+export default function UploadCard({ status, file, shareUrl, error, selectedRegion, selectedTtl, onFileSelect, onUpload, onReset, onRegionChange, onTtlChange }: UploadCardProps) {
   const handleCopy = () => {
     if (shareUrl) navigator.clipboard.writeText(shareUrl)
   }
@@ -65,18 +67,34 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
         </p>
 
         <div className={styles.controls}>
-          <div className={`${styles.regionGroup} ${status === 'done' ? styles.regionGroupHidden : ''}`}>
-            <span className={styles.regionLabel}>Region</span>
-            <select
-              className={styles.regionSelect}
-              value={selectedRegion}
-              onChange={e => onRegionChange(e.target.value)}
-              disabled={status === 'encrypting' || status === 'uploading'}
-            >
-              {SUPPORTED_REGIONS.map(r => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
+          <div className={`${styles.selectorRow} ${status === 'done' ? styles.regionGroupHidden : ''}`}>
+            <div className={styles.regionGroup}>
+              <span className={styles.regionLabel}>Region</span>
+              <select
+                className={styles.regionSelect}
+                value={selectedRegion}
+                onChange={e => onRegionChange(e.target.value)}
+                disabled={status === 'encrypting' || status === 'uploading'}
+              >
+                {SUPPORTED_REGIONS.map(r => (
+                  <option key={r.value} value={r.value}>{r.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.regionGroup}>
+              <span className={styles.regionLabel}>Expires</span>
+              <select
+                className={styles.regionSelect}
+                value={selectedTtl}
+                onChange={e => onTtlChange(Number(e.target.value))}
+                disabled={status === 'encrypting' || status === 'uploading'}
+              >
+                {TTL_OPTIONS.map(o => (
+                  <option key={o.seconds} value={o.seconds}>{o.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {(status === 'idle' || status === 'ready') && (

@@ -17,15 +17,23 @@ const SCHEDULE_GROUP_NAME = process.env.SCHEDULE_GROUP_NAME;
 const ITEM_TYPE = "META";
 const AES_GCM_OVERHEAD = 12 + 16; // IV + auth tag prepended/appended by AES-GCM
 const MAX_FILE_SIZE = 250 * 1024 * 1024 + AES_GCM_OVERHEAD;
+const VALID_TTLS = new Set([300, 3600, 21600, 86400]);
 
 export const handler = async (event) => {
   try {
-    const { fileSize } = JSON.parse(event.body ?? '{}');
+    const { fileSize, ttl } = JSON.parse(event.body ?? '{}');
 
     if (!Number.isInteger(fileSize) || fileSize <= 0 || fileSize > MAX_FILE_SIZE) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'File must be 250MB or under' })
+      };
+    }
+
+    if (!VALID_TTLS.has(ttl)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid TTL' })
       };
     }
 
@@ -37,7 +45,7 @@ export const handler = async (event) => {
       ContentLength: fileSize,
     }), { expiresIn: 30 });
 
-    const expiresAt = Math.floor(Date.now() / 1000) + (24 * 60 * 60);
+    const expiresAt = Math.floor(Date.now() / 1000) + ttl;
 
     await docClient.send(new PutCommand({
       TableName: TABLE,

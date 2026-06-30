@@ -15,11 +15,11 @@ export function getApiUrlForView(): string {
   return HOSTNAME_API_URLS[window.location.hostname] ?? import.meta.env.VITE_API_URL
 }
 
-export async function requestUpload(fileSize: number, apiUrl: string): Promise<UploadResponse> {
+export async function requestUpload(fileSize: number, ttl: number, apiUrl: string): Promise<UploadResponse> {
   const res = await fetch(`${apiUrl}/upload`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...devHeaders() },
-    body: JSON.stringify({ fileSize } satisfies UploadRequest),
+    body: JSON.stringify({ fileSize, ttl } satisfies UploadRequest),
   })
   if (!res.ok) throw new Error(`Upload request failed: ${res.status}`)
   return res.json() as Promise<UploadResponse>
