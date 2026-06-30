@@ -37,13 +37,13 @@
   gap: 1.6rem;
 }
 
-.regionGroup {
+.selectorGroup {
   display: flex;
   align-items: center;
   gap: 1.0rem;
 }
 
-.regionLabel {
+.selectorLabel {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   color: var(--color-muted);
@@ -51,7 +51,7 @@
   letter-spacing: 0.1em;
 }
 
-.regionSelect {
+.selectorSelect {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   color: var(--color-text);
@@ -71,18 +71,17 @@
   visibility: hidden;
 }
 
-.regionSelect:focus {
+.selectorSelect:focus {
   outline: 1.5px solid var(--color-text);
   outline-offset: 2px;
 }
 
-.regionSelect:disabled {
+.selectorSelect:disabled {
   color: var(--color-muted);
   cursor: default;
 }
 
-
-.regionSelect option {
+.selectorSelect option {
   background: var(--color-surface);
   color: var(--color-text);
 }

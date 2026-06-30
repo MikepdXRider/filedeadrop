@@ -68,11 +68,11 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
 
         <div className={styles.controls}>
           <div className={`${styles.selectorRow} ${status === 'done' ? styles.regionGroupHidden : ''}`}>
-            <div className={styles.regionGroup}>
-              <label htmlFor="region-select" className={styles.regionLabel}>Region</label>
+            <div className={styles.selectorGroup}>
+              <label htmlFor="region-select" className={styles.selectorLabel}>Region</label>
               <select
                 id="region-select"
-                className={styles.regionSelect}
+                className={styles.selectorSelect}
                 value={selectedRegion}
                 onChange={e => onRegionChange(e.target.value)}
                 disabled={status === 'encrypting' || status === 'uploading'}
@@ -83,11 +83,11 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
               </select>
             </div>
 
-            <div className={styles.regionGroup}>
-              <label htmlFor="ttl-select" className={styles.regionLabel}>Expires</label>
+            <div className={styles.selectorGroup}>
+              <label htmlFor="ttl-select" className={styles.selectorLabel}>Expires</label>
               <select
                 id="ttl-select"
-                className={styles.regionSelect}
+                className={styles.selectorSelect}
                 value={selectedTtl}
                 onChange={e => onTtlChange(Number(e.target.value))}
                 disabled={status === 'encrypting' || status === 'uploading'}
