@@ -15,14 +15,18 @@ const EXPIRY_LAMBDA_ARN = process.env.EXPIRY_LAMBDA_ARN;
 const SCHEDULER_ROLE_ARN = process.env.SCHEDULER_ROLE_ARN;
 const SCHEDULE_GROUP_NAME = process.env.SCHEDULE_GROUP_NAME;
 const ITEM_TYPE = "META";
+const RECEIPT_ITEM_TYPE = "RECEIPT";
+const RECEIPT_TTL_SECONDS = 48 * 3600;
 const AES_GCM_OVERHEAD = 12 + 16; // IV + auth tag prepended/appended by AES-GCM
 const MAX_FILE_SIZE = 250 * 1024 * 1024 + AES_GCM_OVERHEAD;
 // Keep in sync with TTL_OPTIONS in src/utils/constants.ts
 const VALID_TTLS = new Set([300, 3600, 21600, 86400]);
 
+const generateToken = () => Buffer.from(crypto.randomUUID().replace(/-/g, ''), 'hex').toString('base64url');
+
 export const handler = async (event) => {
   try {
-    const { fileSize, ttl } = JSON.parse(event.body ?? '{}');
+    const { fileSize, ttl, receiptRequested } = JSON.parse(event.body ?? '{}');
 
     if (!Number.isInteger(fileSize) || fileSize <= 0 || fileSize > MAX_FILE_SIZE) {
       return {
@@ -38,7 +42,8 @@ export const handler = async (event) => {
       };
     }
 
-    const fileId = Buffer.from(crypto.randomUUID().replace(/-/g, ''), 'hex').toString('base64url');
+    const fileId = generateToken();
+    const receiptId = receiptRequested === true ? generateToken() : null;
 
     const presignedUrl = await getSignedUrl(s3, new PutObjectCommand({
       Bucket: BUCKET,
@@ -46,7 +51,31 @@ export const handler = async (event) => {
       ContentLength: fileSize,
     }), { expiresIn: 30 });
 
-    const expiresAt = Math.floor(Date.now() / 1000) + ttl;
+    const now = Math.floor(Date.now() / 1000);
+    const expiresAt = now + ttl;
+
+    // Write the receipt record first: if this succeeds but the META write below
+    // fails, the orphaned receipt has no backing file and self-heals — the
+    // receipt Lambda's derive logic reports it as expired/unconfirmed and it's
+    // cleaned up by its own 48h TTL. The reverse order would leave a META item
+    // with a receiptId pointing at nothing, which nothing ever reads or cleans
+    // up proactively.
+    if (receiptId) {
+      await docClient.send(new PutCommand({
+        TableName: TABLE,
+        Item: {
+          documentId: receiptId,
+          itemType: RECEIPT_ITEM_TYPE,
+          fileId,
+          status: 'pending',
+          uploadedAt: now,
+          accessedAt: null,
+          deletedAt: null,
+          fileExpiresAt: expiresAt,
+          expiresAt: now + RECEIPT_TTL_SECONDS,
+        }
+      }));
+    }
 
     await docClient.send(new PutCommand({
       TableName: TABLE,
@@ -55,6 +84,7 @@ export const handler = async (event) => {
         itemType: ITEM_TYPE,
         fileKey: fileId,
         expiresAt,
+        ...(receiptId && { receiptId }),
       }
     }));
 
@@ -69,7 +99,7 @@ export const handler = async (event) => {
         Target: {
           Arn: EXPIRY_LAMBDA_ARN,
           RoleArn: SCHEDULER_ROLE_ARN,
-          Input: JSON.stringify({ fileId }),
+          Input: JSON.stringify(receiptId ? { fileId, receiptId } : { fileId }),
         },
         ActionAfterCompletion: 'DELETE',
       }));
@@ -81,7 +111,8 @@ export const handler = async (event) => {
       statusCode: 200,
       body: JSON.stringify({
         presignedUrl,
-        sharePath: `/view/${fileId}`
+        sharePath: `/view/${fileId}`,
+        ...(receiptId && { receiptPath: `/receipt/${receiptId}` }),
       })
     };
   } catch (error) {

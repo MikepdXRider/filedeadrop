@@ -49,6 +49,13 @@ resource "aws_apigatewayv2_integration" "delete" {
   payload_format_version = "2.0"
 }
 
+resource "aws_apigatewayv2_integration" "receipt" {
+  api_id                 = aws_apigatewayv2_api.main.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.receipt.invoke_arn
+  payload_format_version = "2.0"
+}
+
 resource "aws_apigatewayv2_route" "upload" {
   api_id             = aws_apigatewayv2_api.main.id
   route_key          = "PUT /upload"
@@ -69,6 +76,14 @@ resource "aws_apigatewayv2_route" "delete" {
   api_id             = aws_apigatewayv2_api.main.id
   route_key          = "DELETE /delete/{id}"
   target             = "integrations/${aws_apigatewayv2_integration.delete.id}"
+  authorization_type = "CUSTOM"
+  authorizer_id      = aws_apigatewayv2_authorizer.lambda.id
+}
+
+resource "aws_apigatewayv2_route" "receipt" {
+  api_id             = aws_apigatewayv2_api.main.id
+  route_key          = "GET /receipt/{id}"
+  target             = "integrations/${aws_apigatewayv2_integration.receipt.id}"
   authorization_type = "CUSTOM"
   authorizer_id      = aws_apigatewayv2_authorizer.lambda.id
 }

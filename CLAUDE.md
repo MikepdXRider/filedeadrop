@@ -20,16 +20,18 @@ api/
     delete/     # index.mjs — delete Lambda handler; index.test.mjs — unit tests
     authorizer/ # index.mjs — API Gateway authorizer Lambda handler; index.test.mjs — unit tests
     expiry/     # index.mjs — EventBridge Scheduler-invoked Lambda; index.test.mjs — unit tests
+    receipt/    # index.mjs — GET /receipt/{id} handler, serves opt-in receipt status; index.test.mjs — unit tests
     test.setup.mjs  # Vitest global setup — mocks console.log/error/warn across all Lambda tests
 src/
   components/
     layout/  # Header.tsx, Footer.tsx — shared layout, rendered in App.tsx
     home/    # DefinitionBlock.tsx, UploadCard.tsx, TrustStrip.tsx,
              # ProtocolSteps.tsx, CapabilitiesSection.tsx, SecurityCard.tsx, FaqSection.tsx
-    # FileDropZone.tsx, ShareUrlDisplay.tsx, UploadStatus.tsx
+    receipt/ # ReceiptCard.tsx — presentational, drives the /receipt/:token page
+    # FileDropZone.tsx, UploadStatus.tsx
     # Each component has a co-located .module.css file
-  pages/       # Home.tsx, View.tsx, NotFound.tsx
-  hooks/       # useUpload.ts, useView.ts
+  pages/       # Home.tsx, View.tsx, Receipt.tsx, NotFound.tsx
+  hooks/       # useUpload.ts, useView.ts, useReceipt.ts
   utils/       # api.ts, crypto.ts, constants.ts
   types/       # index.ts
 DESIGN.md      # visual design spec — colors, typography, spacing rules
@@ -65,8 +67,8 @@ All requests include header: Content-Type: application/json
 
 Endpoints:
 PUT /upload
-  body: { fileSize: number, ttl: number }  # fileSize is encryptedBytes.byteLength; ttl is seconds — must be one of [300, 3600, 21600, 86400]
-  returns: { presignedUrl: string, sharePath: string }
+  body: { fileSize: number, ttl: number, receiptRequested?: boolean }  # fileSize is encryptedBytes.byteLength; ttl is seconds — must be one of [300, 3600, 21600, 86400]; receiptRequested opts into a receipt record, defaults to false/omitted
+  returns: { presignedUrl: string, sharePath: string, receiptPath?: string }  # receiptPath present only when receiptRequested was true
 
 GET /view/{id}
   returns: { presignedUrl: string }
@@ -74,6 +76,10 @@ GET /view/{id}
 DELETE /delete/{id}
   triggers Lambda to delete the S3 object; called client-side after encrypted bytes are in memory
   note: DynamoDB access gate is handled on view — this endpoint is S3 cleanup only, best-effort
+
+GET /receipt/{id}
+  opt-in endpoint — {id} is the receipt token from receiptPath, a separate token from the file's fileId, never exposed to the recipient
+  returns: { status: 'pending' | 'accessed' | 'expired', uploadedAt: number, accessedAt: number | null, deletedAt: number | null, fileExpiresAt: number }
 
 ## Environment Variables
 VITE_API_URL= # local dev fallback only — e.g. https://dev.api.filedeadrop.com; production routing is hostname/region-based
@@ -147,6 +153,12 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - File expiry is three-layer: (1) client-side DELETE /delete/{id} after download — primary path; (2) EventBridge Scheduler one-time event at exactly T+{ttl} targeting the expiry Lambda — guaranteed backstop for unaccessed files; (3) S3 lifecycle rule (`days=1`) — tertiary safety net
 - EventBridge Scheduler: upload Lambda creates one schedule per upload (`Name: fileId`, group `${env}-filedeadrop`, `ActionAfterCompletion: DELETE`); schedule fires at `expiresAt` and invokes the expiry Lambda with `{ fileId }`; scheduler creation is best-effort — upload succeeds even if it fails
 - DELETE /delete/{id} is S3-only cleanup — DynamoDB gate is removed on view; EventBridge Scheduler is the backstop if the client-side delete call fails; S3 lifecycle is the final fallback
+- Receipt URL (opt-in, issue #80): a checkbox on upload lets senders request a second, separate link to check later whether their file was accessed, still pending, or expired — off by default, no effect on the upload flow when not requested
+- Receipt token is generated the same way as fileId (crypto.randomUUID() → base64url) but is a fully separate value — never derivable from the share link's fragment, and never exposed to the recipient (the delete Lambda, which the recipient's browser calls, has no access to it)
+- Receipt data lives in the same DynamoDB table as file records, under itemType: "RECEIPT" (no schema change) — fields: status (pending/accessed/expired), uploadedAt, accessedAt, deletedAt, fileExpiresAt (the file's own TTL, copied at upload time). Retention is 48 hours via the same table-level TTL attribute (expiresAt) already used for file records — the attribute name is shared across item types but means "file expiry" on META items and "receipt retention" on RECEIPT items
+- Confirmed writes only, no inferred timestamps: upload Lambda creates the receipt (status: pending) when opted in; view Lambda writes accessedAt + deletedAt together on a successful access, and also writes a confirmed deletedAt on its existing 410 orphan-cleanup branch; the scheduled expiry Lambda writes a confirmed deletedAt for the dominant never-accessed case, guarded by a conditional update (status = pending) so it can never overwrite a legitimate access
+- If neither view nor expiry ever confirms a deletion (double failure: the EventBridge schedule never fired and nobody hit the dead link), the receipt Lambda derives status: 'expired' by checking whether the file's META record still exists, but reports deletedAt: null ("not confirmed") rather than guessing a timestamp — chosen deliberately over inferring a plausible-looking value, since this feature is aimed at compliance-conscious users
+- delete Lambda (client-triggered, post-download S3 cleanup) never participates in receipt writes — by the time it runs, view has already deleted the only record holding the receipt token, and the recipient's browser (which calls delete) never has the token in the first place
 - API Gateway throttling: 100 req/s rate limit, 200 burst at the stage level
 - API Gateway authorizer gates all routes and enforces a 10KB payload limit; CloudFront secret pattern removed (requests reach API Gateway directly) — CloudFront-in-front-of-API-GW to be revisited post-Terraform
 - 250MB file size limit: frontend validates file.size ≤ 250MB before encryption; presigned PUT URL is signed with exact ContentLength (encrypted payload); Lambda threshold is 250MB + 28 bytes to account for AES-GCM overhead

@@ -152,6 +152,54 @@
   margin-bottom: 2.0rem;
 }
 
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 2.0rem;
+}
+
+.checkboxRowHidden {
+  visibility: hidden;
+}
+
+.checkboxInput {
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  font-size: 1.2rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.receiptLinkWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2.0rem;
+  animation: fadeIn 150ms ease-in;
+}
+
+.receiptLink {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease-out;
+}
+
+.receiptLink:hover {
+  color: var(--color-interactive);
+}
+
+.receiptLinkHint {
+  font-size: 1.1rem;
+  color: var(--color-secondary);
+}
+
 .panelUrl {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;

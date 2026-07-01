@@ -35,6 +35,12 @@ data "archive_file" "expiry" {
   output_path = "${path.root}/dist/${var.env}/expiry.zip"
 }
 
+data "archive_file" "receipt" {
+  type        = "zip"
+  source_file = "${var.lambda_source_dir}/receipt/index.mjs"
+  output_path = "${path.root}/dist/${var.env}/receipt.zip"
+}
+
 
 # CloudWatch log groups — declared explicitly so retention is capped at 30 days,
 # matching the API Gateway access logs. Without these, Lambda auto-creates each
@@ -63,6 +69,11 @@ resource "aws_cloudwatch_log_group" "authorizer" {
 
 resource "aws_cloudwatch_log_group" "expiry" {
   name              = "/aws/lambda/${var.env}-filedeadrop-expiry"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "receipt" {
+  name              = "/aws/lambda/${var.env}-filedeadrop-receipt"
   retention_in_days = 30
 }
 
@@ -196,5 +207,31 @@ resource "aws_lambda_function" "expiry" {
   }
 
   depends_on = [aws_cloudwatch_log_group.expiry]
+}
+
+resource "aws_lambda_function" "receipt" {
+  function_name    = "${var.env}-filedeadrop-receipt"
+  role             = aws_iam_role.receipt_exec.arn
+  runtime          = "nodejs22.x"
+  handler          = "index.handler"
+  filename         = data.archive_file.receipt.output_path
+  source_code_hash = data.archive_file.receipt.output_base64sha256
+  timeout          = 10
+
+  environment {
+    variables = {
+      TABLE_NAME = aws_dynamodb_table.metadata.id
+    }
+  }
+
+  depends_on = [aws_cloudwatch_log_group.receipt]
+}
+
+resource "aws_lambda_permission" "receipt" {
+  statement_id  = "AllowAPIGatewayInvokeReceipt"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.receipt.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/${aws_apigatewayv2_stage.default.name}/GET/receipt/*"
 }
 
