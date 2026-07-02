@@ -13,13 +13,13 @@ const BUCKET = process.env.BUCKET_NAME;
 const TABLE = process.env.TABLE_NAME;
 const PRESIGNED_URL_EXPIRY = 30;
 
-async function markReceiptStatus(receiptId, updateExpression, values) {
+async function markReceiptStatus(receiptId, updateExpression, values, condition = 'attribute_exists(documentId)') {
   try {
     await docClient.send(new UpdateCommand({
       TableName: TABLE,
       Key: { documentId: receiptId, itemType: RECEIPT_ITEM_TYPE },
       UpdateExpression: updateExpression,
-      ConditionExpression: 'attribute_exists(documentId)',
+      ConditionExpression: condition,
       ExpressionAttributeNames: { '#status': 'status' },
       ExpressionAttributeValues: values,
     }))
@@ -68,7 +68,8 @@ export const handler = async (event) => {
         await markReceiptStatus(
           item.receiptId,
           'SET #status = :expired, deletedAt = :now',
-          { ':expired': 'expired', ':now': now }
+          { ':expired': 'expired', ':now': now, ':pending': 'pending' },
+          '#status = :pending'
         )
       }
 

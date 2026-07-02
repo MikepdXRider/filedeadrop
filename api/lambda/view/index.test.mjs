@@ -153,6 +153,21 @@ describe('GET /view/{id} — receipt updates', () => {
     expect(input.Key).toEqual({ documentId: 'receipt-1', itemType: 'RECEIPT' });
     expect(input.UpdateExpression).toContain('deletedAt');
     expect(input.ExpressionAttributeValues[':expired']).toBe('expired');
+    expect(input.ConditionExpression).toBe('#status = :pending');
+    expect(input.ExpressionAttributeValues[':pending']).toBe('pending');
+  });
+
+  it('does not overwrite receipt when already confirmed expired by the expiry Lambda (410 branch ConditionalCheckFailedException)', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past, receiptId: 'receipt-1' },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    const conditionalError = new Error('conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+    ddbMock.on(UpdateCommand).rejects(conditionalError);
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(410);
   });
 
   it('does not call UpdateCommand when receiptId is absent (410 branch)', async () => {
