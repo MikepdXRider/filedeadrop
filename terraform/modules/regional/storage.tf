@@ -73,6 +73,10 @@ resource "aws_dynamodb_table" "metadata" {
     type = "S"
   }
 
+  # expiresAt is reused across itemType values for two different meanings:
+  # on META items it's the file's own expiry; on RECEIPT items (opt-in
+  # receipt tracking) it's the 48h receipt retention window. Same attribute,
+  # same TTL sweep, different semantics depending on itemType.
   ttl {
     attribute_name = "expiresAt"
     enabled        = true
