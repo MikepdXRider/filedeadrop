@@ -8,17 +8,20 @@ interface UploadCardProps {
   status: UploadStatusType
   file: File | null
   shareUrl: string | null
+  receiptUrl: string | null
   error: string | null
   selectedRegion: string
   selectedTtl: number
+  wantsReceipt: boolean
   onFileSelect: (file: File) => void
   onUpload: () => void
   onReset: () => void
   onRegionChange: (region: string) => void
   onTtlChange: (ttl: number) => void
+  onWantsReceiptChange: (wantsReceipt: boolean) => void
 }
 
-export default function UploadCard({ status, file, shareUrl, error, selectedRegion, selectedTtl, onFileSelect, onUpload, onReset, onRegionChange, onTtlChange }: UploadCardProps) {
+export default function UploadCard({ status, file, shareUrl, receiptUrl, error, selectedRegion, selectedTtl, wantsReceipt, onFileSelect, onUpload, onReset, onRegionChange, onTtlChange, onWantsReceiptChange }: UploadCardProps) {
   const handleCopy = () => {
     if (shareUrl) navigator.clipboard.writeText(shareUrl)
   }
@@ -60,11 +63,34 @@ export default function UploadCard({ status, file, shareUrl, error, selectedRegi
           </div>
         )}
 
+        {status === 'done' && receiptUrl && (
+          <div className={styles.receiptLinkWrap}>
+            <a className={styles.receiptLink} href={receiptUrl} target="_blank" rel="noopener noreferrer">
+              Track this file →
+            </a>
+            <span className={styles.receiptLinkHint}>Save this now — it won't be shown again.</span>
+          </div>
+        )}
+
         <p className={styles.disclaimer}>
           Did you know your file may contain hidden personal information in its metadata?
           <br />
           <a href="#faq">Learn more in our FAQ.</a>
         </p>
+
+        <div className={`${styles.checkboxRow} ${status === 'done' ? styles.checkboxRowHidden : ''}`}>
+          <input
+            id="receipt-checkbox"
+            type="checkbox"
+            className={styles.checkboxInput}
+            checked={wantsReceipt}
+            onChange={e => onWantsReceiptChange(e.target.checked)}
+            disabled={status === 'encrypting' || status === 'uploading'}
+          />
+          <label htmlFor="receipt-checkbox" className={styles.checkboxLabel}>
+            Get a link to track when it's viewed
+          </label>
+        </div>
 
         <div className={styles.controls}>
           <div className={`${styles.selectorRow} ${status === 'done' ? styles.selectorRowHidden : ''}`}>

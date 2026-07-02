@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { DynamoDBDocumentClient, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 vi.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: () => Promise.resolve('https://mock-presigned.url/test'),
@@ -98,5 +98,96 @@ describe('GET /view/{id} — error handling', () => {
     const result = await handler({ pathParameters: { id: 'test-id' } });
     expect(result.statusCode).toBe(500);
     expect(JSON.parse(result.body)).toEqual({ error: 'Internal error' });
+  });
+});
+
+describe('GET /view/{id} — receipt updates', () => {
+  it('marks the receipt as accessed and deleted when receiptId is present (happy path)', async () => {
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE, receiptId: 'receipt-1' },
+    });
+    ddbMock.on(UpdateCommand).resolves({});
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(200);
+    const calls = ddbMock.commandCalls(UpdateCommand);
+    expect(calls).toHaveLength(1);
+    const input = calls[0].args[0].input;
+    expect(input).toMatchObject({
+      TableName: 'test-table',
+      Key: { documentId: 'receipt-1', itemType: 'RECEIPT' },
+    });
+    expect(input.UpdateExpression).toContain('accessedAt');
+    expect(input.UpdateExpression).toContain('deletedAt');
+    expect(input.ExpressionAttributeValues[':accessed']).toBe('accessed');
+  });
+
+  it('does not call UpdateCommand when receiptId is absent (happy path)', async () => {
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE },
+    });
+    await handler({ pathParameters: { id: 'test-id' } });
+    expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(0);
+  });
+
+  it('does not fail the request when the receipt UpdateCommand rejects (happy path)', async () => {
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE, receiptId: 'receipt-1' },
+    });
+    ddbMock.on(UpdateCommand).rejects(new Error('conditional check failed'));
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(200);
+  });
+
+  it('marks the receipt as expired with a confirmed deletedAt when receiptId is present (410 branch)', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past, receiptId: 'receipt-1' },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    ddbMock.on(UpdateCommand).resolves({});
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(410);
+    const calls = ddbMock.commandCalls(UpdateCommand);
+    expect(calls).toHaveLength(1);
+    const input = calls[0].args[0].input;
+    expect(input.Key).toEqual({ documentId: 'receipt-1', itemType: 'RECEIPT' });
+    expect(input.UpdateExpression).toContain('deletedAt');
+    expect(input.ExpressionAttributeValues[':expired']).toBe('expired');
+    expect(input.ConditionExpression).toBe('#status = :pending');
+    expect(input.ExpressionAttributeValues[':pending']).toBe('pending');
+  });
+
+  it('does not overwrite receipt when already confirmed expired by the expiry Lambda (410 branch ConditionalCheckFailedException)', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past, receiptId: 'receipt-1' },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    const conditionalError = new Error('conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+    ddbMock.on(UpdateCommand).rejects(conditionalError);
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(410);
+  });
+
+  it('does not call UpdateCommand when receiptId is absent (410 branch)', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    await handler({ pathParameters: { id: 'test-id' } });
+    expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(0);
+  });
+
+  it('does not fail the request when the receipt UpdateCommand rejects (410 branch)', async () => {
+    const past = Math.floor(Date.now() / 1000) - 1;
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: past, receiptId: 'receipt-1' },
+    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    ddbMock.on(UpdateCommand).rejects(new Error('conditional check failed'));
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(410);
   });
 });

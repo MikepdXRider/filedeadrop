@@ -4,7 +4,7 @@ export default function PrivacyPolicy() {
   return (
     <main>
       <h1>Privacy Policy</h1>
-      <span className={styles.updated}>Last updated: June 16, 2026</span>
+      <span className={styles.updated}>Last updated: July 1, 2026</span>
 
       <p className={styles.lead}>
         filedeadrop is a one-time, end-to-end encrypted file sharing service. This policy explains
@@ -16,7 +16,9 @@ export default function PrivacyPolicy() {
         key never reaches any server, and the file is permanently deleted after the first access or
         24 hours — whichever comes first. The only personal data collected is standard server
         request metadata (IP address and user agent), retained for 30 days for security and
-        operational purposes.
+        operational purposes. If you optionally request a receipt link at upload, a small status
+        record — no filename, file contents, or IP address — is kept separately for up to 48 hours
+        so you can confirm whether the file was received.
       </p>
 
       <hr />
@@ -64,7 +66,29 @@ export default function PrivacyPolicy() {
           </li>
         </ul>
 
-        <p className={styles.sublabel}>2b. Data collected automatically</p>
+        <p className={styles.sublabel}>2b. Optional receipt tracking data</p>
+        <p className={styles.body}>
+          If you check "Get a link to track when it's viewed" at upload, a second record is created
+          containing:
+        </p>
+        <ul className={styles.list}>
+          <li>
+            A separate, randomly generated receipt token — not derivable from the share link, and
+            never given to your recipient.
+          </li>
+          <li>
+            The upload time, and (if applicable) the time the file was accessed and the time it was
+            deleted.
+          </li>
+          <li>A status: pending, accessed, or expired.</li>
+        </ul>
+        <p className={styles.body}>
+          This record never contains the filename, file contents, IP address, or any other
+          identifying information. It exists only if you opt in, and is automatically deleted 48
+          hours after upload regardless of the file's own expiry.
+        </p>
+
+        <p className={styles.sublabel}>2c. Data collected automatically</p>
         <p className={styles.body}>
           Every request to the filedeadrop API generates a structured access log entry in Amazon
           CloudWatch. Each entry contains:
@@ -117,7 +141,7 @@ export default function PrivacyPolicy() {
           the resolved file identifier on successful requests, file contents, and filenames.
         </p>
 
-        <p className={styles.sublabel}>2c. What is not collected</p>
+        <p className={styles.sublabel}>2d. What is not collected</p>
         <ul className={styles.list}>
           <li>Cookies — none are set.</li>
           <li>Session data — there are no sessions.</li>
@@ -167,6 +191,10 @@ export default function PrivacyPolicy() {
               <tr>
                 <td>File record (DynamoDB)</td>
                 <td>Deleted atomically on first access</td>
+              </tr>
+              <tr>
+                <td>Receipt record (DynamoDB, opt-in only)</td>
+                <td>48 hours from upload, then automatically deleted</td>
               </tr>
               <tr>
                 <td>API access logs (CloudWatch)</td>
@@ -230,6 +258,11 @@ export default function PrivacyPolicy() {
           data available to disclose is limited to IP addresses, user agents, and request timestamps
           within that window. File contents and encryption keys are never available to disclose —
           the service is technically incapable of accessing them.
+        </p>
+        <p className={styles.body}>
+          For uploads where a receipt was requested, the same legal process could additionally
+          surface the receipt's status and timestamps — never the file's contents, filename, or
+          encryption key.
         </p>
       </section>
 

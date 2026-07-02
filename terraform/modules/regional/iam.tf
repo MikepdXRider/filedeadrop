@@ -83,7 +83,7 @@ resource "aws_iam_role_policy" "view_resources" {
       },
       {
         Effect   = "Allow"
-        Action   = ["dynamodb:DeleteItem"]
+        Action   = ["dynamodb:DeleteItem", "dynamodb:UpdateItem"]
         Resource = aws_dynamodb_table.metadata.arn
       }
     ]
@@ -144,7 +144,35 @@ resource "aws_iam_role_policy" "expiry_resources" {
       },
       {
         Effect   = "Allow"
-        Action   = ["dynamodb:DeleteItem"]
+        Action   = ["dynamodb:DeleteItem", "dynamodb:UpdateItem"]
+        Resource = aws_dynamodb_table.metadata.arn
+      }
+    ]
+  })
+}
+
+# --- Receipt ---
+
+resource "aws_iam_role" "receipt_exec" {
+  name               = "${var.env}-filedeadrop-receipt-exec"
+  assume_role_policy = local.lambda_trust_policy
+}
+
+resource "aws_iam_role_policy_attachment" "receipt_basic" {
+  role       = aws_iam_role.receipt_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "receipt_resources" {
+  name = "${var.env}-filedeadrop-receipt-resources"
+  role = aws_iam_role.receipt_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["dynamodb:GetItem"]
         Resource = aws_dynamodb_table.metadata.arn
       }
     ]

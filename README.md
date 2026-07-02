@@ -25,6 +25,13 @@ Files are encrypted entirely in the browser before upload. The encryption key ne
 
 Because the key lives exclusively in the URL fragment, it is never sent to any server in any request.
 
+### Receipt tracking (opt-in)
+
+1. At upload, the sender can check a box to request a receipt link, separate from the share link
+2. If requested, a second record is created in DynamoDB — a random token, unrelated to the file's own ID and never given to the recipient
+3. The sender can visit the receipt link any time within 48 hours to see the file's status: pending, accessed (with a timestamp), or expired
+4. Deletion timestamps are only ever recorded when a Lambda actually witnessed the deletion — if that confirmation is missing, the receipt says so explicitly rather than guessing
+
 ---
 
 ## Architecture
@@ -55,6 +62,9 @@ The view Lambda performs a conditional `DeleteItem` with `ReturnValues: ALL_OLD`
 
 **Guaranteed expiry via EventBridge Scheduler**
 File cleanup is three-layer: (1) the client calls `DELETE /delete/{id}` immediately after download, removing the S3 object in the primary path; (2) the upload Lambda creates a one-time EventBridge Scheduler event set to fire at exactly `upload_time + ttl`, targeting an expiry Lambda that deletes both the S3 object and DynamoDB record — this is the guaranteed backstop for files that are never accessed; (3) an S3 lifecycle rule (`days=1`) acts as a tertiary safety net. The EventBridge schedule auto-deletes after firing.
+
+**Opt-in receipt tracking with confirmed vs. presumed deletion**
+A sender can request a second, separate link to check whether their file was received. Its DynamoDB record shares the file table (`itemType: "RECEIPT"`) and reuses the same TTL attribute for a 48-hour retention window, independent of the file's own expiry. Deletion timestamps are only written by a Lambda that actually performed or witnessed the deletion — `view` on access, `view` or the scheduled `expiry` Lambda on cleanup — never inferred. In the rare case neither ever confirms it, the receipt reports the file as expired but marks the deletion "not confirmed" rather than guessing a time.
 
 **Encrypted filename in the URL fragment**
 The original filename is encrypted with the same AES-GCM key (a fresh IV is generated independently) before being embedded in the fragment. The filename is never sent to any server and is only recoverable by someone who holds the key — making the share link the sole source of both file and filename access.
