@@ -119,6 +119,8 @@ describe('GET /view/{id} — receipt updates', () => {
     expect(input.UpdateExpression).toContain('accessedAt');
     expect(input.UpdateExpression).toContain('deletedAt');
     expect(input.ExpressionAttributeValues[':accessed']).toBe('accessed');
+    expect(input.ConditionExpression).toBe('#status = :pending');
+    expect(input.ExpressionAttributeValues[':pending']).toBe('pending');
   });
 
   it('does not call UpdateCommand when receiptId is absent (happy path)', async () => {
@@ -134,6 +136,17 @@ describe('GET /view/{id} — receipt updates', () => {
       Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE, receiptId: 'receipt-1' },
     });
     ddbMock.on(UpdateCommand).rejects(new Error('conditional check failed'));
+    const result = await handler({ pathParameters: { id: 'test-id' } });
+    expect(result.statusCode).toBe(200);
+  });
+
+  it('does not overwrite receipt when already accessed by a concurrent view (accessed branch ConditionalCheckFailedException)', async () => {
+    ddbMock.on(DeleteCommand).resolves({
+      Attributes: { documentId: 'test-id', itemType: 'META', fileKey: 'test-id', expiresAt: FUTURE, receiptId: 'receipt-1' },
+    });
+    const conditionalError = new Error('conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+    ddbMock.on(UpdateCommand).rejects(conditionalError);
     const result = await handler({ pathParameters: { id: 'test-id' } });
     expect(result.statusCode).toBe(200);
   });

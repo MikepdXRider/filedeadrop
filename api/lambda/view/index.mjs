@@ -24,6 +24,8 @@ async function markReceiptStatus(receiptId, updateExpression, values, condition 
       ExpressionAttributeValues: values,
     }))
   } catch (err) {
+    if (err.name === 'ConditionalCheckFailedException') return
+    // expected race — receipt already in a terminal (accessed/expired) state
     console.error('Failed to update receipt status:', err)
     // non-fatal — the file access/cleanup itself already succeeded
   }
@@ -89,7 +91,8 @@ export const handler = async (event) => {
       await markReceiptStatus(
         item.receiptId,
         'SET #status = :accessed, accessedAt = :now, deletedAt = :now',
-        { ':accessed': 'accessed', ':now': now }
+        { ':accessed': 'accessed', ':now': now, ':pending': 'pending' },
+        '#status = :pending'
       )
     }
 
