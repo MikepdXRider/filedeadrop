@@ -3,8 +3,8 @@ import { useReceipt } from '../hooks/useReceipt'
 import ReceiptCard from '../components/receipt/ReceiptCard'
 
 export default function Receipt() {
-  const { token } = useParams<{ token: string }>()
-  const { status, uploadedAt, accessedAt, deletedAt, fileExpiresAt, error } = useReceipt(token ?? '')
+  const { id } = useParams<{ id: string }>()
+  const { status, uploadedAt, accessedAt, deletedAt, fileExpiresAt, error } = useReceipt(id ?? '')
 
   return (
     <>

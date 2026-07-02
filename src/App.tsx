@@ -16,7 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/view/:id" element={<View />} />
-        <Route path="/receipt/:token" element={<Receipt />} />
+        <Route path="/receipt/:id" element={<Receipt />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
