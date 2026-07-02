@@ -92,10 +92,10 @@ describe('expiry handler — receipt updates', () => {
     await expect(handler({ fileId: 'test-file-id', receiptId: 'receipt-1' })).resolves.toBeUndefined();
   });
 
-  it('re-throws when the receipt UpdateCommand fails for a non-conditional reason', async () => {
+  it('resolves without throwing when receipt UpdateCommand fails for a non-conditional reason (non-fatal)', async () => {
     ddbMock.on(DeleteCommand).resolves({});
     s3Mock.on(DeleteObjectCommand).resolves({});
     ddbMock.on(UpdateCommand).rejects(new Error('DynamoDB error'));
-    await expect(handler({ fileId: 'test-file-id', receiptId: 'receipt-1' })).rejects.toThrow('DynamoDB error');
+    await expect(handler({ fileId: 'test-file-id', receiptId: 'receipt-1' })).resolves.toBeUndefined();
   });
 });

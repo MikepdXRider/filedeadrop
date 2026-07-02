@@ -36,10 +36,10 @@ export const handler = async (event) => {
         }));
       } catch (err) {
         if (err.name !== 'ConditionalCheckFailedException') {
-          console.error(`Failed to expire receipt ${receiptId}:`, err);
-          throw err;
+          console.error(`Failed to update receipt ${receiptId} after file expiry:`, err);
+          // non-fatal — file is deleted; pending-derive path handles the fallback
         }
-        // else: view already marked it 'accessed' — expected race, not an error
+        // ConditionalCheckFailedException: view already marked it 'accessed' — expected race, not an error
       }
     }
 
