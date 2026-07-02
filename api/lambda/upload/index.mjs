@@ -22,7 +22,7 @@ const MAX_FILE_SIZE = 250 * 1024 * 1024 + AES_GCM_OVERHEAD;
 // Keep in sync with TTL_OPTIONS in src/utils/constants.ts
 const VALID_TTLS = new Set([300, 3600, 21600, 86400]);
 
-const generateToken = () => Buffer.from(crypto.randomUUID().replace(/-/g, ''), 'hex').toString('base64url');
+const generateToken = () => Buffer.from(crypto.randomUUID().replaceAll('-', ''), 'hex').toString('base64url');
 
 export const handler = async (event) => {
   try {
