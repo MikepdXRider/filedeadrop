@@ -4,8 +4,8 @@ import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 const dynamo = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamo);
 const TABLE = process.env.TABLE_NAME;
-const ITEM_TYPE = 'META'
-const RECEIPT_ITEM_TYPE = 'RECEIPT'
+const ITEM_TYPE = 'META';
+const RECEIPT_ITEM_TYPE = 'RECEIPT';
 
 export const handler = async (event) => {
   try {
