@@ -159,3 +159,70 @@ describe('PUT /upload — error handling', () => {
     expect(JSON.parse(result.body)).toEqual({ error: 'Internal error' });
   });
 });
+
+describe('PUT /upload — receipt (opt-in)', () => {
+  it('does not create a receipt record when receiptRequested is false or omitted', async () => {
+    ddbMock.on(PutCommand).resolves({});
+    schedulerMock.on(CreateScheduleCommand).resolves({});
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400, receiptRequested: false }) });
+    const body = JSON.parse(result.body);
+    expect(body.receiptPath).toBeUndefined();
+    expect(ddbMock.commandCalls(PutCommand)).toHaveLength(1);
+    const input = schedulerMock.commandCalls(CreateScheduleCommand)[0].args[0].input;
+    expect(JSON.parse(input.Target.Input)).toEqual({ fileId: input.Name });
+  });
+
+  it('creates a receipt record and returns receiptPath when receiptRequested is true', async () => {
+    ddbMock.on(PutCommand).resolves({});
+    schedulerMock.on(CreateScheduleCommand).resolves({});
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400, receiptRequested: true }) });
+    expect(result.statusCode).toBe(200);
+    const body = JSON.parse(result.body);
+    expect(body.receiptPath).toMatch(/^\/receipt\//);
+
+    const calls = ddbMock.commandCalls(PutCommand);
+    expect(calls).toHaveLength(2);
+
+    // Receipt is written first (see comment in index.mjs) so a subsequent META
+    // write failure leaves a self-healing orphan rather than a dangling reference.
+    const receiptItem = calls[0].args[0].input.Item;
+    const metaItem = calls[1].args[0].input.Item;
+
+    expect(receiptItem.itemType).toBe('RECEIPT');
+    expect(metaItem.itemType).toBe('META');
+    expect(metaItem.receiptId).toBe(receiptItem.documentId);
+    expect(receiptItem).toMatchObject({
+      fileId: metaItem.documentId,
+      status: 'pending',
+      accessedAt: null,
+      deletedAt: null,
+    });
+    expect(typeof receiptItem.uploadedAt).toBe('number');
+    expect(typeof receiptItem.fileExpiresAt).toBe('number');
+    expect(typeof receiptItem.expiresAt).toBe('number');
+  });
+
+  it('includes receiptId in the scheduler Input when opted in', async () => {
+    ddbMock.on(PutCommand).resolves({});
+    schedulerMock.on(CreateScheduleCommand).resolves({});
+    await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400, receiptRequested: true }) });
+    const input = schedulerMock.commandCalls(CreateScheduleCommand)[0].args[0].input;
+    const parsedInput = JSON.parse(input.Target.Input);
+    expect(parsedInput.fileId).toBe(input.Name);
+    expect(typeof parsedInput.receiptId).toBe('string');
+  });
+
+  it('returns 500 when the receipt PutCommand rejects', async () => {
+    ddbMock.on(PutCommand).rejects(new Error('DynamoDB error'));
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400, receiptRequested: true }) });
+    expect(result.statusCode).toBe(500);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Internal error' });
+  });
+
+  it('returns 500 when the META PutCommand rejects after the receipt was already written', async () => {
+    ddbMock.on(PutCommand).resolvesOnce({}).rejects(new Error('DynamoDB error'));
+    const result = await handler({ body: JSON.stringify({ fileSize: 1024, ttl: 86400, receiptRequested: true }) });
+    expect(result.statusCode).toBe(500);
+    expect(JSON.parse(result.body)).toEqual({ error: 'Internal error' });
+  });
+});

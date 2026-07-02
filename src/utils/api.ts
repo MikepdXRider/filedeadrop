@@ -1,4 +1,4 @@
-import type { UploadRequest, UploadResponse } from '../types'
+import type { UploadRequest, UploadResponse, ReceiptResponse } from '../types'
 import { REGION_API_URLS, HOSTNAME_API_URLS } from './constants'
 
 const DEV_API_KEY = import.meta.env.VITE_DEV_API_KEY
@@ -15,11 +15,11 @@ export function getApiUrlForView(): string {
   return HOSTNAME_API_URLS[window.location.hostname] ?? import.meta.env.VITE_API_URL
 }
 
-export async function requestUpload(fileSize: number, ttl: number, apiUrl: string): Promise<UploadResponse> {
+export async function requestUpload(fileSize: number, ttl: number, apiUrl: string, receiptRequested: boolean): Promise<UploadResponse> {
   const res = await fetch(`${apiUrl}/upload`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...devHeaders() },
-    body: JSON.stringify({ fileSize, ttl } satisfies UploadRequest),
+    body: JSON.stringify({ fileSize, ttl, receiptRequested } satisfies UploadRequest),
   })
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({})) as { error?: string }
@@ -48,6 +48,18 @@ export async function requestView(id: string, apiUrl: string, signal?: AbortSign
   })
   if (!res.ok) throw new Error(`View request failed: ${res.status}`)
   return res.json() as Promise<{ presignedUrl: string }>
+}
+
+export async function requestReceipt(token: string, apiUrl: string, signal?: AbortSignal): Promise<ReceiptResponse> {
+  const res = await fetch(`${apiUrl}/receipt/${token}`, {
+    headers: { 'Content-Type': 'application/json', ...devHeaders() },
+    signal,
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string }
+    throw new Error(body.error ?? `Receipt request failed: ${res.status}`)
+  }
+  return res.json() as Promise<ReceiptResponse>
 }
 
 // Content-Type header intentionally omitted — presigned S3 URL, same as uploadToS3

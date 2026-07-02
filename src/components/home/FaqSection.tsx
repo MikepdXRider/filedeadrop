@@ -16,6 +16,10 @@ const faqs = [
     a: 'The file and link are permanently deleted after 24 hours regardless of whether it was accessed.',
   },
   {
+    q: 'What is the receipt link?',
+    a: "An optional link you can request at upload to check whether your file was received. It shows pending, accessed (with a timestamp), or expired — using a separate, unguessable token that's never shared with your recipient. It stores no filename or file contents, and is automatically deleted 48 hours after upload.",
+  },
+  {
     q: 'What if you receive a legal request?',
     a: 'We can produce an encrypted, unreadable file and basic transfer metadata. We have no access to file contents, filenames, or identities.',
   },
