@@ -4,6 +4,8 @@ import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 const dynamo = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamo);
 const TABLE = process.env.TABLE_NAME;
+const ITEM_TYPE = 'META'
+const RECEIPT_ITEM_TYPE = 'RECEIPT'
 
 export const handler = async (event) => {
   try {
@@ -18,7 +20,7 @@ export const handler = async (event) => {
 
     const { Item: receipt } = await docClient.send(new GetCommand({
       TableName: TABLE,
-      Key: { documentId: token, itemType: 'RECEIPT' },
+      Key: { documentId: token, itemType: RECEIPT_ITEM_TYPE },
     }))
 
     const now = Math.floor(Date.now() / 1000)
@@ -49,7 +51,7 @@ export const handler = async (event) => {
     // ("presumed, not confirmed") rather than guessing a timestamp.
     const { Item: file } = await docClient.send(new GetCommand({
       TableName: TABLE,
-      Key: { documentId: receipt.fileId, itemType: 'META' },
+      Key: { documentId: receipt.fileId, itemType: ITEM_TYPE },
     }))
 
     return {
