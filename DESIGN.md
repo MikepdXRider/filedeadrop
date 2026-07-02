@@ -180,7 +180,11 @@ font: 1.3rem/500 Inter
 
 ### Focus
 
-Form elements (select, input): `outline: 1.5px solid var(--color-text); outline-offset: 2px`.
+Form elements (select, input, checkbox): `outline: 1.5px solid var(--color-text); outline-offset: 2px`. Use `:focus-visible` so the ring appears for keyboard users but not mouse clicks.
+
+### Accessibility
+
+Every interactive element must be keyboard-reachable and have an appropriate focus style. All interactive elements that lack a visible text label must have an `aria-label`. Use semantic HTML (`<button>`, `<label>`, `<input>`) before reaching for ARIA roles.
 
 ### Select / Dropdown
 

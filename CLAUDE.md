@@ -174,6 +174,7 @@ When saving memory, surface the change to the user. Prefer CLAUDE.md or checked-
 - Color palette defined as CSS custom properties in `src/index.css`; never hardcode a color value
 - `html { font-size: 62.5% }` — 1rem = 10px; all spacing (margin, padding, gap) in rem; borders, border-radius, box-shadow, min-height, max-width, and media query breakpoints stay in px
 - Upload flow is two-step: file selection moves to 'ready' state, explicit button press triggers encrypt/upload
+- Accessibility: every interactive element must be keyboard-reachable with a `:focus-visible` outline (`1.5px solid var(--color-text); outline-offset: 2px`); elements without visible text labels must have `aria-label`; prefer semantic HTML over ARIA roles
 
 ## Testing
 - `npm run test:lambda` — Vitest unit tests for all Lambda handlers
