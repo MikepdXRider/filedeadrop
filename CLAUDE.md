@@ -67,7 +67,7 @@ All requests include header: Content-Type: application/json
 
 Endpoints:
 PUT /upload
-  body: { fileSize: number, ttl: number, receiptRequested?: boolean }  # fileSize is encryptedBytes.byteLength; ttl is seconds — must be one of [300, 3600, 21600, 86400]; receiptRequested opts into a receipt record, defaults to false/omitted
+  body: { fileSize: number, ttl: number, receiptRequested: boolean }  # fileSize is encryptedBytes.byteLength; ttl is seconds — must be one of [300, 3600, 21600, 86400]; receiptRequested opts into a receipt record, always sent by the frontend
   returns: { presignedUrl: string, sharePath: string, receiptPath?: string }  # receiptPath present only when receiptRequested was true
 
 GET /view/{id}
