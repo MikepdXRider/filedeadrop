@@ -8,7 +8,8 @@ function devHeaders(): Record<string, string> {
 }
 
 export function getApiUrlForUpload(region: string): string {
-  return import.meta.env.VITE_API_URL ?? REGION_API_URLS[region]
+  if (window.location.hostname === 'localhost') return import.meta.env.VITE_API_URL ?? REGION_API_URLS[region]
+  return REGION_API_URLS[region] ?? import.meta.env.VITE_API_URL
 }
 
 export function getApiUrlForView(): string {
