@@ -15,24 +15,39 @@ export const TTL_OPTIONS = [
   { label: '24 hours',  seconds: 86400 },
 ] as const
 
-export const SUPPORTED_REGIONS = [
-  { value: 'us-west-2',    label: 'United States' },
-  { value: 'eu-central-1', label: 'European Union' },
-] as const
-
-export const REGION_API_URLS: Record<string, string> = {
-  'us-west-2':    'https://us.api.filedeadrop.com',
-  'eu-central-1': 'https://eu.api.filedeadrop.com',
+interface RegionConfig {
+  region: string
+  label: string
+  apiUrl: string
+  frontendOrigin: string
+  hostnames: string[]
 }
 
-export const HOSTNAME_API_URLS: Record<string, string> = {
-  'us.filedeadrop.com':  'https://us.api.filedeadrop.com',
-  'filedeadrop.com':     'https://us.api.filedeadrop.com',
-  'www.filedeadrop.com': 'https://us.api.filedeadrop.com',
-  'eu.filedeadrop.com':  'https://eu.api.filedeadrop.com',
-}
+const REGIONS: RegionConfig[] = [
+  {
+    region: 'us-west-2',
+    label: 'United States',
+    apiUrl: 'https://us.api.filedeadrop.com',
+    frontendOrigin: 'https://us.filedeadrop.com',
+    hostnames: ['filedeadrop.com', 'www.filedeadrop.com', 'us.filedeadrop.com'],
+  },
+  {
+    region: 'eu-central-1',
+    label: 'European Union',
+    apiUrl: 'https://eu.api.filedeadrop.com',
+    frontendOrigin: 'https://eu.filedeadrop.com',
+    hostnames: ['eu.filedeadrop.com'],
+  },
+]
 
-export const REGION_FRONTEND_ORIGINS: Record<string, string> = {
-  'us-west-2':    'https://us.filedeadrop.com',
-  'eu-central-1': 'https://eu.filedeadrop.com',
-}
+// Derived — do not edit by hand; add/edit entries in REGIONS above.
+export const SUPPORTED_REGIONS = REGIONS.map(r => ({ value: r.region, label: r.label }))
+
+export const REGION_API_URLS: Record<string, string> =
+  Object.fromEntries(REGIONS.map(r => [r.region, r.apiUrl]))
+
+export const REGION_FRONTEND_ORIGINS: Record<string, string> =
+  Object.fromEntries(REGIONS.map(r => [r.region, r.frontendOrigin]))
+
+export const HOSTNAME_API_URLS: Record<string, string> =
+  Object.fromEntries(REGIONS.flatMap(r => r.hostnames.map(h => [h, r.apiUrl])))
