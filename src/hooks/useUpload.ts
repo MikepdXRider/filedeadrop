@@ -39,9 +39,9 @@ export function useUpload() {
     setSelectedTtl(ttl)
   }
 
-  const handleWantsReceiptChange = (wantsReceipt: boolean) => {
+  const handleWantsReceiptChange = (checked: boolean) => {
     if (state.status === 'encrypting' || state.status === 'uploading' || state.status === 'done') return
-    setWantsReceipt(wantsReceipt)
+    setWantsReceipt(checked)
   }
 
   const handleUpload = async () => {
