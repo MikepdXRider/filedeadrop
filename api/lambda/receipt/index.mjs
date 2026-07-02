@@ -55,7 +55,7 @@ export const handler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        status: file ? 'pending' : 'expired',
+        status: (file && file.expiresAt >= now) ? 'pending' : 'expired',
         uploadedAt: receipt.uploadedAt,
         accessedAt: null,
         deletedAt: null,

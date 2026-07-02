@@ -102,6 +102,22 @@ describe('GET /receipt/{id} — pending (derived)', () => {
     });
   });
 
+  it('returns expired when status is pending and META item exists but has passed its TTL (DynamoDB lazy-TTL lag)', async () => {
+    ddbMock.on(GetCommand)
+      .resolvesOnce({
+        Item: {
+          documentId: 'receipt-1', itemType: 'RECEIPT', fileId: 'file-1',
+          status: 'pending', uploadedAt: NOW - 90000, accessedAt: null, deletedAt: null,
+          fileExpiresAt: NOW - 3600, expiresAt: FUTURE,
+        },
+      })
+      .resolvesOnce({ Item: { documentId: 'file-1', itemType: 'META', fileKey: 'file-1', expiresAt: NOW - 3600 } });
+
+    const result = await handler({ pathParameters: { id: 'receipt-1' } });
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body)).toMatchObject({ status: 'expired', deletedAt: null });
+  });
+
   it('returns expired with deletedAt: null when status is still pending but the META item is gone (presumed, not confirmed)', async () => {
     ddbMock.on(GetCommand)
       .resolvesOnce({
