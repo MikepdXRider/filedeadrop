@@ -20,15 +20,14 @@ export function useView(id: string) {
     const keyB64 = separatorIndex !== -1 ? hash.slice(0, separatorIndex) : hash
     const encryptedFilenameB64 = separatorIndex !== -1 ? hash.slice(separatorIndex + 1) : ''
 
-    if (!keyB64) {
-      setState({ status: 'error', fileUrl: null, fileName: 'filedeadrop', fileSize: null, error: 'Invalid link — encryption key missing' })
-      return
-    }
-
     let blobUrl: string | null = null
     const controller = new AbortController()
 
     const run = async () => {
+      if (!keyB64) {
+        setState({ status: 'error', fileUrl: null, fileName: 'filedeadrop', fileSize: null, error: 'Invalid link — encryption key missing' })
+        return
+      }
       const apiUrl = getApiUrlForView()
       const { presignedUrl } = await requestView(id, apiUrl, controller.signal)
       const encryptedBytes = await requestDownload(presignedUrl, controller.signal)
