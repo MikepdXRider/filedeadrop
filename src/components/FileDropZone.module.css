@@ -26,6 +26,26 @@
   margin-bottom: 2.0rem;
 }
 
+/* sr-only: keeps the input in the tab order (unlike display:none) while visually hidden.
+   margin is left in px intentionally — sr-only is a fixed 1px-box idiom; do not convert to rem. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* DESIGN.md §Focus mandates :focus-visible (ring for keyboard, not mouse). The focusable element
+   is the hidden input inside the label, so scope the ring to the label via :has(). */
+.dropzone:has(:focus-visible) {
+  outline: 1.5px solid var(--color-text);
+  outline-offset: 2px;
+}
+
 .limit {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
