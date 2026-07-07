@@ -10,29 +10,32 @@ export default function Home() {
   const { status, file, shareUrl, receiptUrl, error, selectedRegion, selectedTtl, wantsReceipt, handleFileSelect, handleRegionSelect, handleTtlSelect, handleWantsReceiptChange, handleUpload, reset } = useUpload()
 
   return (
-    <main>
-      <DefinitionBlock />
-      <hr />
-      <UploadCard
-        status={status}
-        file={file}
-        shareUrl={shareUrl}
-        receiptUrl={receiptUrl}
-        error={error}
-        selectedRegion={selectedRegion}
-        selectedTtl={selectedTtl}
-        wantsReceipt={wantsReceipt}
-        onFileSelect={handleFileSelect}
-        onRegionChange={handleRegionSelect}
-        onTtlChange={handleTtlSelect}
-        onWantsReceiptChange={handleWantsReceiptChange}
-        onUpload={handleUpload}
-        onReset={reset}
-      />
-      <ProtocolSteps />
-      <CapabilitiesSection />
-      <SecurityCard />
-      <FaqSection />
-    </main>
+    <>
+      <meta name="robots" content="index, follow" />
+      <main>
+        <DefinitionBlock />
+        <hr />
+        <UploadCard
+          status={status}
+          file={file}
+          shareUrl={shareUrl}
+          receiptUrl={receiptUrl}
+          error={error}
+          selectedRegion={selectedRegion}
+          selectedTtl={selectedTtl}
+          wantsReceipt={wantsReceipt}
+          onFileSelect={handleFileSelect}
+          onRegionChange={handleRegionSelect}
+          onTtlChange={handleTtlSelect}
+          onWantsReceiptChange={handleWantsReceiptChange}
+          onUpload={handleUpload}
+          onReset={reset}
+        />
+        <ProtocolSteps />
+        <CapabilitiesSection />
+        <SecurityCard />
+        <FaqSection />
+      </main>
+    </>
   )
 }
