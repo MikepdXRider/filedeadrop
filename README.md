@@ -140,13 +140,12 @@ Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply`
 | `AWS_ROLE_ARN` | IAM role assumed via OIDC |
 | `S3_BUCKET_NAME` | Destination S3 bucket |
 | `CLOUDFRONT_DISTRIBUTION_ID` | Distribution invalidated after each deploy |
-| `VITE_API_URL` | Local dev fallback only — production API routing is hostname-based at runtime |
 
 **GitHub secrets — `dev` environment** (Terraform workflow, dev branch)
 
 | Secret | Description |
 |---|---|
-| `AWS_ROLE_ARN` | IAM role assumed via OIDC |
+| `TF_AWS_ROLE_ARN` | IAM role assumed via OIDC |
 | `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID for `filedeadrop.com` |
 | `TF_VAR_DEV_API_KEY` | Dev API key — must match `VITE_DEV_API_KEY` in `.env.local` |
 
@@ -154,5 +153,5 @@ Triggers on changes to `terraform/**` or `api/lambda/**`. Runs `terraform apply`
 
 | Secret | Description |
 |---|---|
-| `AWS_ROLE_ARN` | IAM role assumed via OIDC |
+| `TF_AWS_ROLE_ARN` | IAM role assumed via OIDC |
 | `TF_VAR_ROUTE53_ZONE_ID` | Hosted zone ID for `filedeadrop.com` |
