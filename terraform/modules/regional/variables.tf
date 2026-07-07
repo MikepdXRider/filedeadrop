@@ -1,16 +1,11 @@
 # Module input variables — all configuration that varies between environments
-# or regions is declared here. No defaults are provided for env, region,
+# or regions is declared here. No defaults are provided for env,
 # lambda_source_dir, api_domain, frontend_origins, or route53_zone_id so that
 # callers must be explicit. Rate limits default to production values (100/200)
 # and are intentionally lowered for dev in main.tf.
 
 variable "env" {
   description = "Environment prefix applied to all resource names (e.g. dev, prod)"
-  type        = string
-}
-
-variable "region" {
-  description = "AWS region for this regional slice"
   type        = string
 }
 

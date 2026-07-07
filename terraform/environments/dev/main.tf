@@ -26,11 +26,16 @@ provider "aws" {
   region = "us-west-2"
 }
 
+# Shared-account dependency: dev and prod run in the SAME AWS account (us-west-2).
+# The regional module's API Gateway stage enables access logging, which requires an
+# account-wide CloudWatch Logs role (aws_api_gateway_account) — a single per-account/region
+# setting owned by the prod config (see environments/prod/main.tf). So dev's access logging
+# relies on prod having been applied. Fine for the current single-account setup; if dev and prod
+# are ever split into separate accounts, dev must own its own aws_api_gateway_account + role.
 module "dev" {
   source = "../../modules/regional"
 
   env               = "dev"
-  region            = "us-west-2"
   lambda_source_dir = "${path.module}/../../../api/lambda"
   api_domain        = "dev.api.filedeadrop.com"
   frontend_origins  = var.frontend_origins
