@@ -13,7 +13,7 @@ dist-ssr
 *.local
 .env
 
-.claude
+.claude/settings.local.json
 
 # Terraform
 .terraform/
