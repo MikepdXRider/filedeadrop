@@ -19,5 +19,5 @@ export interface ReceiptResponse {
 }
 
 export type UploadStatus = 'idle' | 'ready' | 'encrypting' | 'uploading' | 'done' | 'error'
-export type ViewStatus = 'loading' | 'decrypting' | 'done' | 'downloaded' | 'error'
+export type ViewStatus = 'loading' | 'decrypting' | 'done' | 'error'
 export type ReceiptStatus = 'loading' | 'pending' | 'accessed' | 'expired' | 'error'
