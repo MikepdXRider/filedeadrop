@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { UploadStatus as UploadStatusType } from '../../types'
 import { SUPPORTED_REGIONS, TTL_OPTIONS } from '../../utils/constants'
 import FileDropZone from '../FileDropZone'
@@ -22,16 +23,29 @@ interface UploadCardProps {
 }
 
 export default function UploadCard({ status, file, shareUrl, receiptUrl, error, selectedRegion, selectedTtl, wantsReceipt, onFileSelect, onUpload, onReset, onRegionChange, onTtlChange, onWantsReceiptChange }: UploadCardProps) {
+  const [copied, setCopied] = useState(false)
+
   const handleCopy = () => {
-    if (shareUrl) navigator.clipboard.writeText(shareUrl)
+    if (!shareUrl) return
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {})
   }
 
   return (
     <div className={styles.wrap}>
       <div className={styles.inner}>
 
-        {(status === 'idle' || status === 'ready') && (
-          <FileDropZone onFileSelect={onFileSelect} disabled={false} selectedFile={file} />
+        {(status === 'idle' || status === 'ready' || status === 'error') && (
+          <>
+            {status === 'error' && (
+              <div className={styles.panel}>
+                <span className={styles.panelSecondary}>{error ?? 'Upload failed'}</span>
+              </div>
+            )}
+            <FileDropZone onFileSelect={onFileSelect} disabled={false} selectedFile={file} />
+          </>
         )}
 
         {(status === 'encrypting' || status === 'uploading') && (
@@ -43,24 +57,15 @@ export default function UploadCard({ status, file, shareUrl, receiptUrl, error, 
           </div>
         )}
 
-        {status === 'error' && (
-          <div className={styles.panel}>
-            <span className={styles.panelPrimary}>{file?.name}</span>
-            <span className={styles.panelSecondary}>{error ?? 'Upload failed'}</span>
-          </div>
-        )}
-
         {status === 'done' && shareUrl && (
-          <div
+          <button
+            type="button"
             className={`${styles.panel} ${styles.panelClickable}`}
             onClick={handleCopy}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && handleCopy()}
           >
             <span className={styles.panelUrl}>{shareUrl}</span>
-            <span className={styles.panelSecondary}>click to copy link</span>
-          </div>
+            <span className={styles.panelSecondary}>{copied ? 'Copied!' : 'click to copy link'}</span>
+          </button>
         )}
 
         {status === 'done' && receiptUrl && (
@@ -133,7 +138,7 @@ export default function UploadCard({ status, file, shareUrl, receiptUrl, error, 
           {(status === 'encrypting' || status === 'uploading') && (
             <button className={styles.button} disabled>Generate link →</button>
           )}
-          {status === 'error' && (
+          {status === 'error' && file && (
             <button className={styles.button} onClick={onUpload}>Try again →</button>
           )}
           {status === 'done' && (
