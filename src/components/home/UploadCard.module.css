@@ -126,12 +126,8 @@
 .panelClickable {
   appearance: none;
   -webkit-appearance: none;
-  background: none;
-  border: 0;
-  margin: 0;
   font: inherit;
   color: inherit;
-  text-align: left;
   width: 100%;
   cursor: pointer;
 }
