@@ -26,7 +26,7 @@ export default function FileDropZone({ onFileSelect, disabled, selectedFile }: F
 
   return (
     <label className={styles.dropzone} onDragOver={handleDragOver} onDrop={handleDrop}>
-      <input type="file" disabled={disabled} onChange={handleChange} style={{ display: 'none' }} />
+      <input type="file" disabled={disabled} onChange={handleChange} className={styles.visuallyHidden} aria-label="Choose a file to upload" />
       {selectedFile ? (
         <>
           <span className={styles.primary}>{selectedFile.name}</span>

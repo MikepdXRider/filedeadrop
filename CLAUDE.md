@@ -45,7 +45,7 @@ terraform/
     regional/          # parameterized per-region module (S3, DynamoDB, Lambda, API GW, ACM, Route 53, EventBridge Scheduler)
   environments/
     dev/               # dev environment — main.tf, variables.tf, outputs.tf, terraform.tfvars, secrets.tfvars (gitignored)
-    prod/              # production + EU data residency — main.tf, variables.tf (module blocks added when ready)
+    prod/              # production + EU data residency — main.tf, variables.tf (us and eu module blocks both wired)
 .claude/
   skills/
     create-pr/   # SKILL.md — /create-pr skill for opening pull requests; includes pre-PR doc check
@@ -110,10 +110,9 @@ Frontend workflow secrets (repository-level):
 - `AWS_ROLE_ARN` — IAM role assumed via OIDC
 - `S3_BUCKET_NAME` — destination S3 bucket
 - `CLOUDFRONT_DISTRIBUTION_ID` — distribution invalidated after deploy
-- `VITE_API_URL` — API base URL injected at build time
 
 Terraform workflow secrets (per GitHub Environment):
-- `AWS_ROLE_ARN` — IAM role assumed via OIDC
+- `TF_AWS_ROLE_ARN` — IAM role assumed via OIDC
 - `TF_VAR_ROUTE53_ZONE_ID` — hosted zone ID passed to Terraform
 - `TF_VAR_DEV_API_KEY` — dev API key (`dev` environment only)
 

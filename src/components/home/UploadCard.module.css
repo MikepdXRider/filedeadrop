@@ -124,7 +124,17 @@
 }
 
 .panelClickable {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  width: 100%;
   cursor: pointer;
+}
+
+.panelClickable:focus-visible {
+  outline: 1.5px solid var(--color-text);
+  outline-offset: 2px;
 }
 
 @keyframes fadeIn {

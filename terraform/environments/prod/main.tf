@@ -36,7 +36,6 @@ module "prod" {
   source = "../../modules/regional"
 
   env               = "us"
-  region            = "us-west-2"
   lambda_source_dir = "${path.module}/../../../api/lambda"
   api_domain        = "us.api.filedeadrop.com"
   frontend_origins  = var.frontend_origins
@@ -53,7 +52,6 @@ module "eu" {
   providers = { aws = aws.eu_central_1 }
 
   env               = "eu"
-  region            = "eu-central-1"
   lambda_source_dir = "${path.module}/../../../api/lambda"
   api_domain        = "eu.api.filedeadrop.com"
   frontend_origins  = var.frontend_origins

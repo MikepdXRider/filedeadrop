@@ -21,7 +21,7 @@ export function useUpload() {
   const [wantsReceipt, setWantsReceipt] = useState(false)
 
   const handleFileSelect = (file: File) => {
-    if (state.status !== 'idle' && state.status !== 'ready') return
+    if (state.status !== 'idle' && state.status !== 'ready' && state.status !== 'error') return
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setState({ status: 'error', file: null, shareUrl: null, receiptUrl: null, error: `File exceeds the ${MAX_FILE_SIZE_MB}MB limit` })
       return

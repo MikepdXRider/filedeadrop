@@ -57,6 +57,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "files" {
   }
 }
 
+# PITR and deletion_protection intentionally omitted — records are ephemeral (24h/48h TTL).
 resource "aws_dynamodb_table" "metadata" {
   name         = "${var.env}-filedeadrop-metadata"
   billing_mode = "PAY_PER_REQUEST"
